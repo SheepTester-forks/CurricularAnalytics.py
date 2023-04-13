@@ -23,7 +23,8 @@ class AbstractCourse(ABC):
     - `CourseCollection` : a set of courses, any of which can serve as the required course in a curriculum or degree plan.
     """
 
-    pass
+    id: int
+    "Unique course id"
 
 
 ##############################################################
@@ -51,8 +52,6 @@ class Course(AbstractCourse):
     ```
     """
 
-    id: int
-    "Unique course id"
     vertex_id: Dict[int, int]
     "The vertex id of the course w/in a curriculum graph, stored as (curriculum_id, vertex_id)"
     name: str
