@@ -2,6 +2,7 @@ from typing import Dict, List, Literal, Optional, Union
 
 from src.DataTypes.Course import Course
 from src.DataTypes.DataTypes import co, pre, strict_co
+from src.DataTypes.LearningOutcome import LearningOutcome
 
 
 def readfile(file_path: str) -> List[str]:
@@ -28,7 +29,7 @@ def remove_empty_lines(file_path: str) -> Union[str, Literal[False]]:
     return temp_file
 
 
-def course_line(course: Course, term_id: Union[str, int], metrics=False) -> str:
+def course_line(course: Course, term_id: Union[str, int], metrics: bool = False) -> str:
     course_ID = course.id
     course_name = course.name
     course_prefix = course.prefix
