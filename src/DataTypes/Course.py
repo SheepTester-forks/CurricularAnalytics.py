@@ -2,6 +2,7 @@ from abc import ABC
 from typing import Any, Dict, List
 
 from src.DataTypes.DataTypes import Requisite
+from src.DataTypes.LearningOutcome import LearningOutcome
 
 
 # Course-related data types:
@@ -25,6 +26,26 @@ class AbstractCourse(ABC):
 
     id: int
     "Unique course id"
+    vertex_id: Dict[int, int]
+    "The vertex id of the course w/in a curriculum graph, stored as (curriculum_id, vertex_id)"
+    name: str
+    "Name of the course, e.g., Introduction to Psychology"
+    credit_hours: float
+    'Number of credit hours associated with course or a "typcial" course in the collection. For the purpose of analytics, variable credits are not supported'
+    institution: str
+    "Institution offering the course"
+    college: str
+    "College or school (within the institution) offering the course"
+    department: str
+    "Department (within the school or college) offering the course"
+    canonical_name: str
+    "Standard name used to denote the course in the discipline, e.g., Psychology I, or course collection, e.g., math genearl education"
+    requisites: Dict[int, Requisite]
+    "List of requisites, in (requisite_course id, requisite_type) format"
+    metrics: Dict[str, Any]
+    "Course-related metrics"
+    metadata: Dict[str, Any]
+    "Course-related metadata"
 
 
 ##############################################################
@@ -52,34 +73,14 @@ class Course(AbstractCourse):
     ```
     """
 
-    vertex_id: Dict[int, int]
-    "The vertex id of the course w/in a curriculum graph, stored as (curriculum_id, vertex_id)"
-    name: str
-    "Name of the course, e.g., Introduction to Psychology"
-    credit_hours: float
-    "Number of credit hours associated with course. For the purpose of analytics, variable credits are not supported"
     prefix: str
     "Typcially a department prefix, e.g., PSY"
     num: str
     "Course number, e.g., 101, or 302L"
-    institution: str
-    "Institution offering the course"
-    college: str
-    "College or school (within the institution) offering the course"
-    department: str
-    "Department (within the school or college) offering the course"
     cross_listed: List["Course"]
     'courses that are cross-listed with the course (same as "also offered as")'
-    canonical_name: str
-    "Standard name used to denote the course in the discipline, e.g., Psychology I"
-    requisites: Dict[int, Requisite]
-    "List of requisites, in (requisite_course id, requisite_type) format"
     learning_outcomes: List[LearningOutcome]
     "A list of learning outcomes associated with the course"
-    metrics: Dict[str, Any]
-    "Course-related metrics"
-    metadata: Dict[str, Any]
-    "Course-related metadata"
 
     passrate: float
     "Percentage of students that pass the course"
@@ -95,7 +96,7 @@ class Course(AbstractCourse):
         institution: str = "",
         college: str = "",
         department: str = "",
-        cross_listed: List[Course] = [],
+        cross_listed: List["Course"] = [],
         canonical_name: str = "",
         id: int = 0,
         passrate: float = 0.5,
@@ -122,6 +123,40 @@ class Course(AbstractCourse):
         self.vertex_id = {}
 
         self.passrate = passrate
+
+
+class CourseCollection(AbstractCourse):
+    courses: List[Course]
+    "Courses associated with the collection                                   "
+
+    # Constructor
+    def __init__(
+        self,
+        name: str,
+        credit_hours: float,
+        courses: List[Course],
+        institution: str = "",
+        college: str = "",
+        department: str = "",
+        canonical_name: str = "",
+        id: int = 0,
+    ) -> None:
+        self.name = name
+        self.credit_hours = credit_hours
+        self.courses = courses
+        self.institution = institution
+        if id == 0:
+            self.id = hash(self.name + self.institution + str(len(courses)))
+        else:
+            self.id = id
+        self.college = college
+        self.department = department
+        self.canonical_name = canonical_name
+        self.requisites = {}
+        # self.requisite_formula
+        self.metrics = {}
+        self.metadata = {}
+        self.vertex_id = {}  # curriculum id -> vertex id
 
 
 def course_id(prefix: str, num: str, name: str, institution: str) -> int:

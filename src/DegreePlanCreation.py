@@ -47,9 +47,9 @@ def bin_filling(
                 term_credits = c.credit_hours
             # if c serves as a strict-corequisite for other courses, include them in current term too
             for course in UC:
-                for req in course.requisites:
-                    if req[1] == c.id:
-                        if req[2] == strict_co:
+                for req in course.requisites.items():
+                    if req[0] == c.id:
+                        if req[1] == strict_co:
                             UC.remove(course)
                             term_courses.append(course)
                             term_credits = term_credits + course.credit_hours

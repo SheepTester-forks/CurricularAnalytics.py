@@ -1,10 +1,12 @@
 ##############################################################
 # Curriculum data type
 # The required curriculum associated with a degree program
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
+from src.CurricularAnalytics import isvalid_curriculum
 
-from src.DataTypes.Course import AbstractCourse
+from src.DataTypes.Course import AbstractCourse, Course, add_requisite
 from src.DataTypes.DataTypes import System, belong_to, c_to_c, lo_to_c, lo_to_lo, pre, semester
+from src.DataTypes.LearningOutcome import LearningOutcome
 
 
 class Curriculum:
@@ -42,7 +44,7 @@ class Curriculum:
     "Type of degree_type"
     system_type:System
     "Semester or quarter system"
-    CIP:str
+    cip:str
     "CIP code associated with the curriculum"
     courses:List[AbstractCourse]
     "Array of required courses in curriculum"
@@ -75,10 +77,10 @@ class Curriculum:
         self.system_type = system_type
         self.institution = institution
         if id == 0:
-            self.id = hash(self.name * self.institution * string(self.degree_type))
+            self.id = hash(self.name + self.institution + str(self.degree_type))
         else:
             self.id = id
-        self.CIP = CIP
+        self.cip = CIP
         if sortby_ID:
             self.courses = sorted(courses, key = lambda c: c.id)
         else:
@@ -129,7 +131,7 @@ def map_lo_vertex_ids(curriculum:Curriculum)-> Dict[int, int]:
         mapped_ids[lo.id] = lo.vertex_id[curriculum.id]
     return mapped_ids
 
-def course(curric:Curriculum, prefix:str, num:str, name:str, institution:str) -> None:
+def course(curric:Curriculum, prefix:str, num:str, name:str, institution:str) -> Course:
     "Compute the hash value used to create the id for a course, and return the course if it exists in the curriculum supplied as input"
     hash_val = hash(name + prefix + num + institution)
     if hash_val in (c.id for c in curric.courses):
