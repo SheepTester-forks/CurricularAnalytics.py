@@ -1,4 +1,7 @@
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, Hashable, Iterable, List, Literal, Optional, Tuple, Union, cast
+
+import pandas as pd
+from pandera.typing import DataFrame
 
 from src.DataTypes.Course import Course
 from src.DataTypes.DataTypes import co, pre, strict_co
@@ -150,8 +153,8 @@ def csv_line_reader(line: str, delimeter: str = ",") -> List[str]:
     return result
 
 
-def find_cell(row: Dict[str, str], header: str) -> str:
-    if str(header) not in row:  # I assume this means if header is not in names
+def find_cell(row: pd.Series[str], header: str) -> str:
+    if header not in row:  # I assume this means if header is not in names
         raise Exception(f"{header} column is missing")
     # elif row[header] is None:
     #     return ""
@@ -161,13 +164,14 @@ def find_cell(row: Dict[str, str], header: str) -> str:
 
 # TODO: DataFrame??
 def read_all_courses(
-    df_courses: List[Dict[str, str]], lo_Course: Dict[int, List[LearningOutcome]] = {}
+    df_courses: DataFrame[str], lo_Course: Dict[int, List[LearningOutcome]] = {}
 ) -> Union[Dict[int, Course], Literal[False]]:
     course_dict: Dict[int, Course] = {}
-    for row in df_courses:
+    row: pd.Series[str]
+    for _, row in df_courses.iterrows():  # type: ignore
         c_ID = row["Course ID"]
-        c_Name = row[(("Course Name"))]
-        c_Credit = row[("Credit Hours")]
+        c_Name = find_cell(row, "Course Name")
+        c_Credit = row["Credit Hours"]
         c_Credit = float(c_Credit) if isinstance(c_Credit, str) else c_Credit
         c_Prefix = str(row[(("Prefix"))])
         c_Number = find_cell(row, ("Number"))
