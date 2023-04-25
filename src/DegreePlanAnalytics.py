@@ -1,9 +1,11 @@
 # File DegreePlanAnalytics.jl
+from io import StringIO
 import math
 from src.DataTypes.Course import Course
 from src.DataTypes.Curriculum import course_from_id
 
 from src.DataTypes.DegreePlan import DegreePlan, find_term
+
 
 # Basic metrics for a degree plan, based soley on credits
 def basic_metrics(plan: DegreePlan):
@@ -43,12 +45,12 @@ def basic_metrics(plan: DegreePlan):
     julia> plan.metrics
     ```
     """
-    buf = IOBuffer()
-    write(buf, f"\nCurriculum: {plan.curriculum.name}\nDegree Plan: {plan.name}\n")
+    buf = StringIO()
+    buf.write(f"\nCurriculum: {plan.curriculum.name}\nDegree Plan: {plan.name}\n")
     plan.metrics["total credit hours"] = plan.credit_hours
-    write(buf, f"  total credit hours = {plan.credit_hours}\n")
+    buf.write(f"  total credit hours = {plan.credit_hours}\n")
     plan.metrics["number of terms"] = plan.num_terms
-    write(buf, f"  number of terms = {plan.num_terms}\n")
+    buf.write(f"  number of terms = {plan.num_terms}\n")
     max = 0
     min = plan.credit_hours
     max_term = 0

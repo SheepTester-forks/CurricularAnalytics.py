@@ -7,12 +7,15 @@ A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v
 directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 
+from io import StringIO
+import math
 from queue import Queue
 from typing import List, Optional, Tuple
 from src.DataTypes.Course import Course, add_requisite
 from src.DataTypes.Curriculum import Curriculum, course_from_id
-from src.DataTypes.DataTypes import co, quarter, strict_co
+from src.DataTypes.DataTypes import System, co, quarter, semester, strict_co
 from src.DataTypes.DegreePlan import DegreePlan
+from src.DataTypes.LearningOutcome import LearningOutcome
 
 # TODO:
 # export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, DegreePlan,
@@ -28,7 +31,7 @@ from src.DataTypes.DegreePlan import DegreePlan
 # Check if a curriculum graph has requisite cycles.
 
 
-def isvalid_curriculum(c: Curriculum, error_msg: IOBuffer = IOBuffer()) -> bool:
+def isvalid_curriculum(c: Curriculum, error_msg: StringIO = StringIO()) -> bool:
     """
         isvalid_curriculum(c:Curriculum, errors:IOBuffer)
 
@@ -59,34 +62,34 @@ def isvalid_curriculum(c: Curriculum, error_msg: IOBuffer = IOBuffer()) -> bool:
     # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
     # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
     for course in c.courses:
-        for (k, r) in course.requisites:
+        for k, r in course.requisites:
             if r == strict_co:
                 v_d = course_from_id(c, course.id).vertex_id[c.id]  # destination vertex
                 v_s = course_from_id(c, k).vertex_id[c.id]  # source vertex
                 g.add_edge(v_d, v_s)
     new_cycles = simplecycles(g)
     idx: List[int] = []
-    for (i, cyc) in enumerate(new_cycles):  # remove length-2 cycles
+    for i, cyc in enumerate(new_cycles):  # remove length-2 cycles
         if len(cyc) == 2:
             idx.append(i)
     del new_cycles[idx]
     cycles = union(new_cycles, cycles)  # remove redundant cycles
-    if length(cycles) != 0:
+    if len(cycles) != 0:
         validity = False
         if c.institution != "":
-            write(error_msg, f"\n{c.institution}: ")
-        write(error_msg, f" curriculum '{c.name}' has requisite cycles:\n")
+            error_msg.write(f"\n{c.institution}: ")
+        error_msg.write(f" curriculum '{c.name}' has requisite cycles:\n")
         for cyc in cycles:
-            write(error_msg, "(")
-            for (i, v) in enumerate(cyc):
+            error_msg.write("(")
+            for i, v in enumerate(cyc):
                 if i != len(cyc) - 1:
-                    write(error_msg, f"{c.courses[v].name}, ")
+                    error_msg.write(f"{c.courses[v].name}, ")
                 else:
-                    write(error_msg, f"{c.courses[v].name})\n")
+                    error_msg.write(f"{c.courses[v].name})\n")
     return validity
 
 
-def extraneous_requisites(c: Curriculum, print: bool = False) -> List[List[int]]:
+def extraneous_requisites(c: Curriculum, debug: bool = False) -> List[List[int]]:
     """
         extraneous_requisites(c:Curriculum; print=false)
 
@@ -96,17 +99,16 @@ def extraneous_requisites(c: Curriculum, print: bool = False) -> List[List[int]]
     *not* co-requisites, then $c_1 \\rightarrow c_3$ is redundant and therefore extraneous.
     """
     if is_cyclic(c.graph):
-        error(
+        raise Exception(
             "\nCurriculm graph has cycles, extraneous requisities cannot be determined."
         )
-    if print == True:
-        msg = IOBuffer()
+    msg = StringIO()
     redundant_reqs: List[List[int]] = []
     g = c.graph
     que: Queue[int] = Queue()
     components = weakly_connected_components(g)
     extraneous = False
-    str = ""  # create an empty string to hold messages
+    string = ""  # create an empty string to hold messages
     for wcc in components:
         if len(wcc) > 1:  # only consider components with more than one vertex
             for u in wcc:
@@ -149,18 +151,18 @@ def extraneous_requisites(c: Curriculum, print: bool = False) -> List[List[int]]
                                     redundant_reqs.append(
                                         [c.courses[u].id, c.courses[v].id]
                                     )
-                                    if print == True:
-                                        str = (
-                                            str
+                                    if debug == True:
+                                        string = (
+                                            string
                                             + f"-{c.courses[v].name} has redundant requisite {c.courses[u].name}\n"
                                         )
                                 extraneous = True
-    if (extraneous == True) and (print == True):
+    if (extraneous == True) and (debug == True):
         if c.institution != "":
-            write(msg, f"\n{c.institution}: ")
-        write(msg, f"curriculum {c.name} has extraneous requisites:\n")
-        write(msg, str)
-    if print == True:
+            msg.write(f"\n{c.institution}: ")
+        msg.write(f"curriculum {c.name} has extraneous requisites:\n")
+        msg.write(string)
+    if debug == True:
         print(str(msg))
     return redundant_reqs
 
@@ -198,7 +200,7 @@ def blocking_factor(c: Curriculum) -> Tuple[int, List[int]]:
     """
     b = 0
     bf: List[int] = []  # TODO: Array{Int, 1}(undef, c.num_courses)
-    for (i, v) in enumerate(vertices(c.graph)):
+    for i, v in enumerate(vertices(c.graph)):
         bf[i] = blocking_factor(c, v)
         b += bf[i]
     c.metrics["blocking factor"] = b, bf
@@ -305,7 +307,7 @@ def centrality(c: Curriculum) -> Tuple[int, List[int]]:
     """
     cent = 0
     cf = []  # Array{Int, 1}(undef, c.num_courses)
-    for (i, v) in enumerate(vertices(c.graph)):
+    for i, v in enumerate(vertices(c.graph)):
         cf[i] = centrality(c, v)
         cent += cf[i]
     c.metrics["centrality"] = cent, cf
@@ -393,17 +395,17 @@ def longest_paths(c: Curriculum):
     return lps
 
 
-def compare_curricula(c1: Curriculum, c2: Curriculum) -> IOBuffer:
+def compare_curricula(c1: Curriculum, c2: Curriculum) -> StringIO:
     """
     Compare the metrics associated with two curricula
     to print out the report, use: println(String(take!(report))), where report is the IOBuffer returned by this function
     """
-    report = IOBuffer()
+    report = StringIO()
     if c1.metrics.keys() != c2.metrics.keys():
-        error("cannot compare curricula, they do not have the same metrics")
-    write(report, f"Comparing: C1 = {c1.name} and C2 = {c2.name}\n")
+        raise Exception("cannot compare curricula, they do not have the same metrics")
+    report.write(f"Comparing: C1 = {c1.name} and C2 = {c2.name}\n")
     for k in c1.metrics:
-        write(report, f" Curricular {k}: ")
+        report.write(f" Curricular {k}: ")
         if len(c1.metrics[k]) == 2:  # curriculum has course-level metrics
             metric1 = c1.metrics[k][0]
             metric2 = c2.metrics[k][0]
@@ -412,28 +414,26 @@ def compare_curricula(c1: Curriculum, c2: Curriculum) -> IOBuffer:
             metric2 = c2.metrics[k]
         diff = c1.metrics[k][0] - c2.metrics[k][0]
         if diff > 0:
-            write(
-                report,
+            report.write(
                 "C1 is %.1f units (%.0f%c) larger than C2\n"
                 % (diff, 100 * diff / c2.metrics[k][1], "%"),
             )
         elif diff < 0:
-            write(
-                report,
+            report.write(
                 "C1 is %.1f units (%.0f%c) smaller than C2\n"
                 % (-diff, 100 * (-diff) / c2.metrics[k][1], "%"),
             )
         else:
-            write(report, f"C1 and C2 have the same curricular {k}\n")
+            report.write(f"C1 and C2 have the same curricular {k}\n")
         if len(c1.metrics[k]) == 2:
-            write(report, "  Course-level {k}:\n")
-            for (i, c) in enumerate([c1, c2]):
+            report.write("  Course-level {k}:\n")
+            for i, c in enumerate([c1, c2]):
                 maxval = max(c.metrics[k][1])
                 pos = [j for (j, x) in enumerate(c.metrics[k][1]) if x == maxval]
-                write(report, f"   Largest {k} value in C{i} is {maxval} for course: ")
+                report.write(f"   Largest {k} value in C{i} is {maxval} for course: ")
                 for p in pos:
-                    write(report, f"{c.courses[p].name}  ")
-                write(report, "\n")
+                    report.write(f"{c.courses[p].name}  ")
+                report.write("\n")
     return report
 
 
@@ -463,7 +463,7 @@ def courses_from_vertices(
 
 
 # Basic metrics for a currciulum.
-def basic_metrics(curric: Curriculum) -> IOBuffer:
+def basic_metrics(curric: Curriculum) -> StringIO:
     """
         basic_metrics(c:Curriculum)
 
@@ -488,7 +488,7 @@ def basic_metrics(curric: Curriculum) -> IOBuffer:
     julia> curriculum.metrics
     ```
     """
-    buf = IOBuffer()
+    buf = StringIO()
     complexity(curric), centrality(curric), longest_paths(
         curric
     )  # compute all curricular metrics
@@ -534,44 +534,43 @@ def basic_metrics(curric: Curriculum) -> IOBuffer:
         curric.metrics["max. complexity"] = max_cc
         curric.metrics["max. complexity courses"] = max_cc_courses
     # write metrics to IO buffer
-    write(buf, f"\n{curric.institution} ")
-    write(buf, f"\nCurriculum: {curric.name}\n")
-    write(buf, f"  credit hours = {curric.credit_hours}\n")
-    write(buf, f"  number of courses = {curric.num_courses}")
-    write(buf, "\n  Blocking Factor --\n")
-    write(buf, f"    entire curriculum = {curric.metrics['blocking factor'][0]}\n")
-    write(buf, f"    max. value = {max_bf}, ")
-    write(buf, "for course(s): ")
+    buf.write(f"\n{curric.institution} ")
+    buf.write(f"\nCurriculum: {curric.name}\n")
+    buf.write(f"  credit hours = {curric.credit_hours}\n")
+    buf.write(f"  number of courses = {curric.num_courses}")
+    buf.write("\n  Blocking Factor --\n")
+    buf.write(f"    entire curriculum = {curric.metrics['blocking factor'][0]}\n")
+    buf.write(f"    max. value = {max_bf}, ")
+    buf.write("for course(s): ")
     write_course_names(buf, max_bf_courses)
-    write(buf, "\n  Centrality --\n")
-    write(buf, f"    entire curriculum = {curric.metrics['centrality'][0]}\n")
-    write(buf, f"    max. value = {max_cent}, ")
-    write(buf, "for course(s): ")
+    buf.write("\n  Centrality --\n")
+    buf.write(f"    entire curriculum = {curric.metrics['centrality'][0]}\n")
+    buf.write(f"    max. value = {max_cent}, ")
+    buf.write("for course(s): ")
     write_course_names(buf, max_cent_courses)
-    write(buf, "\n  Delay Factor --\n")
-    write(buf, f"    entire curriculum = {curric.metrics['delay factor'][0]}\n")
-    write(buf, f"    max. value = {max_df}, ")
-    write(buf, "for course(s): ")
+    buf.write("\n  Delay Factor --\n")
+    buf.write(f"    entire curriculum = {curric.metrics['delay factor'][0]}\n")
+    buf.write(f"    max. value = {max_df}, ")
+    buf.write("for course(s): ")
     write_course_names(buf, max_df_courses)
-    write(buf, "\n  Complexity --\n")
-    write(buf, f"    entire curriculum = {curric.metrics['complexity'][0]}\n")
-    write(buf, f"    max. value = {max_cc}, ")
-    write(buf, "for course(s): ")
+    buf.write("\n  Complexity --\n")
+    buf.write(f"    entire curriculum = {curric.metrics['complexity'][0]}\n")
+    buf.write(f"    max. value = {max_cc}, ")
+    buf.write("for course(s): ")
     write_course_names(buf, max_cc_courses)
-    write(buf, "\n  Longest Path(s) --\n")
-    write(
-        buf,
+    buf.write("\n  Longest Path(s) --\n")
+    buf.write(
         f"    length = {len(curric.metrics['longest paths'][0])}, number of paths = {len(curric.metrics['longest paths'])}\n    path(s):\n",
     )
-    for (i, path) in enumerate(curric.metrics["longest paths"]):
-        write(buf, f"    path {i} = ")
+    for i, path in enumerate(curric.metrics["longest paths"]):
+        buf.write(f"    path {i} = ")
         write_course_names(buf, path, separator=" -> ")
-        write(buf, "\n")
+        buf.write("\n")
     return buf
 
 
-def basic_statistics(curricula: List[Curriculum], metric_name: str) -> IOBuffer:
-    buf = IOBuffer()
+def basic_statistics(curricula: List[Curriculum], metric_name: str) -> StringIO:
+    buf = StringIO()
     # set initial values used to find min and max metric values
     total_metric = 0
     STD_metric = 0
@@ -599,6 +598,8 @@ def basic_statistics(curricula: List[Curriculum], metric_name: str) -> IOBuffer:
             value = c.metrics[metric_name][
                 0
             ]  # metric where total curricular metric as well as course-level metrics are stored in an array
+        else:
+            raise NotImplementedError
         total_metric += value
         if value > max_metric:
             max_metric = value
@@ -616,33 +617,33 @@ def basic_statistics(curricula: List[Curriculum], metric_name: str) -> IOBuffer:
             ]  # metric where total curricular metric as well as course-level metrics are stored in an array
         STD_metric = (value - avg_metric) ** 2
     STD_metric = math.sqrt(STD_metric / len(curricula))
-    write(buf, f"\n Metric -- {metric_name}")
-    write(buf, f"\n  Number of curricula = {len(curricula)}")
-    write(buf, f"\n  Mean = {avg_metric}")
-    write(buf, f"\n  STD = {STD_metric}")
-    write(buf, f"\n  Max. = {max_metric}")
-    write(buf, f"\n  Min. = {min_metric}")
+    buf.write(f"\n Metric -- {metric_name}")
+    buf.write(f"\n  Number of curricula = {len(curricula)}")
+    buf.write(f"\n  Mean = {avg_metric}")
+    buf.write(f"\n  STD = {STD_metric}")
+    buf.write(f"\n  Max. = {max_metric}")
+    buf.write(f"\n  Min. = {min_metric}")
     return buf
 
 
 def write_course_names(
-    buf: IOBuffer, courses: List[Course], separator: str = ", "
+    buf: StringIO, courses: List[Course], separator: str = ", "
 ) -> None:
     if len(courses) == 1:
         write_course_name(buf, courses[0])
     else:
         for c in courses:
             write_course_name(buf, c)
-            write(buf, separator)
+            buf.write(separator)
         write_course_name(buf, courses[-1])
 
 
-def write_course_name(buf: IOBuffer, c: Course) -> None:
+def write_course_name(buf: StringIO, c: Course) -> None:
     if c.prefix:
-        write(buf, f"{c.prefix} ")
+        buf.write(f"{c.prefix} ")
     if c.num:
-        write(buf, f"{c.num} - ")
-    write(buf, f"{c.name}")  # name is a required item
+        buf.write(f"{c.num} - ")
+    buf.write(f"{c.name}")  # name is a required item
 
 
 def similarity(c1: Curriculum, c2: Curriculum, strict: bool = True) -> float:
@@ -698,7 +699,7 @@ def merge_curricula(
     c2: Curriculum,
     match_criteria: List[str] = [],
     learning_outcomes: List[LearningOutcome] = [],
-    degree_type: str = BS,
+    degree_type: str = "BS",  # Julia version uses `BS`, which isn't defined anywhere
     system_type: System = semester,
     institution: str = "",
     CIP: str = "",
@@ -752,7 +753,7 @@ def merge_curricula(
                 canonical_name=c.canonical_name,
             )
         )
-    for (j, c) in enumerate(extra_courses):
+    for j, c in enumerate(extra_courses):
         #    print(f"\n {c.name}: ")
         #    print(f"total requisistes = {len(c.requisites)},")
         for req in c.requisites:

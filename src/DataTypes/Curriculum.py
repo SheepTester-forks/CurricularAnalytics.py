@@ -1,6 +1,7 @@
 ##############################################################
 # Curriculum data type
 # The required curriculum associated with a degree program
+from io import StringIO
 from typing import Any, Dict, List, Optional
 from src.CurricularAnalytics import isvalid_curriculum
 
@@ -94,7 +95,7 @@ class Curriculum:
         self.learning_outcome_graph = create_learning_outcome_graph(self) # TODO
         self.course_learning_outcome_graph = MetaDiGraph() # TODO
         create_course_learning_outcome_graph(self)
-        errors = IOBuffer()
+        errors = StringIO()
         if not (isvalid_curriculum(self, errors)):
             print("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):") # TODO: yellow
             print(errors)

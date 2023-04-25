@@ -1,3 +1,4 @@
+from io import StringIO
 from typing import Any, Dict, List, Optional, Set
 from src.DataTypes.Course import AbstractCourse, Course
 from src.DataTypes.Curriculum import Curriculum, course_from_id
@@ -108,7 +109,7 @@ class DegreePlan:
 
 # Check if a degree plan is valid.
 # Print error_msg using println(str(take!(error_msg))), where error_msg is the buffer returned by this function
-def isvalid_degree_plan(plan: DegreePlan, error_msg: IOBuffer = IOBuffer()) -> bool:
+def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> bool:
     """
         isvalid_degree_plan(plan:DegreePlan, errors:IOBuffer)
 
@@ -194,7 +195,7 @@ def find_term(plan: DegreePlan, course: Course) -> Optional[int]:
     In degree plan `plan`, find the term in which course `course` appears.  If `course` in not in the degree plan an
     error message is provided.
     """
-    for (i, term) in enumerate(plan.terms):
+    for i, term in enumerate(plan.terms):
         if course in term.courses:
             return i
     write(error_msg, f"Course {course.name} is not in the degree plan")
