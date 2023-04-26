@@ -12,8 +12,8 @@ class Simulation:
     course_attempt_limit: int
     "The number of times that a course is allowed to take"
 
-    prediction_model: Module
-    "Module that implements the model for predicting student's performance in courses"
+    # prediction_model: Module
+    # "Module that implements the model for predicting student's performance in courses"
 
     num_students: int
     "The number of students in the simulation"
@@ -46,7 +46,6 @@ class Simulation:
     "Array of stopout rates for each term"
 
     def __init__(self, degree_plan: DegreePlan) -> None:
-
         self.degree_plan = degree_plan
         self.enrolled_students = []
         self.graduated_students = []
@@ -56,7 +55,7 @@ class Simulation:
         degree_plan.metadata["stopout_model"] = {}
 
         # Set up courses
-        for (id, course) in enumerate(degree_plan.curriculum.courses):
+        for id, course in enumerate(degree_plan.curriculum.courses):
             course.metadata["id"] = id
             course.metadata["failures"] = 0
             course.metadata["enrolled"] = 0

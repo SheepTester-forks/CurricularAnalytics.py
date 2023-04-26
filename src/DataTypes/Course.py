@@ -28,10 +28,12 @@ class AbstractCourse(ABC):
     "Unique course id"
     vertex_id: Dict[int, int]
     "The vertex id of the course w/in a curriculum graph, stored as (curriculum_id, vertex_id)"
+
     name: str
     "Name of the course, e.g., Introduction to Psychology"
     credit_hours: float
     'Number of credit hours associated with course or a "typcial" course in the collection. For the purpose of analytics, variable credits are not supported'
+
     institution: str
     "Institution offering the course"
     college: str
@@ -40,8 +42,11 @@ class AbstractCourse(ABC):
     "Department (within the school or college) offering the course"
     canonical_name: str
     "Standard name used to denote the course in the discipline, e.g., Psychology I, or course collection, e.g., math genearl education"
+
     requisites: Dict[int, Requisite]
     "List of requisites, in (requisite_course id, requisite_type) format"
+    learning_outcomes: List[LearningOutcome]
+    "A list of learning outcomes associated with the course"
     metrics: Dict[str, Any]
     "Course-related metrics"
     metadata: Dict[str, Any]
@@ -79,8 +84,6 @@ class Course(AbstractCourse):
     "Course number, e.g., 101, or 302L"
     cross_listed: List["Course"]
     'courses that are cross-listed with the course (same as "also offered as")'
-    learning_outcomes: List[LearningOutcome]
-    "A list of learning outcomes associated with the course"
 
     passrate: float
     "Percentage of students that pass the course"

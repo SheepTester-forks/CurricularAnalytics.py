@@ -1,5 +1,7 @@
 from io import StringIO
 from typing import Any, Dict, List, Optional, Set
+
+from networkx import DiGraph
 from src.DataTypes.Course import AbstractCourse, Course
 from src.DataTypes.Curriculum import Curriculum, course_from_id
 from src.DataTypes.DataTypes import pre
@@ -70,7 +72,7 @@ class DegreePlan:
     "Curriculum the degree plan satisfies"
     additional_courses: List[AbstractCourse]
     "Additional (non-required) courses added to the degree plan, e.g., these may be preparatory courses"
-    graph: SimpleDiGraph[int]
+    graph: DiGraph
     "Directed graph representation of pre-/co-requisite structure of the degre plan"
     terms: List[Term]
     "The terms associated with the degree plan"
@@ -94,15 +96,9 @@ class DegreePlan:
         self.name = name
         self.curriculum = curriculum
         self.num_terms = len(terms)
-        self.terms = []
-        self.credit_hours = 0
-        for i in range(self.num_terms):
-            self.terms[i] = terms[i]
-            self.credit_hours += terms[i].credit_hours
-        if isassigned(additional_courses):  # TODO
-            self.additional_courses = []
-            for i in range(len(additional_courses)):
-                self.additional_courses[i] = additional_courses[i]
+        self.terms = terms.copy()
+        self.credit_hours = sum(term.credit_hours for term in terms)
+        self.additional_courses = additional_courses.copy()
         self.metrics = {}
         self.metadata = {}
 
@@ -142,8 +138,7 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
                     for l in k.requisites:
                         if l == c.id:
                             validity = False
-                            write(
-                                error_msg,
+                            error_msg.write(
                                 f"\n-Invalid requisite: {c.name} in term {i} is a requisite for {k.name} in term {j}",
                             )
     #  -requisites within the same term must be corequisites
@@ -155,8 +150,7 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
                 elif (r.id) in c.requisites:
                     if c.requisites[r.id] == pre:
                         validity = False
-                        write(
-                            error_msg,
+                        error_msg.write(
                             f"\n-Invalid prerequisite: {r.name} in term {i} is a prerequisite for {c.name} in the same term",
                         )
     #  -TODO: strict co-requisites must be in the same term
@@ -172,15 +166,15 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
         validity = False
         for i in curric_classes - dp_classes:
             c = course_from_id(plan.curriculum, i)
-            write(error_msg, f"\n-Degree plan is missing required course: {c.name}")
+            if c:
+                error_msg.write(f"\n-Degree plan is missing required course: {c.name}")
     # Is a course in the degree plan multiple times?
     dp_classes: Set[int] = set()
     for i in range(plan.num_terms):
         for j in plan.terms[i].courses:
             if (j.id) in dp_classes:
                 validity = False
-                write(
-                    error_msg,
+                error_msg.write(
                     f"\n-Course {j.name} is listed multiple times in degree plan",
                 )
             else:
@@ -188,7 +182,9 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
     return validity
 
 
-def find_term(plan: DegreePlan, course: Course) -> Optional[int]:
+def find_term(
+    plan: DegreePlan, course: Course, error_msg: StringIO = StringIO()
+) -> Optional[int]:
     """
         find_term(plan:DegreePlan, course:Course)
 
@@ -198,7 +194,7 @@ def find_term(plan: DegreePlan, course: Course) -> Optional[int]:
     for i, term in enumerate(plan.terms):
         if course in term.courses:
             return i
-    write(error_msg, f"Course {course.name} is not in the degree plan")
+    error_msg.write(f"Course {course.name} is not in the degree plan")
 
 
 # ugly print of degree plan
