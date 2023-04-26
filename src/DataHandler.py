@@ -21,6 +21,8 @@ julia> dp = read_csv("./mydata/UBW_plan.csv")
 from io import StringIO, TextIOWrapper
 import os
 from typing import Dict, List, Literal, Optional, Union
+
+import pandas as pd
 from src.CSVUtilities import csv_line_reader, read_all_courses, remove_empty_lines
 from src.CurricularAnalytics import (
     blocking_factor,
@@ -28,7 +30,6 @@ from src.CurricularAnalytics import (
     complexity,
     delay_factor,
 )
-from src.DataTypes.Course import Course
 from src.DataTypes.Curriculum import Curriculum
 from src.DataTypes.DataTypes import quarter, semester
 from src.DataTypes.DegreePlan import DegreePlan
@@ -42,7 +43,7 @@ def read_csv(raw_file_path: str):
     # dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
     dict_curric_system = {"semester": semester, "quarter": quarter, "": semester}
     dp_name = ""
-    dp_add_courses: List[Course] = []
+    # dp_add_courses: List[Course] = []
     curric_name = ""
     curric_inst = ""
     curric_dtype = "BS"
@@ -56,7 +57,7 @@ def read_csv(raw_file_path: str):
     learning_outcomes_count = 0
     curric_learning_outcomes_start = 0
     curric_learning_outcomes_count = 0
-    part_missing_term = False
+    # part_missing_term = False
     output = ""
     # Open the CSV file and read in the basic information such as the type (curric or degreeplan), institution, degree type, etc
     with open(file_path) as csv_file:
@@ -79,7 +80,7 @@ def read_csv(raw_file_path: str):
                 read_line = csv_line_reader(csv_file.readline(), ",")
                 courses_header += 1
             if read_line[0] == "System Type":
-                curric_stype = dict_curric_system[lowercase(read_line[1])]
+                curric_stype = dict_curric_system[read_line[1].lower()]
                 read_line = csv_line_reader(csv_file.readline(), ",")
                 courses_header += 1
             if read_line[0] == "CIP":
@@ -123,7 +124,7 @@ def read_csv(raw_file_path: str):
                         "Each Course in a Degree Plan must have an associated term."
                         + f"\nCourse with ID '{read_line[0]}' ({read_line[1]}) has no term."
                     )
-                elif read_line[10] == 0:
+                elif len(read_line[10]) == 0:
                     raise Exception(
                         "Each Course in a Degree Plan must have an associated term."
                         + f"\nCourse with ID '{read_line[0]}' ({read_line[1]}) has no term."
@@ -132,32 +133,24 @@ def read_csv(raw_file_path: str):
             course_count += 1
             read_line = csv_line_reader(csv_file.readline(), ",")
 
-        df_courses = DataFrame(
-            CSV.File(
-                file_path,
-                header=courses_header,
-                limit=course_count - 1,
-                delim=",",
-                silencewarnings=True,
-            )
-        )
-        if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID"))):
+        # NOTE: omitting limit=course_count - 1 and silencewarnings=True
+        df_courses = pd.read_csv(file_path, header=courses_header, delimiter=",")  # type: ignore
+        if df_courses.shape[0] != df_courses.nunique("Course ID"):  # type: ignore
             print("All courses must have a unique Course ID (2)")
             return False
-        if not is_dp and Symbol("Term") in names(df_courses):
+        if not is_dp and "Term" in df_courses.columns:
             print("Curriculum cannot have term information.")
             return False
-        df_all_courses = DataFrame()
-        df_additional_courses = DataFrame()
+        df_all_courses = pd.DataFrame()
+        df_additional_courses = pd.DataFrame()
         if len(read_line) > 0 and read_line[0] == "Additional Courses":
             if not is_dp:
                 print("Only Degree Plan can have additional courses")
                 return False
-            end
             additional_course_start = courses_header + course_count + 1
             read_line = csv_line_reader(csv_file.readline(), ",")
             while (
-                length(read_line) > 0
+                len(read_line) > 0
                 and read_line[0] != "Course Learning Outcomes"
                 and read_line[0] != "Curriculum Learning Outcomes"
                 and not read_line[0].startswith("#")
@@ -165,14 +158,8 @@ def read_csv(raw_file_path: str):
                 additional_course_count += 1
                 read_line = csv_line_reader(csv_file.readline(), ",")
         if additional_course_count > 1:
-            df_additional_courses = DataFrame(
-                CSV.File(
-                    file_path,
-                    header=additional_course_start,
-                    limit=additional_course_count - 1,
-                    delim=",",
-                    silencewarnings=True,
-                )
+            df_additional_courses = pd.read_csv(  # type: ignore
+                file_path, header=additional_course_start, delimiter=","
             )
             df_all_courses = vcat(df_courses, df_additional_courses)
         else:
@@ -192,14 +179,8 @@ def read_csv(raw_file_path: str):
                 learning_outcomes_count += 1
                 read_line = csv_line_reader(csv_file.readline(), ",")
             if learning_outcomes_count > 1:
-                df_course_learning_outcomes = DataFrame(
-                    CSV.File(
-                        file_path,
-                        header=learning_outcomes_start,
-                        limit=learning_outcomes_count - 1,
-                        delim=",",
-                        silencewarnings=True,
-                    )
+                df_course_learning_outcomes = pd.read_csv(  # type: ignore
+                    file_path, header=learning_outcomes_start, delimiter=","
                 )
         course_learning_outcomes: Dict[int, List[LearningOutcome]] = {}
         if df_course_learning_outcomes != "":
@@ -220,14 +201,8 @@ def read_csv(raw_file_path: str):
                 curric_learning_outcomes_count += 1
                 read_line = csv_line_reader(csv_file.readline(), ",")
             if learning_outcomes_count > 1:
-                df_curric_learning_outcomes = DataFrame(
-                    CSV.File(
-                        file_path,
-                        header=curric_learning_outcomes_start,
-                        limit=curric_learning_outcomes_count - 1,
-                        delim=",",
-                        silencewarnings=True,
-                    )
+                df_curric_learning_outcomes = pd.read_csv(  # type: ignore
+                    file_path, header=curric_learning_outcomes_start, delimiter=","
                 )
 
         curric_learning_outcomes = (

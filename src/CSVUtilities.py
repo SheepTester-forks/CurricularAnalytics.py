@@ -1,7 +1,6 @@
-from typing import Dict, Hashable, Iterable, List, Literal, Optional, Tuple, Union, cast
+from typing import Dict, List, Literal, Union
 
 import pandas as pd
-from pandera.typing import DataFrame
 
 from src.DataTypes.Course import Course
 from src.DataTypes.DataTypes import co, pre, strict_co
@@ -37,7 +36,7 @@ def course_line(course: Course, term_id: Union[str, int], metrics: bool = False)
     course_name = course.name
     course_prefix = course.prefix
     course_num = course.num
-    course_vertex = course.vertex_id
+    # course_vertex = course.vertex_id
     course_prereq = '"'
     course_coreq = '"'
     course_scoreq = '"'
@@ -164,23 +163,22 @@ def find_cell(row: pd.Series[str], header: str) -> str:
 
 # TODO: DataFrame??
 def read_all_courses(
-    df_courses: DataFrame[str], lo_Course: Dict[int, List[LearningOutcome]] = {}
+    df_courses: pd.DataFrame, lo_Course: Dict[int, List[LearningOutcome]] = {}
 ) -> Union[Dict[int, Course], Literal[False]]:
     course_dict: Dict[int, Course] = {}
-    row: pd.Series[str]
     for _, row in df_courses.iterrows():  # type: ignore
-        c_ID = row["Course ID"]
+        c_ID = row["Course ID"]  # type: ignore
         c_Name = find_cell(row, "Course Name")
-        c_Credit = row["Credit Hours"]
-        c_Credit = float(c_Credit) if isinstance(c_Credit, str) else c_Credit
+        c_Credit = row["Credit Hours"]  # type: ignore
+        c_Credit = float(c_Credit)  # if isinstance(c_Credit, str) else c_Credit
         c_Prefix = str(row[(("Prefix"))])
         c_Number = find_cell(row, ("Number"))
-        if not isinstance(c_Number, str):
-            c_Number = str(c_Number)
+        # if not isinstance(c_Number, str):
+        #     c_Number = str(c_Number)
         c_Inst = row[("Institution")]
         c_col_name = row[("Canonical Name")]
-        learning_outcomes = lo_Course[c_ID] if c_ID in (lo_Course) else []
-        if c_ID in (course_dict):
+        learning_outcomes = lo_Course[c_ID] if c_ID in lo_Course else []
+        if c_ID in course_dict:
             print("Course IDs must be unique")
             return False
         else:

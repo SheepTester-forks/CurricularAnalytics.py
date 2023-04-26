@@ -1,7 +1,7 @@
 # File DegreePlanAnalytics.jl
 from io import StringIO
 import math
-from src.DataTypes.Course import Course
+from src.DataTypes.Course import AbstractCourse
 from src.DataTypes.Curriculum import course_from_id
 
 from src.DataTypes.DegreePlan import DegreePlan, find_term
@@ -56,7 +56,7 @@ def basic_metrics(plan: DegreePlan):
     max_term = 0
     min_term = 0
     var = 0
-    req_distance = 0
+    # req_distance = 0
     avg = plan.credit_hours / plan.num_terms
     for i in range(plan.num_terms):
         if plan.terms[i].credit_hours > max:
@@ -68,21 +68,20 @@ def basic_metrics(plan: DegreePlan):
         var = var + (plan.terms[i].credit_hours - avg) ** 2
     plan.metrics["max. credits in a term"] = max
     plan.metrics["max. credit term"] = max_term
-    write(buf, f"  max. credits in a term = {max}, in term {max_term}\n")
+    buf.write(f"  max. credits in a term = {max}, in term {max_term}\n")
     plan.metrics["min. credits in a term"] = min
     plan.metrics["min. credit term"] = min_term
-    write(buf, f"  min. credits in a term = {min}, in term {min_term}\n")
+    buf.write(f"  min. credits in a term = {min}, in term {min_term}\n")
     plan.metrics["avg. credits per term"] = avg
     plan.metrics["term credit hour std. dev."] = math.sqrt(var / plan.num_terms)
-    write(
-        buf,
+    buf.write(
         f"  avg. credits per term = {avg}, with std. dev. = {plan.metrics['term credit hour std. dev.']}\n",
     )
     return buf
 
 
 # Degree plan metrics based upon the distance between requsites and the classes that require them.
-def requisite_distance(plan: DegreePlan, course: Course) -> float:
+def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> float:
     """
         requisite_distance(DegreePlan, course:Course)
 
@@ -109,10 +108,16 @@ def requisite_distance(plan: DegreePlan, course: Course) -> float:
     """
     distance: float = 0
     term = find_term(plan, course)
+    if term is None:
+        raise KeyError("Could not find term of course")
     for req in course.requisites:
-        distance = distance + (
-            term - find_term(plan, course_from_id(plan.curriculum, req))
-        )
+        req_course = course_from_id(plan.curriculum, req)
+        if req_course is None:
+            raise KeyError("Could not find requisite course in curriculum")
+        req_term = find_term(plan, req_course)
+        if req_term is None:
+            raise KeyError("Could not find term of requisite course")
+        distance = distance + (term - req_term)
     course.metrics["requisite distance"] = distance
     return distance
 

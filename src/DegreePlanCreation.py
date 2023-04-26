@@ -2,6 +2,8 @@
 
 from typing import List, Literal, Optional, Protocol, Union
 
+from networkx import has_path  # type: ignore
+
 from src.DataTypes.Course import AbstractCourse, Course
 from src.DataTypes.Curriculum import Curriculum
 from src.DataTypes.DataTypes import pre, strict_co
@@ -98,8 +100,7 @@ def select_vertex(
         invariant1 = True
         for source in UCs:
             s_id = source.vertex_id[curric.id]
-            vlist = reachable_from(curric.graph, s_id)
-            if t_id in vlist:  # target cannot be moved to AC
+            if has_path(curric.graph, s_id, t_id):  # target cannot be moved to AC
                 invariant1 = False  # invariant 1 violated
                 break  # try a new target
         if invariant1 == True:
@@ -115,5 +116,5 @@ def select_vertex(
     return None
 
 
-def course_num(c: Course) -> str:
-    return c.num if c.num != "" else c.name
+def course_num(c: AbstractCourse) -> str:
+    return c.num if isinstance(c, Course) and c.num != "" else c.name

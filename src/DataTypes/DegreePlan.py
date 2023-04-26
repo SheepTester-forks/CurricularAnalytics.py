@@ -183,7 +183,7 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
 
 
 def find_term(
-    plan: DegreePlan, course: Course, error_msg: StringIO = StringIO()
+    plan: DegreePlan, course: AbstractCourse, error_msg: StringIO = StringIO()
 ) -> Optional[int]:
     """
         find_term(plan:DegreePlan, course:Course)
