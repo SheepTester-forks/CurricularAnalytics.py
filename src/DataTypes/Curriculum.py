@@ -2,9 +2,9 @@
 # Curriculum data type
 # The required curriculum associated with a degree program
 from io import StringIO
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Tuple, Union
 
-from networkx import DiGraph, set_edge_attributes  # type: ignore
+from networkx import DiGraph, set_edge_attributes
 from src.CurricularAnalytics import isvalid_curriculum
 
 from src.DataTypes.Course import AbstractCourse, add_requisite
@@ -65,18 +65,18 @@ class Curriculum:
     "Number of required courses in curriculum"
     credit_hours: float
     "Total number of credit hours in required curriculum"
-    graph: DiGraph
+    graph: DiGraph[int]
     "Directed graph representation of pre-/co-requisite structure of the curriculum, note: this is a course graph"
     learning_outcomes: List[LearningOutcome]
     "A list of learning outcomes associated with the curriculum"
-    learning_outcome_graph: DiGraph
+    learning_outcome_graph: DiGraph[int]
     "Directed graph representatin of pre-/co-requisite structure of learning outcomes in the curriculum"
-    course_learning_outcome_graph: DiGraph
+    course_learning_outcome_graph: DiGraph[int]
     """
     Directed Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
     This is a course and learning outcome graph
     """
-    metrics: Dict[str, Any]
+    metrics: Dict[str, Union[float, Tuple[float, List[float]]]]
     "Curriculum-related metrics"
     metadata: Dict[str, Any]
     "Curriculum-related metadata"
@@ -170,22 +170,24 @@ def course(
         return curric.courses[next(x.id == hash_val for x in curric.courses)]
     else:
         raise Exception(
-            "Course: {prefix} {num}: {name} at {institution} does not exist in curriculum: {curric.name}"
+            f"Course: {prefix} {num}: {name} at {institution} does not exist in curriculum: {curric.name}"
         )
 
 
-def course_from_id(curriculum: Curriculum, id: int) -> Optional[AbstractCourse]:
+def course_from_id(curriculum: Curriculum, id: int) -> AbstractCourse:
     "Return the course associated with a course id in a curriculum"
     for c in curriculum.courses:
         if c.id == id:
             return c
+    raise ValueError(f"The course associated with id {id} is not in the curriculum.")
 
 
-def lo_from_id(curriculum: Curriculum, id: int) -> Optional[LearningOutcome]:
+def lo_from_id(curriculum: Curriculum, id: int) -> LearningOutcome:
     "Return the lo associated with a lo id in a curriculum"
     for lo in curriculum.learning_outcomes:
         if lo.id == id:
             return lo
+    raise ValueError(f"The lo associated with id {id} is not in the curriculum.")
 
 
 def course_from_vertex(curriculum: Curriculum, vertex: int) -> AbstractCourse:
@@ -209,14 +211,14 @@ def create_graph(curriculum: Curriculum) -> None:
     LightGraph.jl implemenation within the Curriculum data object.
     """
     for i, c in enumerate(curriculum.courses):
-        curriculum.graph.add_node(i)  # type: ignore
+        curriculum.graph.add_node(i)
         c.vertex_id[curriculum.id] = i  # The vertex id of a course w/in the curriculum
         # Graphs.jl orders graph vertices sequentially
         # TODO: make sure course is not alerady in the curriculum
     mapped_vertex_ids = map_vertex_ids(curriculum)
     for c in curriculum.courses:
         for r in c.requisites:
-            curriculum.graph.add_edge(mapped_vertex_ids[r], c.vertex_id[curriculum.id])  # type: ignore
+            curriculum.graph.add_edge(mapped_vertex_ids[r], c.vertex_id[curriculum.id])
 
 
 def create_course_learning_outcome_graph(curriculum: Curriculum) -> None:
@@ -232,13 +234,13 @@ def create_course_learning_outcome_graph(curriculum: Curriculum) -> None:
     # len_learning_outcomes = len(curriculum.learning_outcomes)
 
     for i, c in enumerate(curriculum.courses):
-        curriculum.course_learning_outcome_graph.add_node(i)  # type: ignore
+        curriculum.course_learning_outcome_graph.add_node(i)
         c.vertex_id[curriculum.id] = i  # The vertex id of a course w/in the curriculum
         # Graphs.jl orders graph vertices sequentially
         # TODO: make sure course is not alerady in the curriculum
 
     for j, lo in enumerate(curriculum.learning_outcomes):
-        curriculum.course_learning_outcome_graph.add_node(j)  # type: ignore
+        curriculum.course_learning_outcome_graph.add_node(j)
         lo.vertex_id[curriculum.id] = (
             len_courses + j
         )  # The vertex id of a learning outcome w/in the curriculum
@@ -251,7 +253,9 @@ def create_course_learning_outcome_graph(curriculum: Curriculum) -> None:
     # Add edges among courses
     for c in curriculum.courses:
         for r in c.requisites:
-            curriculum.course_learning_outcome_graph.add_edge(mapped_vertex_ids[r], c.vertex_id[curriculum.id])  # type: ignore
+            curriculum.course_learning_outcome_graph.add_edge(
+                mapped_vertex_ids[r], c.vertex_id[curriculum.id]
+            )
             set_edge_attributes(
                 curriculum.course_learning_outcome_graph,
                 {
@@ -264,7 +268,7 @@ def create_course_learning_outcome_graph(curriculum: Curriculum) -> None:
     # Add edges among learning_outcomes
     for lo in curriculum.learning_outcomes:
         for r in lo.requisites:
-            curriculum.course_learning_outcome_graph.add_edge(  # type: ignore
+            curriculum.course_learning_outcome_graph.add_edge(
                 mapped_lo_vertex_ids[r],
                 lo.vertex_id[curriculum.id],
             )
@@ -280,7 +284,7 @@ def create_course_learning_outcome_graph(curriculum: Curriculum) -> None:
     # Add edges between each pair of a course and a learning outcome
     for c in curriculum.courses:
         for lo in c.learning_outcomes:
-            curriculum.course_learning_outcome_graph.add_edge(  # type: ignore
+            curriculum.course_learning_outcome_graph.add_edge(
                 mapped_lo_vertex_ids[lo.id],
                 c.vertex_id[curriculum.id],
             )
@@ -302,14 +306,16 @@ def create_learning_outcome_graph(curriculum: Curriculum) -> None:
     LightGraph.jl implemenation within the Curriculum data object.
     """
     for i, lo in enumerate(curriculum.learning_outcomes):
-        curriculum.learning_outcome_graph.add_node(i)  # type: ignore
+        curriculum.learning_outcome_graph.add_node(i)
         lo.vertex_id[curriculum.id] = i  # The vertex id of a course w/in the curriculum
         # Graphs.jl orders graph vertices sequentially
         # TODO: make sure course is not alerady in the curriculum
     mapped_vertex_ids = map_lo_vertex_ids(curriculum)
     for lo in curriculum.learning_outcomes:
         for r in lo.requisites:
-            curriculum.learning_outcome_graph.add_edge(mapped_vertex_ids[r], lo.vertex_id[curriculum.id])  # type: ignore
+            curriculum.learning_outcome_graph.add_edge(
+                mapped_vertex_ids[r], lo.vertex_id[curriculum.id]
+            )
 
 
 # find requisite type from vertex ids in a curriculum graph

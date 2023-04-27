@@ -1,4 +1,16 @@
-from typing import Any, Dict, Generic, Hashable, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    Hashable,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 Node = TypeVar("Node", bound=Hashable)
 Edge = Tuple[Node, Node]
@@ -8,10 +20,24 @@ class DiGraph(Generic[Node]):
     def add_edge(
         self, u_of_edge: Node, v_of_edge: Node, **attr: Dict[Hashable, Any]
     ) -> None: ...
+    def has_edge(self, u: Node, v: Node) -> bool: ...
+    def nodes(self) -> Iterable[Node]: ...
+    def neighbors(self, n: Node) -> Iterable[Node]: ...
+    def copy(self) -> DiGraph[Node]: ...
     def __getitem__(self, n: Node) -> Dict[Hashable, Any]: ...
 
-def has_path(G: DiGraph[Node], source: Hashable, target: Hashable) -> bool: ...
 def set_edge_attributes(
     G: DiGraph[Node],
-    values: Dict[Union[Node, Edge[Node]], Dict[Hashable, Any]],
+    values: Dict[Edge[Node], Dict[Hashable, Any]],
 ) -> None: ...
+def has_path(G: DiGraph[Node], source: Hashable, target: Hashable) -> bool: ...
+def simple_cycles(G: DiGraph[Node]) -> Iterable[List[Node]]: ...
+def find_cycle(G: DiGraph[Node], source: Optional[Node] = None) -> List[Edge[Node]]: ...
+def weakly_connected_components(G: DiGraph[Node]) -> Iterable[Set[Node]]: ...
+def shortest_path(
+    G: DiGraph[Node], source: Optional[Node] = None
+) -> Dict[Node, List[Node]]: ...
+
+class NetworkXNoCycle(Exception):
+    """Exception for algorithms that should return a cycle when running
+    on graphs where such a cycle does not exist."""

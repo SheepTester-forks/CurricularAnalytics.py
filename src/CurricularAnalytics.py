@@ -10,8 +10,10 @@ directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a 
 from io import StringIO
 import math
 from queue import Queue
-from typing import List, Optional, Tuple
-from src.DataTypes.Course import Course, add_requisite
+from typing import List, Literal, Optional, Tuple
+
+import networkx as nx
+from src.DataTypes.Course import AbstractCourse, Course, add_requisite
 from src.DataTypes.Curriculum import Curriculum, course_from_id
 from src.DataTypes.DataTypes import System, co, quarter, semester, strict_co
 from src.DataTypes.DegreePlan import DegreePlan
@@ -53,27 +55,25 @@ def isvalid_curriculum(c: Curriculum, error_msg: StringIO = StringIO()) -> bool:
     is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course
     on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
     """
-    g = deepcopy(c.graph)
+    g = c.graph.copy()
     validity = True
     # First check for simple cycles
-    cycles = simplecycles(g)
+    cycles = nx.simple_cycles(g)
     # Next check for cycles that could be created by strict co-requisites.
     # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in
     # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
     # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
     for course in c.courses:
-        for k, r in course.requisites:
+        for k, r in course.requisites.items():
             if r == strict_co:
                 v_d = course_from_id(c, course.id).vertex_id[c.id]  # destination vertex
                 v_s = course_from_id(c, k).vertex_id[c.id]  # source vertex
                 g.add_edge(v_d, v_s)
-    new_cycles = simplecycles(g)
-    idx: List[int] = []
-    for i, cyc in enumerate(new_cycles):  # remove length-2 cycles
-        if len(cyc) == 2:
-            idx.append(i)
-    del new_cycles[idx]
-    cycles = union(new_cycles, cycles)  # remove redundant cycles
+    new_cycles = nx.simple_cycles(g)
+    new_cycles = [cyc for cyc in new_cycles if len(cyc) != 2]  # remove length-2 cycles
+    cycles = set(
+        tuple(cyc) for cyc in [*new_cycles, *cycles]
+    )  # remove redundant cycles
     if len(cycles) != 0:
         validity = False
         if c.institution != "":
@@ -98,35 +98,38 @@ def extraneous_requisites(c: Curriculum, debug: bool = False) -> List[List[int]]
     relationships $c_1 \\rightarrow c_2 \\rightarrow c_3$ and $c_1 \\rightarrow c_3$, and $c_1$ and $c_2$ are
     *not* co-requisites, then $c_1 \\rightarrow c_3$ is redundant and therefore extraneous.
     """
-    if is_cyclic(c.graph):
+    try:
+        nx.find_cycle(c.graph)
         raise Exception(
             "\nCurriculm graph has cycles, extraneous requisities cannot be determined."
         )
+    except nx.NetworkXNoCycle:
+        pass
     msg = StringIO()
     redundant_reqs: List[List[int]] = []
     g = c.graph
     que: Queue[int] = Queue()
-    components = weakly_connected_components(g)
+    components = nx.weakly_connected_components(g)
     extraneous = False
     string = ""  # create an empty string to hold messages
     for wcc in components:
         if len(wcc) > 1:  # only consider components with more than one vertex
             for u in wcc:
-                nb = neighbors(g, u)
+                nb = g.neighbors(u)
                 for n in nb:
                     que.put(n)
                 while not que.empty():
                     x = que.get()
-                    nnb = neighbors(g, x)
+                    nnb = g.neighbors(x)
                     for n in nnb:
                         que.put(n)
-                    for v in neighbors(g, x):
-                        if has_edge(g, u, v):  # possible redundant requsisite
+                    for v in g.neighbors(x):
+                        if g.has_edge(u, v):  # possible redundant requsisite
                             # TODO: If this edge is a co-requisite it is an error, as it would be impossible to satsify.
                             # This needs to be checked here.
                             remove = True
                             for n in nb:  # check for co- or strict_co requisites
-                                if has_path(
+                                if nx.has_path(
                                     c.graph, n, v
                                 ):  # is there a path from n to v?
                                     req_type = c.courses[n].requisites[
@@ -182,7 +185,7 @@ def blocking_factor(c: Curriculum, course: int) -> int:
     ``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course
     ``c_i`` to ``c_j`` in curriculum ``c``.
     """
-    b = len(reachable_from(c.graph, course))
+    b = len(nx.shortest_path(c.graph, course))
     c.courses[course].metrics["blocking factor"] = b
     return b
 
@@ -200,7 +203,7 @@ def blocking_factor(c: Curriculum) -> Tuple[int, List[int]]:
     """
     b = 0
     bf: List[int] = []  # TODO: Array{Int, 1}(undef, c.num_courses)
-    for i, v in enumerate(vertices(c.graph)):
+    for i, v in enumerate(c.graph.nodes()):
         bf[i] = blocking_factor(c, v)
         b += bf[i]
     c.metrics["blocking factor"] = b, bf
@@ -240,8 +243,8 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
     where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
     """
     g = c.graph
-    df = ones(c.num_courses)
-    for v in vertices(g):
+    df = [1] * c.num_courses
+    for v in g.nodes():
         for path in all_paths(g):
             for vtx in path:
                 path_length = len(
@@ -251,7 +254,7 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
                     df[vtx] = path_length
     d = 0
     c.metrics["delay factor"] = 0
-    for v in vertices(g):
+    for v in g.nodes():
         c.courses[v].metrics["delay factor"] = df[v]
         d += df[v]
     c.metrics["delay factor"] = d, df
@@ -307,7 +310,7 @@ def centrality(c: Curriculum) -> Tuple[int, List[int]]:
     """
     cent = 0
     cf = []  # Array{Int, 1}(undef, c.num_courses)
-    for i, v in enumerate(vertices(c.graph)):
+    for i, v in enumerate(c.graph.nodes()):
         cf[i] = centrality(c, v)
         cent += cf[i]
     c.metrics["centrality"] = cent, cf
@@ -356,7 +359,7 @@ def complexity(c: Curriculum) -> Tuple[int, List[int]]:
         delay_factor(c)
     if "blocking factor" not in c.metrics:
         blocking_factor(c)
-    for v in vertices(c.graph):
+    for v in c.graph.nodes():
         c.courses[v].metrics["complexity"] = (
             c.courses[v].metrics["delay factor"]
             + c.courses[v].metrics["blocking factor"]
@@ -388,7 +391,7 @@ def longest_paths(c: Curriculum):
     ```
     """
     lps: List[List[Course]] = []
-    for path in longest_paths(c.graph):  # longest_paths(), GraphAlgs.jl
+    for path in longest_paths_graph(c.graph):  # longest_paths(), GraphAlgs.jl
         c_path = courses_from_vertices(c, path)
         lps.append(c_path)
     c.metrics["longest paths"] = lps
@@ -489,8 +492,10 @@ def basic_metrics(curric: Curriculum) -> StringIO:
     ```
     """
     buf = StringIO()
-    complexity(curric), centrality(curric), longest_paths(
-        curric
+    _ = (
+        complexity(curric),
+        centrality(curric),
+        longest_paths(curric),
     )  # compute all curricular metrics
     max_bf = 0
     max_df = 0
@@ -501,6 +506,8 @@ def basic_metrics(curric: Curriculum) -> StringIO:
     max_cc_courses: List[Course] = []
     max_cent_courses: List[Course] = []
     for c in curric.courses:
+        if not isinstance(c, Course):
+            continue
         if c.metrics["blocking factor"] == max_bf:
             max_bf_courses.append(c)
         elif c.metrics["blocking factor"] > max_bf:
@@ -574,15 +581,16 @@ def basic_statistics(curricula: List[Curriculum], metric_name: str) -> StringIO:
     # set initial values used to find min and max metric values
     total_metric = 0
     STD_metric = 0
+    max_metric = -math.inf
+    min_metric = math.inf
     if metric_name in curricula[0].metrics:
-        if isinstance(curricula[0].metrics[metric_name], float):
-            max_metric = curricula[0].metrics[metric_name]
-            min_metric = curricula[0].metrics[metric_name]
-        elif isinstance(
-            curricula[0].metrics[metric_name], tuple
-        ):  # Tuple{Float64,Array{Number,1}}
-            max_metric = curricula[0].metrics[metric_name][0]
-            min_metric = curricula[0].metrics[metric_name][0]
+        metric = curricula[0].metrics[metric_name]
+        if isinstance(metric, float):
+            max_metric = metric
+            min_metric = metric
+        else:
+            max_metric = metric[0]
+            min_metric = metric[0]
             # metric where total curricular metric as well as course-level metrics are stored in an array
     for c in curricula:
         if metric_name not in c.metrics:
@@ -590,16 +598,13 @@ def basic_statistics(curricula: List[Curriculum], metric_name: str) -> StringIO:
                 f"metric {metric_name} does not exist in curriculum {c.name}"
             )
         basic_metrics(c)
-        if isinstance(c.metrics[metric_name], float):
-            value = c.metrics[metric_name]
-        elif isinstance(
-            c.metrics[metric_name], tuple
-        ):  # Tuple{Float64,Array{Number,1}}
-            value = c.metrics[metric_name][
+        metric = c.metrics[metric_name]
+        if isinstance(metric, float):
+            value = metric
+        else:
+            value = metric[
                 0
             ]  # metric where total curricular metric as well as course-level metrics are stored in an array
-        else:
-            raise NotImplementedError
         total_metric += value
         if value > max_metric:
             max_metric = value
@@ -607,12 +612,11 @@ def basic_statistics(curricula: List[Curriculum], metric_name: str) -> StringIO:
             min_metric = value
     avg_metric = total_metric / len(curricula)
     for c in curricula:
-        if isinstance(c.metrics[metric_name], float):
-            value = c.metrics[metric_name]
-        elif isinstance(
-            c.metrics[metric_name], tuple
-        ):  # Tuple{Float64,Array{Number,1}}
-            value = c.metrics[metric_name][
+        metric = c.metrics[metric_name]
+        if isinstance(metric, float):
+            value = metric
+        else:
+            value = metric[
                 0
             ]  # metric where total curricular metric as well as course-level metrics are stored in an array
         STD_metric = (value - avg_metric) ** 2
@@ -682,11 +686,16 @@ def similarity(c1: Curriculum, c2: Curriculum, strict: bool = True) -> float:
     else:  # strict == False
         for course in c1.courses:
             for basis_course in c2.courses:
-                if (course.name != "" and basis_course.name == course.name) or (
-                    course.prefix != ""
-                    and basis_course.prefix == course.prefix
-                    and course.num != ""
-                    and basis_course.num == course.num
+                if (
+                    (course.name != "" and basis_course.name == course.name)
+                    or isinstance(course, Course)
+                    and isinstance(basis_course, Course)
+                    and (
+                        course.prefix != ""
+                        and basis_course.prefix == course.prefix
+                        and course.num != ""
+                        and basis_course.num == course.num
+                    )
                 ):
                     matches += 1
                     break  # only match once
@@ -697,7 +706,9 @@ def merge_curricula(
     name: str,
     c1: Curriculum,
     c2: Curriculum,
-    match_criteria: List[str] = [],
+    match_criteria: List[
+        Literal["prefix", "num", "name", "canonical name", "credit hours"]
+    ] = [],
     learning_outcomes: List[LearningOutcome] = [],
     degree_type: str = "BS",  # Julia version uses `BS`, which isn't defined anywhere
     system_type: System = semester,
@@ -729,7 +740,7 @@ def merge_curricula(
 
     """
     merged_courses = (c1.courses).copy()
-    extra_courses: List[Course] = []  # courses in c2 but not in c1
+    extra_courses: List[AbstractCourse] = []  # courses in c2 but not in c1
     new_courses: List[Course] = []
     for course in c2.courses:
         matched = False
@@ -783,39 +794,44 @@ def merge_curricula(
     return merged_curric
 
 
-def match(course1: Course, course2: Course, match_criteria: List[str] = []) -> bool:
+def match(
+    course1: AbstractCourse,
+    course2: AbstractCourse,
+    match_criteria: List[
+        Literal["prefix", "num", "name", "canonical name", "credit hours"]
+    ] = [],
+) -> bool:
     is_matched = False
     if len(match_criteria) == 0:
         return course1 == course2
     else:
-        for str in match_criteria:
-            if str not in ["prefix", "num", "name", "canonical name", "credit hours"]:
-                raise Exception(f"invalid match criteria: {str}")
-            elif str == "prefix":
-                if course1.prefix == course2.prefix:
-                    is_matched = True
-                else:
-                    is_matched = False
-            elif str == "num":
-                if course1.num == course2.num:
-                    is_matched = True
-                else:
-                    is_matched = False
-            elif str == "name":
-                if course1.name == course2.name:
-                    is_matched = True
-                else:
-                    is_matched = False
-            elif str == "canonical name":
-                if course1.canonical_name == course2.canonical_name:
-                    is_matched = True
-                else:
-                    is_matched = False
-            elif str == "credit hours":
-                if course1.credit_hours == course2.credit_hours:
-                    is_matched = True
-                else:
-                    is_matched = False
+        for criterion in match_criteria:
+            if criterion not in [
+                "prefix",
+                "num",
+                "name",
+                "canonical name",
+                "credit hours",
+            ]:
+                raise Exception(f"invalid match criteria: {criterion}")
+            elif criterion == "prefix":
+                is_matched = (
+                    course1.prefix == course2.prefix
+                    if isinstance(course1, Course) and isinstance(course2, Course)
+                    else True
+                )
+            elif criterion == "num":
+                is_matched = (
+                    course1.num == course2.num
+                    if isinstance(course1, Course) and isinstance(course2, Course)
+                    else True
+                )
+            elif criterion == "name":
+                is_matched = course1.name == course2.name
+            elif criterion == "canonical name":
+                is_matched = course1.canonical_name == course2.canonical_name
+            elif criterion == "credit hours":
+                is_matched = course1.credit_hours == course2.credit_hours
     return is_matched
 
 

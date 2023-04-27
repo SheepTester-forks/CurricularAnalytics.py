@@ -2,7 +2,7 @@ from io import StringIO
 from typing import Any, Dict, List, Optional, Set
 
 from networkx import DiGraph
-from src.DataTypes.Course import AbstractCourse, Course
+from src.DataTypes.Course import AbstractCourse
 from src.DataTypes.Curriculum import Curriculum, course_from_id
 from src.DataTypes.DataTypes import pre
 
@@ -72,7 +72,7 @@ class DegreePlan:
     "Curriculum the degree plan satisfies"
     additional_courses: List[AbstractCourse]
     "Additional (non-required) courses added to the degree plan, e.g., these may be preparatory courses"
-    graph: DiGraph
+    graph: DiGraph[int]
     "Directed graph representation of pre-/co-requisite structure of the degre plan"
     terms: List[Term]
     "The terms associated with the degree plan"
@@ -166,8 +166,7 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
         validity = False
         for i in curric_classes - dp_classes:
             c = course_from_id(plan.curriculum, i)
-            if c:
-                error_msg.write(f"\n-Degree plan is missing required course: {c.name}")
+            error_msg.write(f"\n-Degree plan is missing required course: {c.name}")
     # Is a course in the degree plan multiple times?
     dp_classes: Set[int] = set()
     for i in range(plan.num_terms):
@@ -182,9 +181,7 @@ def isvalid_degree_plan(plan: DegreePlan, error_msg: StringIO = StringIO()) -> b
     return validity
 
 
-def find_term(
-    plan: DegreePlan, course: AbstractCourse, error_msg: StringIO = StringIO()
-) -> Optional[int]:
+def find_term(plan: DegreePlan, course: AbstractCourse) -> int:
     """
         find_term(plan:DegreePlan, course:Course)
 
@@ -194,7 +191,7 @@ def find_term(
     for i, term in enumerate(plan.terms):
         if course in term.courses:
             return i
-    error_msg.write(f"Course {course.name} is not in the degree plan")
+    raise ValueError(f"Course {course.name} is not in the degree plan")
 
 
 # ugly print of degree plan

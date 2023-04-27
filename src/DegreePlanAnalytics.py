@@ -108,16 +108,10 @@ def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> float:
     """
     distance: float = 0
     term = find_term(plan, course)
-    if term is None:
-        raise KeyError("Could not find term of course")
     for req in course.requisites:
-        req_course = course_from_id(plan.curriculum, req)
-        if req_course is None:
-            raise KeyError("Could not find requisite course in curriculum")
-        req_term = find_term(plan, req_course)
-        if req_term is None:
-            raise KeyError("Could not find term of requisite course")
-        distance = distance + (term - req_term)
+        distance = distance + (
+            term - find_term(plan, course_from_id(plan.curriculum, req))
+        )
     course.metrics["requisite distance"] = distance
     return distance
 

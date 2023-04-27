@@ -191,8 +191,8 @@ def read_all_courses(
                 canonical_name=c_col_name,
                 id=c_ID,
             )
-    for row in DataFrames.eachrow(df_courses):
-        c_ID = row[("Course ID")]
+    for _, row in df_courses.iterrows():
+        c_ID = row["Course ID"]
         pre_reqs = row("Prerequisites")
         if pre_reqs != "":
             for pre_req in str(pre_reqs).split(";"):

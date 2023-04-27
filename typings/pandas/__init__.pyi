@@ -4,22 +4,12 @@ from typing import (
     Iterable,
     Literal,
     Sequence,
-    TypeAlias,
     TypeVar,
-    Union,
-    overload,
 )
 
 from pandas._libs import lib
 from pandas._typing import (
-    CompressionOptions,
-    CSVEngine,
-    DtypeArg,
-    DtypeBackend,
     FilePath,
-    IndexLabel,
-    ReadCsvBuffer,
-    StorageOptions,
 )
 
 __all__ = ["DataFrame", "Series", "read_csv"]
