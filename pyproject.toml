@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "curricularanalytics"
+version = "1.4.0"
+authors = [
+  { name = "Greg Heileman", email = "gregheileman@gmail.com" },
+  { name = "Hayden Free", email = "haydenwfree@gmail.com" },
+  { name = "Orhan Abar", email = "orhan.abar@uky.edu" },
+  { name = "Will Thompson", email = "wgthompson@uky.edu" },
+  { name = "Sean Yen", email = "seyen@ucsd.edu" },
+]
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: GNU AFFERO GENERAL PUBLIC LICENSE",
+  "Operating System :: OS Independent",
+]

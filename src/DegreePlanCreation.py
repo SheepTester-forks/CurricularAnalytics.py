@@ -2,7 +2,7 @@
 
 from typing import List, Literal, Optional, Protocol, Union
 
-from networkx import has_path  # type: ignore
+from networkx import has_path
 
 from src.DataTypes.Course import AbstractCourse, Course
 from src.DataTypes.Curriculum import Curriculum

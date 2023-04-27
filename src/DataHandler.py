@@ -20,7 +20,7 @@ julia> dp = read_csv("./mydata/UBW_plan.csv")
 """
 from io import StringIO, TextIOWrapper
 import os
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, Hashable, List, Literal, Optional, Union
 
 import pandas as pd
 from src.CSVUtilities import csv_line_reader, read_all_courses, remove_empty_lines
@@ -134,15 +134,15 @@ def read_csv(raw_file_path: str):
             read_line = csv_line_reader(csv_file.readline(), ",")
 
         # NOTE: omitting limit=course_count - 1 and silencewarnings=True
-        df_courses = pd.read_csv(file_path, header=courses_header, delimiter=",")  # type: ignore
-        if df_courses.shape[0] != df_courses.nunique("Course ID"):  # type: ignore
+        df_courses = pd.read_csv(file_path, header=courses_header, delimiter=",")
+        if df_courses.shape[0] != df_courses.nunique("Course ID"):
             print("All courses must have a unique Course ID (2)")
             return False
         if not is_dp and "Term" in df_courses.columns:
             print("Curriculum cannot have term information.")
             return False
-        df_all_courses = pd.DataFrame()
-        df_additional_courses = pd.DataFrame()
+        df_all_courses: pd.DataFrame[Hashable] = pd.DataFrame()
+        df_additional_courses: pd.DataFrame[Hashable] = pd.DataFrame()
         if len(read_line) > 0 and read_line[0] == "Additional Courses":
             if not is_dp:
                 print("Only Degree Plan can have additional courses")
@@ -158,10 +158,12 @@ def read_csv(raw_file_path: str):
                 additional_course_count += 1
                 read_line = csv_line_reader(csv_file.readline(), ",")
         if additional_course_count > 1:
-            df_additional_courses = pd.read_csv(  # type: ignore
+            df_additional_courses = pd.read_csv(
                 file_path, header=additional_course_start, delimiter=","
             )
-            df_all_courses = vcat(df_courses, df_additional_courses)
+            df_all_courses = pd.concat(
+                [df_courses, df_additional_courses],
+            )
         else:
             df_all_courses = df_courses
 
@@ -179,7 +181,7 @@ def read_csv(raw_file_path: str):
                 learning_outcomes_count += 1
                 read_line = csv_line_reader(csv_file.readline(), ",")
             if learning_outcomes_count > 1:
-                df_course_learning_outcomes = pd.read_csv(  # type: ignore
+                df_course_learning_outcomes = pd.read_csv(
                     file_path, header=learning_outcomes_start, delimiter=","
                 )
         course_learning_outcomes: Dict[int, List[LearningOutcome]] = {}
@@ -201,7 +203,7 @@ def read_csv(raw_file_path: str):
                 curric_learning_outcomes_count += 1
                 read_line = csv_line_reader(csv_file.readline(), ",")
             if learning_outcomes_count > 1:
-                df_curric_learning_outcomes = pd.read_csv(  # type: ignore
+                df_curric_learning_outcomes = pd.read_csv(
                     file_path, header=curric_learning_outcomes_start, delimiter=","
                 )
 

@@ -161,15 +161,14 @@ def find_cell(row: pd.Series[str], header: str) -> str:
         return row[header]
 
 
-# TODO: DataFrame??
 def read_all_courses(
-    df_courses: pd.DataFrame, lo_Course: Dict[int, List[LearningOutcome]] = {}
+    df_courses: "pd.DataFrame[str]", lo_Course: Dict[int, List[LearningOutcome]] = {}
 ) -> Union[Dict[int, Course], Literal[False]]:
     course_dict: Dict[int, Course] = {}
-    for _, row in df_courses.iterrows():  # type: ignore
-        c_ID = row["Course ID"]  # type: ignore
+    for _, row in df_courses.iterrows():
+        c_ID = row["Course ID"]
         c_Name = find_cell(row, "Course Name")
-        c_Credit = row["Credit Hours"]  # type: ignore
+        c_Credit = row["Credit Hours"]
         c_Credit = float(c_Credit)  # if isinstance(c_Credit, str) else c_Credit
         c_Prefix = str(row[(("Prefix"))])
         c_Number = find_cell(row, ("Number"))
