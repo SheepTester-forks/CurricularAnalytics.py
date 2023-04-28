@@ -2,12 +2,12 @@
 # Curriculum data type
 # The required curriculum associated with a degree program
 from io import StringIO
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, FrozenSet, List, Tuple, TypedDict
 
 from networkx import DiGraph, set_edge_attributes
 from src.CurricularAnalytics import isvalid_curriculum
 
-from src.DataTypes.Course import AbstractCourse, add_requisite
+from src.DataTypes.Course import AbstractCourse, Course, add_requisite
 from src.DataTypes.DataTypes import (
     Requisite,
     System,
@@ -19,6 +19,27 @@ from src.DataTypes.DataTypes import (
     semester,
 )
 from src.DataTypes.LearningOutcome import LearningOutcome
+
+CurriculumMetrics = TypedDict(
+    "CurriculumMetrics",
+    {
+        "blocking factor": Tuple[int, List[int]],
+        "delay factor": Tuple[int, List[int]],
+        "centrality": Tuple[int, List[int]],
+        "complexity": Tuple[float, List[float]],
+        "longest paths": List[List[AbstractCourse]],
+        "max. blocking factor": int,
+        "max. blocking factor courses": List[AbstractCourse],
+        "max. centrality": int,
+        "max. centrality courses": List[AbstractCourse],
+        "max. delay factor": int,
+        "max. delay factor courses": List[AbstractCourse],
+        "max. complexity": int,
+        "max. complexity courses": List[AbstractCourse],
+        "dead end": Dict[FrozenSet[str], List[Course]]
+    },
+    total=False,
+)
 
 
 class Curriculum:
@@ -76,7 +97,7 @@ class Curriculum:
     Directed Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
     This is a course and learning outcome graph
     """
-    metrics: Dict[str, Union[float, Tuple[float, List[float]]]]
+    metrics: CurriculumMetrics
     "Curriculum-related metrics"
     metadata: Dict[str, Any]
     "Curriculum-related metadata"

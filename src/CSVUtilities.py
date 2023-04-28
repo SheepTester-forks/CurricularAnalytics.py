@@ -89,10 +89,10 @@ def course_line(course: Course, term_id: Union[str, int], metrics: bool = False)
     else:
         # protect against missing metrics values in course
         if (
-            ("complexity" not in course.metrics)
-            or ("blocking factor" not in course.metrics)
-            or ("delay factor" not in course.metrics)
-            or ("centrality" not in course.metrics)
+            course.metrics["complexity"] == -1
+            or course.metrics["blocking factor"] == -1
+            or course.metrics["delay factor"] == -1
+            or course.metrics["centrality"] == -1
         ):
             raise Exception(
                 "Cannot call course_line(;metrics=true) if the curriculum's courses do not have complexity, blocking factor, delay factor, and centrality values stored in their metrics dictionary."

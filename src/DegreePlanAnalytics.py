@@ -51,11 +51,11 @@ def basic_metrics(plan: DegreePlan):
     buf.write(f"  total credit hours = {plan.credit_hours}\n")
     plan.metrics["number of terms"] = plan.num_terms
     buf.write(f"  number of terms = {plan.num_terms}\n")
-    max = 0
-    min = plan.credit_hours
-    max_term = 0
-    min_term = 0
-    var = 0
+    max: float = 0
+    min: float = plan.credit_hours
+    max_term: int = 0
+    min_term: int = 0
+    var: float = 0
     # req_distance = 0
     avg = plan.credit_hours / plan.num_terms
     for i in range(plan.num_terms):
@@ -81,7 +81,7 @@ def basic_metrics(plan: DegreePlan):
 
 
 # Degree plan metrics based upon the distance between requsites and the classes that require them.
-def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> float:
+def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> int:
     """
         requisite_distance(DegreePlan, course:Course)
 
@@ -106,7 +106,7 @@ def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> float:
     In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
     The requisite distance metric computed by this function is stored in the associated `Course` data object.
     """
-    distance: float = 0
+    distance: int = 0
     term = find_term(plan, course)
     for req in course.requisites:
         distance = distance + (
@@ -116,7 +116,7 @@ def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> float:
     return distance
 
 
-def plan_requisite_distance(plan: DegreePlan) -> float:
+def plan_requisite_distance(plan: DegreePlan) -> int:
     """
         requisite_distance(plan:DegreePlan)
 
@@ -141,7 +141,7 @@ def plan_requisite_distance(plan: DegreePlan) -> float:
     distances across all courses in a degree plan is described in [Optimized Degree Plans]@ref.
     The requisite distance metric computed by this function will be stored in the associated `DegreePlan` data object.
     """
-    distance: float = 0
+    distance: int = 0
     for c in plan.curriculum.courses:
         distance = distance + requisite_distance(plan, c)
     plan.metrics["requisite distance"] = distance

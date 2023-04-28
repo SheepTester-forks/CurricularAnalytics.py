@@ -1,8 +1,19 @@
 from abc import ABC
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypedDict
 
 from src.DataTypes.DataTypes import Requisite
 from src.DataTypes.LearningOutcome import LearningOutcome
+
+CourseMetrics = TypedDict(
+    "CurriculumMetrics",
+    {
+        "blocking factor": int,
+        "delay factor": int,
+        "centrality": int,
+        "complexity": float,
+        "requisite distance": int,
+    },
+)
 
 
 # Course-related data types:
@@ -47,7 +58,7 @@ class AbstractCourse(ABC):
     "List of requisites, in (requisite_course id, requisite_type) format"
     learning_outcomes: List[LearningOutcome]
     "A list of learning outcomes associated with the course"
-    metrics: Dict[str, Any]
+    metrics: CourseMetrics
     "Course-related metrics"
     metadata: Dict[str, Any]
     "Course-related metadata"
@@ -119,7 +130,13 @@ class Course(AbstractCourse):
         self.canonical_name = canonical_name
         self.requisites = {}
         # self.requisite_formula
-        self.metrics = {}
+        self.metrics = {
+            "blocking factor": -1,
+            "centrality": -1,
+            "complexity": -1,
+            "delay factor": -1,
+            "requisite distance": -1,
+        }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes
         # curriculum id -> vertex id, note: course may be in multiple curricula
@@ -157,7 +174,13 @@ class CourseCollection(AbstractCourse):
         self.canonical_name = canonical_name
         self.requisites = {}
         # self.requisite_formula
-        self.metrics = {}
+        self.metrics = {
+            "blocking factor": -1,
+            "centrality": -1,
+            "complexity": -1,
+            "delay factor": -1,
+            "requisite distance": -1,
+        }
         self.metadata = {}
         self.vertex_id = {}  # curriculum id -> vertex id
 

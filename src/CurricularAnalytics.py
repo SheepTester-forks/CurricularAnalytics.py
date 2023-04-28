@@ -10,11 +10,11 @@ directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a 
 from io import StringIO
 import math
 from queue import Queue
-from typing import List, Literal, Optional, Tuple
+from typing import FrozenSet, List, Literal, Optional, Tuple
 
 import networkx as nx
 from src.DataTypes.Course import AbstractCourse, Course, add_requisite
-from src.DataTypes.Curriculum import Curriculum, course_from_id
+from src.DataTypes.Curriculum import Curriculum, course_from_id, course_from_vertex
 from src.DataTypes.DataTypes import System, co, quarter, semester, strict_co
 from src.DataTypes.DegreePlan import DegreePlan
 from src.DataTypes.LearningOutcome import LearningOutcome
@@ -171,7 +171,7 @@ def extraneous_requisites(c: Curriculum, debug: bool = False) -> List[List[int]]
 
 
 # Compute the blocking factor of a course
-def blocking_factor(c: Curriculum, course: int) -> int:
+def blocking_factor_course(c: Curriculum, course: int) -> int:
     """
         blocking_factor(c:Curriculum, course:Int)
 
@@ -201,17 +201,17 @@ def blocking_factor(c: Curriculum) -> Tuple[int, List[int]]:
     ```
     where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
     """
-    b = 0
-    bf: List[int] = []  # TODO: Array{Int, 1}(undef, c.num_courses)
+    b: int = 0
+    bf: List[int] = []
     for i, v in enumerate(c.graph.nodes()):
-        bf[i] = blocking_factor(c, v)
+        bf[i] = blocking_factor_course(c, v)
         b += bf[i]
     c.metrics["blocking factor"] = b, bf
     return b, bf
 
 
 # Compute the delay factor of a course
-def delay_factor_course(c: Curriculum, course: int) -> Tuple[int, List[int]]:
+def delay_factor_course(c: Curriculum, course: int) -> int:
     """
         delay_factor(c:Curriculum, course:Int)
 
@@ -226,7 +226,7 @@ def delay_factor_course(c: Curriculum, course: int) -> Tuple[int, List[int]]:
     where ``v_i \\overset{p}{\\leadsto} v_j`` denotes a directed path ``p`` in ``G_c`` from vertex
     ``v_i`` to ``v_j``.
     """
-    if "delay factor" not in c.courses[course].metrics:
+    if c.courses[course].metrics["delay factor"] == -1:
         delay_factor(c)
     return c.courses[course].metrics["delay factor"]
 
@@ -243,7 +243,7 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
     where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
     """
     g = c.graph
-    df = [1] * c.num_courses
+    df: List[int] = [1] * c.num_courses
     for v in g.nodes():
         for path in all_paths(g):
             for vtx in path:
@@ -253,7 +253,6 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
                 if path_length > df[vtx]:
                     df[vtx] = path_length
     d = 0
-    c.metrics["delay factor"] = 0
     for v in g.nodes():
         c.courses[v].metrics["delay factor"] = df[v]
         d += df[v]
@@ -262,7 +261,7 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
 
 
 # Compute the centrality of a course
-def centrality(c: Curriculum, course: int) -> int:
+def centrality_course(c: Curriculum, course: int) -> int:
     """
         centrality(c:Curriculum, course:Int)
 
@@ -281,7 +280,7 @@ def centrality(c: Curriculum, course: int) -> int:
     ```
     where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``G_c``.
     """
-    cent = 0
+    cent: int = 0
     g = c.graph
     for path in all_paths(g):
         # conditions: path length is greater than 2, target course must be in the path, the target vertex
@@ -308,17 +307,17 @@ def centrality(c: Curriculum) -> Tuple[int, List[int]]:
     q(c) = \\sum_{v \\in V} q(v).
     ```
     """
-    cent = 0
-    cf = []  # Array{Int, 1}(undef, c.num_courses)
+    cent: int = 0
+    cf: List[int] = []  # Array{Int, 1}(undef, c.num_courses)
     for i, v in enumerate(c.graph.nodes()):
-        cf[i] = centrality(c, v)
+        cf[i] = centrality_course(c, v)
         cent += cf[i]
     c.metrics["centrality"] = cent, cf
     return cent, cf
 
 
 # Compute the complexity of a course
-def complexity(c: Curriculum, course: int) -> Tuple[int, List[int]]:
+def complexity_course(c: Curriculum, course: int) -> Tuple[int, List[int]]:
     """
         complexity(c:Curriculum, course:Int)
 
@@ -329,13 +328,13 @@ def complexity(c: Curriculum, course: int) -> Tuple[int, List[int]]:
     ```
     i.e., as a linear combination of the course delay and blocking factors.
     """
-    if "complexity" not in c.courses[course].metrics:
+    if c.courses[course].metrics["complexity"] == -1:
         complexity(c)
     return c.courses[course].metrics["complexity"]
 
 
 # Compute the complexity of a curriculum
-def complexity(c: Curriculum) -> Tuple[int, List[int]]:
+def complexity(c: Curriculum) -> Tuple[float, List[float]]:
     """
         complexity(c:Curriculum, course:Int)
 
@@ -354,7 +353,7 @@ def complexity(c: Curriculum) -> Tuple[int, List[int]]:
     ``v_3`` in that curriculum, has a higher combined complexity.
     """
     course_complexity: List[float] = []  # Array{Number, 1}(undef, c.num_courses)
-    curric_complexity = 0
+    curric_complexity: float = 0
     if "delay factor" not in c.metrics:
         delay_factor(c)
     if "blocking factor" not in c.metrics:
@@ -375,7 +374,7 @@ def complexity(c: Curriculum) -> Tuple[int, List[int]]:
 
 
 # Find all the longest paths in a curriculum.
-def longest_paths(c: Curriculum):
+def longest_paths(c: Curriculum) -> List[List[AbstractCourse]]:
     """
         longest_paths(c:Curriculum)
 
@@ -390,7 +389,7 @@ def longest_paths(c: Curriculum):
     julia> paths = longest_paths(c)
     ```
     """
-    lps: List[List[Course]] = []
+    lps: List[List[AbstractCourse]] = []
     for path in longest_paths_graph(c.graph):  # longest_paths(), GraphAlgs.jl
         c_path = courses_from_vertices(c, path)
         lps.append(c_path)
@@ -409,30 +408,33 @@ def compare_curricula(c1: Curriculum, c2: Curriculum) -> StringIO:
     report.write(f"Comparing: C1 = {c1.name} and C2 = {c2.name}\n")
     for k in c1.metrics:
         report.write(f" Curricular {k}: ")
-        if len(c1.metrics[k]) == 2:  # curriculum has course-level metrics
-            metric1 = c1.metrics[k][0]
-            metric2 = c2.metrics[k][0]
-        else:
-            metric1 = c1.metrics[k]
-            metric2 = c2.metrics[k]
-        diff = c1.metrics[k][0] - c2.metrics[k][0]
+        metric1 = c1.metrics[k]
+        metric2 = c1.metrics[k]
+        if isinstance(metric1, tuple):  # curriculum has course-level metrics
+            metric1 = metric1[0]
+        if isinstance(metric2, tuple):
+            metric2 = metric2[0]
+        diff = metric1 - metric2
         if diff > 0:
             report.write(
                 "C1 is %.1f units (%.0f%c) larger than C2\n"
-                % (diff, 100 * diff / c2.metrics[k][1], "%"),
+                % (diff, 100 * diff / metric2, "%"),
             )
         elif diff < 0:
             report.write(
                 "C1 is %.1f units (%.0f%c) smaller than C2\n"
-                % (-diff, 100 * (-diff) / c2.metrics[k][1], "%"),
+                % (-diff, 100 * (-diff) / metric2, "%"),
             )
         else:
             report.write(f"C1 and C2 have the same curricular {k}\n")
-        if len(c1.metrics[k]) == 2:
+        if isinstance(metric1, tuple):
             report.write("  Course-level {k}:\n")
             for i, c in enumerate([c1, c2]):
-                maxval = max(c.metrics[k][1])
-                pos = [j for (j, x) in enumerate(c.metrics[k][1]) if x == maxval]
+                metric = c.metrics[k]
+                if not isinstance(metric, tuple):
+                    continue
+                maxval = max(metric[1])
+                pos = [j for (j, x) in enumerate(metric[1]) if x == maxval]
                 report.write(f"   Largest {k} value in C{i} is {maxval} for course: ")
                 for p in pos:
                     report.write(f"{c.courses[p].name}  ")
@@ -441,27 +443,37 @@ def compare_curricula(c1: Curriculum, c2: Curriculum) -> StringIO:
 
 
 def courses_from_vertices(
-    curriculum: Curriculum, vertices: List[int], course: str = "object"
-) -> List[Course]:
+    curriculum: Curriculum, vertices: List[int]
+) -> List[AbstractCourse]:
     """
     Create a list of courses or course names from a array of vertex IDs.
     The array returned can be (keyword arguments):
     -course data objects : object
+    """
+    course_list: List[AbstractCourse] = []
+    for v in vertices:
+        course_list.append(curriculum.courses[v])
+    return course_list
+
+
+def courses_names_from_vertices(
+    curriculum: Curriculum, vertices: List[int], course: Literal["name", "fullname"]
+) -> List[str]:
+    """
+    Create a list of courses or course names from a array of vertex IDs.
+    The array returned can be (keyword arguments):
     -the names of courses : name
     -the full names of courses (prefix, number, name) : fullname
     """
-    if course == "object":
-        course_list: List[Course] = []
-    else:
-        course_list: List[str] = []  # TODO
+    course_list: List[str] = []
     for v in vertices:
         c = curriculum.courses[v]
-        if course == "object":
-            course_list.append(c)
         if course == "name":
             course_list.append(f"{c.name}")
         if course == "fullname":
-            course_list.append(f"{c.prefix} {c.num} - {c.name}")
+            course_list.append(
+                f"{c.prefix} {c.num} - {c.name}" if isinstance(c, Course) else c.name
+            )
     return course_list
 
 
@@ -501,13 +513,11 @@ def basic_metrics(curric: Curriculum) -> StringIO:
     max_df = 0
     max_cc = 0
     max_cent = 0
-    max_bf_courses: List[Course] = []
-    max_df_courses: List[Course] = []
-    max_cc_courses: List[Course] = []
-    max_cent_courses: List[Course] = []
+    max_bf_courses: List[AbstractCourse] = []
+    max_df_courses: List[AbstractCourse] = []
+    max_cc_courses: List[AbstractCourse] = []
+    max_cent_courses: List[AbstractCourse] = []
     for c in curric.courses:
-        if not isinstance(c, Course):
-            continue
         if c.metrics["blocking factor"] == max_bf:
             max_bf_courses.append(c)
         elif c.metrics["blocking factor"] > max_bf:
@@ -858,8 +868,8 @@ def homology(curricula: List[Curriculum], strict: bool = False) -> Matrix[float]
 
 
 def dead_ends(
-    curric: Curriculum, prefixes: List[str]
-) -> Tuple[List[str], List[Course]]:
+    curric: Curriculum, prefixes: FrozenSet[str]
+) -> Tuple[FrozenSet[str], List[Course]]:
     """
         dead_ends(curric, prefixes)
 
@@ -883,7 +893,7 @@ def dead_ends(
     paths = all_paths(curric.graph)
     for p in paths:
         course = course_from_vertex(curric, p[-1])
-        if course.prefix == "":
+        if not isinstance(course, Course) or course.prefix == "":
             continue
         if course.prefix not in prefixes:
             if course not in dead_end_courses:

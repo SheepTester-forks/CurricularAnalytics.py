@@ -1,5 +1,5 @@
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set, TypedDict
 
 from networkx import DiGraph
 from src.DataTypes.Course import AbstractCourse
@@ -8,6 +8,8 @@ from src.DataTypes.DataTypes import pre
 
 ##############################################################
 # Term data type
+
+TermMetrics = TypedDict("TermMetrics", {})
 
 
 class Term:
@@ -26,7 +28,7 @@ class Term:
     "The number of courses in the Term"
     credit_hours: float
     "The number of credit hours associated with the term"
-    metrics: Dict[str, Any]
+    metrics: TermMetrics
     "Term-related metrics"
     metadata: Dict[str, Any]
     "Term-related metadata"
@@ -41,6 +43,23 @@ class Term:
             self.credit_hours += courses[i].credit_hours
         self.metrics = {}
         self.metadata = {}
+
+
+DegreePlanMetrics = TypedDict(
+    "DegreePlanMetrics",
+    {
+        "total credit hours": float,
+        "number of terms": int,
+        "max. credits in a term": float,
+        "max. credit term": int,
+        "min. credits in a term": float,
+        "min. credit term": int,
+        "avg. credits per term": float,
+        "term credit hour std. dev.": float,
+        "requisite distance": int,
+    },
+    total=False,
+)
 
 
 ##############################################################
@@ -80,7 +99,7 @@ class DegreePlan:
     "Number of terms in the degree plan"
     credit_hours: float
     "Total number of credit hours in the degree plan"
-    metrics: Dict[str, Any]
+    metrics: DegreePlanMetrics
     "Dergee Plan-related metrics"
     metadata: Dict[str, Any]
     "Dergee Plan-related metadata"
