@@ -185,7 +185,7 @@ def blocking_factor_course(c: Curriculum, course: int) -> int:
     ``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course
     ``c_i`` to ``c_j`` in curriculum ``c``.
     """
-    b = len(nx.shortest_path(c.graph, course))
+    b = len(reachable_from(c.graph, course))
     c.courses[course].metrics["blocking factor"] = b
     return b
 
