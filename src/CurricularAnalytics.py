@@ -13,11 +13,22 @@ from queue import Queue
 from typing import FrozenSet, List, Literal, Optional, Tuple
 
 import networkx as nx
-from src.DataTypes.Course import AbstractCourse, Course, add_requisite
-from src.DataTypes.Curriculum import Curriculum, course_from_id, course_from_vertex
+from src.DataTypes.Course import AbstractCourse, Course, CourseMetricKey, add_requisite
+from src.DataTypes.Curriculum import (
+    Curriculum,
+    CurriculumMetricKey,
+    course_from_id,
+    course_from_vertex,
+)
 from src.DataTypes.DataTypes import System, co, quarter, semester, strict_co
 from src.DataTypes.DegreePlan import DegreePlan
 from src.DataTypes.LearningOutcome import LearningOutcome
+from src.GraphAlgs import (
+    all_paths,
+    edge_crossings,
+    longest_paths as longest_paths_graph,
+    reachable_from,
+)
 
 # TODO:
 # export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, DegreePlan,
@@ -31,6 +42,8 @@ from src.DataTypes.LearningOutcome import LearningOutcome
 #         strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
 
 # Check if a curriculum graph has requisite cycles.
+
+MatchCriterion = Literal["prefix", "num", "name", "canonical name", "credit hours"]
 
 
 def isvalid_curriculum(c: Curriculum, error_msg: StringIO = StringIO()) -> bool:
@@ -203,7 +216,7 @@ def blocking_factor(c: Curriculum) -> Tuple[int, List[int]]:
     """
     b: int = 0
     bf: List[int] = []
-    for i, v in enumerate(c.graph.nodes()):
+    for i, v in enumerate(c.graph.nodes):
         bf[i] = blocking_factor_course(c, v)
         b += bf[i]
     c.metrics["blocking factor"] = b, bf
@@ -244,7 +257,7 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
     """
     g = c.graph
     df: List[int] = [1] * c.num_courses
-    for v in g.nodes():
+    for v in g.nodes:
         for path in all_paths(g):
             for vtx in path:
                 path_length = len(
@@ -253,7 +266,7 @@ def delay_factor(c: Curriculum) -> Tuple[int, List[int]]:
                 if path_length > df[vtx]:
                     df[vtx] = path_length
     d = 0
-    for v in g.nodes():
+    for v in g.nodes:
         c.courses[v].metrics["delay factor"] = df[v]
         d += df[v]
     c.metrics["delay factor"] = d, df
@@ -309,7 +322,7 @@ def centrality(c: Curriculum) -> Tuple[int, List[int]]:
     """
     cent: int = 0
     cf: List[int] = []  # Array{Int, 1}(undef, c.num_courses)
-    for i, v in enumerate(c.graph.nodes()):
+    for i, v in enumerate(c.graph.nodes):
         cf[i] = centrality_course(c, v)
         cent += cf[i]
     c.metrics["centrality"] = cent, cf
@@ -317,7 +330,7 @@ def centrality(c: Curriculum) -> Tuple[int, List[int]]:
 
 
 # Compute the complexity of a course
-def complexity_course(c: Curriculum, course: int) -> Tuple[int, List[int]]:
+def complexity_course(c: Curriculum, course: int) -> float:
     """
         complexity(c:Curriculum, course:Int)
 
@@ -358,7 +371,7 @@ def complexity(c: Curriculum) -> Tuple[float, List[float]]:
         delay_factor(c)
     if "blocking factor" not in c.metrics:
         blocking_factor(c)
-    for v in c.graph.nodes():
+    for v in c.graph.nodes:
         c.courses[v].metrics["complexity"] = (
             c.courses[v].metrics["delay factor"]
             + c.courses[v].metrics["blocking factor"]
@@ -406,39 +419,32 @@ def compare_curricula(c1: Curriculum, c2: Curriculum) -> StringIO:
     if c1.metrics.keys() != c2.metrics.keys():
         raise Exception("cannot compare curricula, they do not have the same metrics")
     report.write(f"Comparing: C1 = {c1.name} and C2 = {c2.name}\n")
-    for k in c1.metrics:
+    for k in Curriculum.metric_keys:
         report.write(f" Curricular {k}: ")
-        metric1 = c1.metrics[k]
-        metric2 = c1.metrics[k]
-        if isinstance(metric1, tuple):  # curriculum has course-level metrics
-            metric1 = metric1[0]
-        if isinstance(metric2, tuple):
-            metric2 = metric2[0]
+        metric1 = c1.metrics[k][0]
+        metric2 = c1.metrics[k][0]
         diff = metric1 - metric2
         if diff > 0:
             report.write(
-                "C1 is %.1f units (%.0f%c) larger than C2\n"
-                % (diff, 100 * diff / metric2, "%"),
+                "C1 is %.1f units (%.0f%%) larger than C2\n"
+                % (diff, 100 * diff / metric2),
             )
         elif diff < 0:
             report.write(
-                "C1 is %.1f units (%.0f%c) smaller than C2\n"
-                % (-diff, 100 * (-diff) / metric2, "%"),
+                "C1 is %.1f units (%.0f%%) smaller than C2\n"
+                % (-diff, 100 * (-diff) / metric2),
             )
         else:
             report.write(f"C1 and C2 have the same curricular {k}\n")
-        if isinstance(metric1, tuple):
-            report.write("  Course-level {k}:\n")
-            for i, c in enumerate([c1, c2]):
-                metric = c.metrics[k]
-                if not isinstance(metric, tuple):
-                    continue
-                maxval = max(metric[1])
-                pos = [j for (j, x) in enumerate(metric[1]) if x == maxval]
-                report.write(f"   Largest {k} value in C{i} is {maxval} for course: ")
-                for p in pos:
-                    report.write(f"{c.courses[p].name}  ")
-                report.write("\n")
+        report.write(f"  Course-level {k}:\n")
+        for i, c in enumerate([c1, c2]):
+            metric = c.metrics[k]
+            maxval = max(metric[1])
+            pos = [j for (j, x) in enumerate(metric[1]) if x == maxval]
+            report.write(f"   Largest {k} value in C{i} is {maxval} for course: ")
+            for p in pos:
+                report.write(f"{c.courses[p].name}  ")
+            report.write("\n")
     return report
 
 
@@ -504,15 +510,14 @@ def basic_metrics(curric: Curriculum) -> StringIO:
     ```
     """
     buf = StringIO()
-    _ = (
-        complexity(curric),
-        centrality(curric),
-        longest_paths(curric),
-    )  # compute all curricular metrics
-    max_bf = 0
-    max_df = 0
-    max_cc = 0
-    max_cent = 0
+    # compute all curricular metrics
+    complexity(curric)
+    centrality(curric)
+    longest_paths(curric)
+    max_bf: int = 0
+    max_df: int = 0
+    max_cc: float = 0
+    max_cent: int = 0
     max_bf_courses: List[AbstractCourse] = []
     max_df_courses: List[AbstractCourse] = []
     max_cc_courses: List[AbstractCourse] = []
@@ -586,35 +591,29 @@ def basic_metrics(curric: Curriculum) -> StringIO:
     return buf
 
 
-def basic_statistics(curricula: List[Curriculum], metric_name: str) -> StringIO:
+def basic_statistics(
+    curricula: List[Curriculum], metric_name: CurriculumMetricKey
+) -> StringIO:
     buf = StringIO()
     # set initial values used to find min and max metric values
     total_metric = 0
     STD_metric = 0
     max_metric = -math.inf
     min_metric = math.inf
-    if metric_name in curricula[0].metrics:
-        metric = curricula[0].metrics[metric_name]
-        if isinstance(metric, float):
-            max_metric = metric
-            min_metric = metric
-        else:
-            max_metric = metric[0]
-            min_metric = metric[0]
-            # metric where total curricular metric as well as course-level metrics are stored in an array
+    metric = curricula[0].metrics[metric_name]
+    max_metric = metric[0]
+    min_metric = metric[0]
+    # metric where total curricular metric as well as course-level metrics are stored in an array
     for c in curricula:
-        if metric_name not in c.metrics:
+        if c.metrics[metric_name][0] == -1:
             raise Exception(
                 f"metric {metric_name} does not exist in curriculum {c.name}"
             )
         basic_metrics(c)
         metric = c.metrics[metric_name]
-        if isinstance(metric, float):
-            value = metric
-        else:
-            value = metric[
-                0
-            ]  # metric where total curricular metric as well as course-level metrics are stored in an array
+        value = metric[
+            0
+        ]  # metric where total curricular metric as well as course-level metrics are stored in an array
         total_metric += value
         if value > max_metric:
             max_metric = value
@@ -641,7 +640,7 @@ def basic_statistics(curricula: List[Curriculum], metric_name: str) -> StringIO:
 
 
 def write_course_names(
-    buf: StringIO, courses: List[Course], separator: str = ", "
+    buf: StringIO, courses: List[AbstractCourse], separator: str = ", "
 ) -> None:
     if len(courses) == 1:
         write_course_name(buf, courses[0])
@@ -652,11 +651,12 @@ def write_course_names(
         write_course_name(buf, courses[-1])
 
 
-def write_course_name(buf: StringIO, c: Course) -> None:
-    if c.prefix:
-        buf.write(f"{c.prefix} ")
-    if c.num:
-        buf.write(f"{c.num} - ")
+def write_course_name(buf: StringIO, c: AbstractCourse) -> None:
+    if isinstance(c, Course):
+        if c.prefix:
+            buf.write(f"{c.prefix} ")
+        if c.num:
+            buf.write(f"{c.num} - ")
     buf.write(f"{c.name}")  # name is a required item
 
 
@@ -787,7 +787,7 @@ def merge_curricula(
             elif find_match(req_course, extra_courses, match_criteria) != None:
                 # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
                 #            print(" match in extra courses, ")
-                i = next(x for x in extra_courses if x == req_course)
+                i = next(i for i, x in enumerate(extra_courses) if x == req_course)
                 #            print(f" index of match = {i} ")
                 add_requisite(new_courses[i], new_courses[j], c.requisites[req])
             else:  # requisite is neither in c1 or 2 -- this shouldn't happen => error
@@ -807,9 +807,7 @@ def merge_curricula(
 def match(
     course1: AbstractCourse,
     course2: AbstractCourse,
-    match_criteria: List[
-        Literal["prefix", "num", "name", "canonical name", "credit hours"]
-    ] = [],
+    match_criteria: List[MatchCriterion] = [],
 ) -> bool:
     is_matched = False
     if len(match_criteria) == 0:
@@ -846,8 +844,10 @@ def match(
 
 
 def find_match(
-    course: Course, course_set: List[Course], match_criteria: List[str] = []
-) -> Optional[Course]:
+    course: AbstractCourse,
+    course_set: List[AbstractCourse],
+    match_criteria: List[MatchCriterion] = [],
+) -> Optional[AbstractCourse]:
     for c in course_set:
         if match(course, c, match_criteria):
             return course

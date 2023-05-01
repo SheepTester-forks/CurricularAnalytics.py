@@ -1,11 +1,11 @@
 from abc import ABC
-from typing import Any, Dict, List, TypedDict
+from typing import Any, Dict, List, Literal, Set, TypedDict
 
 from src.DataTypes.DataTypes import Requisite
 from src.DataTypes.LearningOutcome import LearningOutcome
 
 CourseMetrics = TypedDict(
-    "CurriculumMetrics",
+    "CourseMetrics",
     {
         "blocking factor": int,
         "delay factor": int,

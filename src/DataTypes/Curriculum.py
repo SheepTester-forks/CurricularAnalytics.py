@@ -2,7 +2,7 @@
 # Curriculum data type
 # The required curriculum associated with a degree program
 from io import StringIO
-from typing import Any, Dict, FrozenSet, List, Tuple, TypedDict
+from typing import Any, Dict, FrozenSet, List, Literal, Set, Tuple, TypedDict, Union
 
 from networkx import DiGraph, set_edge_attributes
 from src.CurricularAnalytics import isvalid_curriculum
@@ -34,12 +34,17 @@ CurriculumMetrics = TypedDict(
         "max. centrality courses": List[AbstractCourse],
         "max. delay factor": int,
         "max. delay factor courses": List[AbstractCourse],
-        "max. complexity": int,
+        "max. complexity": float,
         "max. complexity courses": List[AbstractCourse],
-        "dead end": Dict[FrozenSet[str], List[Course]]
+        "dead end": Dict[FrozenSet[str], List[Course]],
     },
-    total=False,
 )
+CurriculumMetricKey = Literal[
+    "blocking factor",
+    "delay factor",
+    "centrality",
+    "complexity",
+]
 
 
 class Curriculum:
@@ -102,6 +107,13 @@ class Curriculum:
     metadata: Dict[str, Any]
     "Curriculum-related metadata"
 
+    metric_keys: Set[CurriculumMetricKey] = {
+        "blocking factor",
+        "delay factor",
+        "centrality",
+        "complexity",
+    }
+
     def __init__(
         self,
         name: str,
@@ -132,7 +144,22 @@ class Curriculum:
         self.credit_hours = total_credits(self)
         self.graph = DiGraph()
         create_graph(self)
-        self.metrics = {}
+        self.metrics = {
+            "blocking factor": (-1, []),
+            "delay factor": (-1, []),
+            "centrality": (-1, []),
+            "complexity": (-1, []),
+            "longest paths": [],
+            "max. blocking factor": -1,
+            "max. blocking factor courses": [],
+            "max. centrality": -1,
+            "max. centrality courses": [],
+            "max. delay factor": -1,
+            "max. delay factor courses": [],
+            "max. complexity": -1,
+            "max. complexity courses": [],
+            "dead end": {},
+        }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes
         self.learning_outcome_graph = DiGraph()
