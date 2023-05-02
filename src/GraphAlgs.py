@@ -139,11 +139,11 @@ def gad(g: nx.DiGraph[T]) -> nx.DiGraph[T]:
     Required:
     - `g:SimpleDiGraph` : input graph.
     """
-    return nx.DiGraph(transpose(adjacency_matrix(g)))
+    return g.reverse()
 
 
 # The set of all vertices in the graph reachable from vertex s
-def reachable_from(g: nx.DiGraph[T], s: T, vlist: Optional[List[T]] = None) -> List[T]:
+def reachable_from(g: nx.Graph[T], s: T, vlist: Optional[List[T]] = None) -> List[T]:
     """
         reachable_from(g, s)
 
@@ -164,7 +164,7 @@ def reachable_from(g: nx.DiGraph[T], s: T, vlist: Optional[List[T]] = None) -> L
 
 
 # The subgraph induced by vertex s and the vertices reachable from vertex s
-def reachable_from_subgraph(g: nx.Graph[T], s: T) -> Tuple[nx.DiGraph[T], Dict[T, T]]:
+def reachable_from_subgraph(g: nx.Graph[T], s: T) -> nx.Graph[T]:
     """
         reachable_from_subgraph(g, s)
 
@@ -178,7 +178,7 @@ def reachable_from_subgraph(g: nx.Graph[T], s: T) -> Tuple[nx.DiGraph[T], Dict[T
     """
     vertices: List[T] = reachable_from(g, s)
     vertices.append(s)  # add the source vertex to the reachable set
-    return induced_subgraph(g, vertices)
+    return g.subgraph(vertices)
 
 
 # The set of all vertices in the graph that can reach vertex s
@@ -197,7 +197,7 @@ def reachable_to(g: nx.DiGraph[T], t: T) -> List[T]:
 
 
 # The subgraph induced by vertex s and the vertices that can reach s
-def reachable_to_subgraph(g: nx.DiGraph[T], s: T):
+def reachable_to_subgraph(g: nx.DiGraph[T], s: T) -> nx.DiGraph[T]:
     """
         reachable_to_subgraph(g, t)
 
@@ -216,7 +216,7 @@ def reachable_to_subgraph(g: nx.DiGraph[T], s: T):
     """
     vertices = reachable_to(g, s)
     vertices.append(s)  # add the source vertex to the reachable set
-    return induced_subgraph(g, vertices)
+    return g.subgraph(vertices)
 
 
 # The set of all vertices reachable to and reachable from vertex s
@@ -236,7 +236,7 @@ def reach(g: nx.DiGraph[T], v: T) -> List[T]:
 
 
 # Subgraph induced by the reach of a vertex
-def reach_subgraph(g: nx.DiGraph[T], v: T):
+def reach_subgraph(g: nx.DiGraph[T], v: T) -> nx.DiGraph[T]:
     """
         reach_subgraph(g, v)
 
@@ -255,11 +255,11 @@ def reach_subgraph(g: nx.DiGraph[T], v: T):
     """
     vertices = reach(g, v)
     vertices.append(v)  # add the source vertex to the reachable set
-    return induced_subgraph(g, vertices)
+    return g.subgraph(vertices)
 
 
 # find all paths in a graph
-def all_paths(g: nx.Graph[T]) -> List[List[T]]:
+def all_paths(g: nx.DiGraph[T]) -> List[List[T]]:
     """
         all_paths(g)
 
@@ -286,8 +286,8 @@ def all_paths(g: nx.Graph[T]) -> List[List[T]]:
     paths: List[List[T]] = []
     sinks: List[T] = []
     for v in g.nodes:
-        if (len(outneighbors(g, v)) == 0) and (
-            len(inneighbors(g, v)) > 0
+        if (g.out_degree(v) == 0) and (
+            g.in_degree(v) > 0
         ):  # consider only sink vertices with a non-zero in-degree
             sinks.append(v)
     for v in sinks:
@@ -296,20 +296,21 @@ def all_paths(g: nx.Graph[T]) -> List[List[T]]:
             not que.empty()
         ):  # work backwards from sink v to all sources reachable to v in BFS fashion
             x = que.get()  # grab a path from the queue
-            for i, u in enumerate(
-                inneighbors(g, x[1])
+            for i, edge in enumerate(
+                g.in_edges(x[1])
             ):  # consider the in-neighbors at the beginning of the current path
+                u, _ = edge
                 if i == 0:  # first neighbor, build onto exising path
                     x.insert(0, u)  # prepend vertex u to array x
                     # if reached a source vertex, done with the path; otherwise, put it back in queue
-                    if len(inneighbors(g, u)) == 0:
+                    if g.in_degree(u) == 0:
                         paths.append(x)
                     else:
                         que.put(x)
                 else:  # not first neighbor, create a copy of the path
                     y = x.copy()
                     y[0] = u  # overwrite first element in array
-                    if len(inneighbors(g, u)) == 0:
+                    if g.in_degree(u) == 0:
                         paths.append(y)
                     else:
                         que.put(y)
@@ -318,7 +319,7 @@ def all_paths(g: nx.Graph[T]) -> List[List[T]]:
 
 # The longest path from vertx s to any other vertex in a DAG G (not necessarily unique).
 # Note: in a DAG G, longest paths in G = shortest paths in -G
-def longest_path(g: nx.Graph[T], s: T) -> List[nx.Edge[T]]:
+def longest_path(g: nx.Graph[T], s: T) -> List[T]:
     """
         longest_path(g, s)
 
@@ -339,10 +340,10 @@ def longest_path(g: nx.Graph[T], s: T) -> List[nx.Edge[T]]:
         raise Exception("longest_path(): input graph has cycles")
     except nx.NetworkXNoCycle:
         pass
-    lp: List[nx.Edge[T]] = []
+    lp: List[T] = []
     max = 0
     # shortest path from s to all vertices in -G
-    for path in enumerate_paths(dijkstra_shortest_paths(g, s, -weights(g))):
+    for path in nx.shortest_path(g, s).values():
         if len(path) > max:
             lp = path
             max = len(path)
@@ -350,7 +351,7 @@ def longest_path(g: nx.Graph[T], s: T) -> List[nx.Edge[T]]:
 
 
 # Find all of the longest paths in an acyclic graph.
-def longest_paths(g: nx.Graph[T]) -> List[List[T]]:
+def longest_paths(g: nx.DiGraph[T]) -> List[List[T]]:
     """
         longest_paths(g)
 
