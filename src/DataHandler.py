@@ -267,7 +267,7 @@ def read_csv(raw_file_path: str):
 
 
 def write_csv_curriculum(
-    curric: Curriculum, file_path: str, iostream: bool = False, metrics: bool = False
+    curric: Curriculum, file_path: str, *, iostream: bool = False, metrics: bool = False
 ) -> Union[StringIO, Literal[True]]:
     """
         write_csv(c:Curriculum, file_path:AbstractString)
@@ -332,6 +332,7 @@ def write_csv_degree_plan(
 def write_csv_content(
     csv_file: TextIOWrapper,
     program: Union[Curriculum, DegreePlan],
+    *,
     is_degree_plan: bool,
     metrics=False,
 ) -> None:

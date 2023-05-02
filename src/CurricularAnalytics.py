@@ -100,7 +100,7 @@ def isvalid_curriculum(c: Curriculum, error_msg: StringIO = StringIO()) -> bool:
     return validity
 
 
-def extraneous_requisites(c: Curriculum, debug: bool = False) -> List[List[int]]:
+def extraneous_requisites(c: Curriculum, *, debug: bool = False) -> List[List[int]]:
     """
         extraneous_requisites(c:Curriculum; print=false)
 
@@ -461,7 +461,7 @@ def courses_from_vertices(
 
 
 def courses_names_from_vertices(
-    curriculum: Curriculum, vertices: List[int], course: Literal["name", "fullname"]
+    curriculum: Curriculum, vertices: List[int], *, course: Literal["name", "fullname"]
 ) -> List[str]:
     """
     Create a list of courses or course names from a array of vertex IDs.
@@ -638,7 +638,7 @@ def basic_statistics(
 
 
 def write_course_names(
-    buf: StringIO, courses: List[AbstractCourse], separator: str = ", "
+    buf: StringIO, courses: List[AbstractCourse], *, separator: str = ", "
 ) -> None:
     if len(courses) == 1:
         write_course_name(buf, courses[0])
@@ -658,7 +658,7 @@ def write_course_name(buf: StringIO, c: AbstractCourse) -> None:
     buf.write(f"{c.name}")  # name is a required item
 
 
-def similarity(c1: Curriculum, c2: Curriculum, strict: bool = True) -> float:
+def similarity(c1: Curriculum, c2: Curriculum, *, strict: bool = True) -> float:
     """
         similarity(c1, c2; strict)
 
@@ -714,6 +714,7 @@ def merge_curricula(
     name: str,
     c1: Curriculum,
     c2: Curriculum,
+    *,
     match_criteria: List[
         Literal["prefix", "num", "name", "canonical name", "credit hours"]
     ] = [],
@@ -842,7 +843,7 @@ def find_match(
     return None
 
 
-def homology(curricula: List[Curriculum], strict: bool = False) -> List[List[float]]:
+def homology(curricula: List[Curriculum], *, strict: bool = False) -> List[List[float]]:
     return [
         [
             similarity(curricula[i], curricula[j], strict=strict)

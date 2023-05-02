@@ -31,7 +31,9 @@ def remove_empty_lines(file_path: str) -> Union[str, Literal[False]]:
     return temp_file
 
 
-def course_line(course: Course, term_id: Union[str, int], metrics: bool = False) -> str:
+def course_line(
+    course: Course, term_id: Union[str, int], *, metrics: bool = False
+) -> str:
     course_ID = course.id
     course_name = course.name
     course_prefix = course.prefix

@@ -22,41 +22,39 @@ class TransferArticulation:
         name: str,
         institution: str,
         home_catalog: CourseCatalog,
-        transfer_catalogs: Dict[int, CourseCatalog] = {},
-        transfer_map: Dict[Tuple[int, int], List[int]] = {},
+        transfer_catalogs: Optional[Dict[int, CourseCatalog]] = None,
+        transfer_map: Optional[Dict[Tuple[int, int], List[int]]] = None,
         date_range: Tuple[Any, ...] = (),
     ) -> None:
         "Constructor"
         self.name = name
         self.institution = institution
-        self.transfer_catalogs = transfer_catalogs
+        self.date_range = date_range
+        self.transfer_catalogs = transfer_catalogs or {}
         self.home_catalog = home_catalog
-        self.transfer_map = transfer_map
+        self.transfer_map = transfer_map or {}
 
+    def add_transfer_catalog(self, transfer_catalog: CourseCatalog) -> None:
+        self.transfer_catalogs[transfer_catalog.id] = transfer_catalog
 
-def add_transfer_catalog(
-    ta: TransferArticulation, transfer_catalog: CourseCatalog
-) -> None:
-    ta.transfer_catalogs[transfer_catalog.id] = transfer_catalog
+    # TODO: add the ability for a transfer course to partially satifsfy a home institution course (i.e., some, but not all, course credits)
+    def add_transfer_course(
+        self,
+        home_course_ids: List[int],
+        transfer_catalog_id: int,
+        transfer_course_id: int,
+    ) -> None:
+        "A single transfer course may articulate to more than one course at the home institution"
+        self.transfer_map[transfer_catalog_id, transfer_course_id] = []
+        for id in home_course_ids:
+            self.transfer_map[transfer_catalog_id, transfer_course_id].append(id)
 
-
-# A single transfer course may articulate to more than one course at the home institution
-# TODO: add the ability for a transfer course to partially satifsfy a home institution course (i.e., some, but not all, course credits)
-def add_transfer_course(
-    ta: TransferArticulation,
-    home_course_ids: List[int],
-    transfer_catalog_id: int,
-    transfer_course_id: int,
-) -> None:
-    ta.transfer_map[(transfer_catalog_id, transfer_course_id)] = []
-    for id in home_course_ids:
-        ta.transfer_map[(transfer_catalog_id, transfer_course_id)].append(id)
-
-
-# Find the course equivalency at a home institution of a course being transfered from another institution
-# returns transfer equivalent course, or nothing if there is no transfer equivalency
-def transfer_equiv(
-    ta: TransferArticulation, transfer_catalog_id: int, transfer_course_id: int
-) -> Optional[List[int]]:
-    if (transfer_catalog_id, transfer_course_id) in ta.transfer_map:
-        return ta.transfer_map[(transfer_catalog_id, transfer_course_id)]
+    def transfer_equiv(
+        self, transfer_catalog_id: int, transfer_course_id: int
+    ) -> Optional[List[int]]:
+        """
+        Find the course equivalency at a home institution of a course being transfered from another institution
+        returns transfer equivalent course, or nothing if there is no transfer equivalency
+        """
+        if (transfer_catalog_id, transfer_course_id) in self.transfer_map:
+            return self.transfer_map[transfer_catalog_id, transfer_course_id]

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, TypeVar, TypedDict
+from typing import Any, Dict, List, Optional, TypeVar, TypedDict
 
 from src.DataTypes.DataTypes import Requisite
 from src.DataTypes.LearningOutcome import LearningOutcome
@@ -74,6 +74,77 @@ class AbstractCourse(ABC):
         "create an indentical coures, but with a new course id"
         ...
 
+    def add_requisite(
+        self, requisite_course: "AbstractCourse", requisite_type: Requisite
+    ) -> None:
+        """
+            add_requisite!(rc, tc, requisite_type)
+
+        Add course rc as a requisite, of type requisite_type, for target course tc.
+
+        # Arguments
+        Required:
+        - `rc::AbstractCourse` : requisite course.
+        - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+        - `requisite_type::Requisite` : requisite type.
+
+        # Requisite types
+        One of the following requisite types must be specified for the `requisite_type`:
+        - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+        - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+        - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+        """
+
+        self.requisites[requisite_course.id] = requisite_type
+
+    def add_requisites(
+        self,
+        requisite_courses: List["AbstractCourse"],
+        requisite_types: List[Requisite],
+    ) -> None:
+        """
+            add_requisite!([rc1, rc2, ...], tc, [requisite_type1, requisite_type2, ...])
+
+        Add a collection of requisites to target course tc.
+
+        # Arguments
+        Required:
+        - `rc::Array{AbstractCourse}` : and array of requisite courses.
+        - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+        - `requisite_type::Array{Requisite}` : an array of requisite types.
+
+        # Requisite types
+        The following requisite types may be specified for the `requisite_type`:
+        - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+        - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+        - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+        """
+
+        assert len(requisite_courses) == len(requisite_types)
+        for i in range(len(requisite_courses)):
+            self.requisites[requisite_courses[i].id] = requisite_types[i]
+
+    def delete_requisite(
+        self,
+        requisite_course: "AbstractCourse",
+    ) -> None:
+        """
+            delete_requisite!(rc, tc)
+
+        Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
+        error is thrown.
+
+        # Arguments
+        Required:
+        - `rc::AbstractCourse` : requisite course.
+        - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+
+        """
+        # if !haskey(course.requisites, requisite_course.id)
+        #    error("The requisite you are trying to delete does not exist")
+        # end
+        del self.requisites[requisite_course.id]
+
 
 ##############################################################
 # Course data type
@@ -110,22 +181,22 @@ class Course(AbstractCourse):
     passrate: float
     "Percentage of students that pass the course"
 
-    # Constructor
     def __init__(
         self,
         name: str,
         credit_hours: float,
         prefix: str = "",
-        learning_outcomes: List[LearningOutcome] = [],
+        learning_outcomes: Optional[List[LearningOutcome]] = None,
         num: str = "",
         institution: str = "",
         college: str = "",
         department: str = "",
-        cross_listed: List["Course"] = [],
+        cross_listed: Optional[List["Course"]] = None,
         canonical_name: str = "",
         id: int = 0,
         passrate: float = 0.5,
     ) -> None:
+        "Constructor"
         self.name = name
         self.credit_hours = credit_hours
         self.prefix = prefix
@@ -137,7 +208,7 @@ class Course(AbstractCourse):
             self.id = id
         self.college = college
         self.department = department
-        self.cross_listed = cross_listed
+        self.cross_listed = cross_listed or []
         self.canonical_name = canonical_name
         self.requisites = {}
         # self.requisite_formula
@@ -149,7 +220,7 @@ class Course(AbstractCourse):
             "requisite distance": -1,
         }
         self.metadata = {}
-        self.learning_outcomes = learning_outcomes
+        self.learning_outcomes = learning_outcomes or []
         # curriculum id -> vertex id, note: course may be in multiple curricula
         self.vertex_id = {}
 
@@ -174,19 +245,19 @@ class CourseCollection(AbstractCourse):
     courses: List[Course]
     "Courses associated with the collection"
 
-    # Constructor
     def __init__(
         self,
         name: str,
         credit_hours: float,
         courses: List[Course],
-        learning_outcomes: List[LearningOutcome] = [],
+        learning_outcomes: Optional[List[LearningOutcome]] = None,
         institution: str = "",
         college: str = "",
         department: str = "",
         canonical_name: str = "",
         id: int = 0,
     ) -> None:
+        "Constructor"
         self.name = name
         self.credit_hours = credit_hours
         self.courses = courses
@@ -208,7 +279,7 @@ class CourseCollection(AbstractCourse):
             "requisite distance": -1,
         }
         self.metadata = {}
-        self.learning_outcomes = learning_outcomes
+        self.learning_outcomes = learning_outcomes or []
         self.vertex_id = {}  # curriculum id -> vertex id
 
     def default_id(self) -> int:
@@ -227,74 +298,3 @@ class CourseCollection(AbstractCourse):
 
 def course_id(name: str, prefix: str, num: str, institution: str) -> int:
     return hash(name + prefix + num + institution)
-
-
-def add_requisite(
-    requisite_course: AbstractCourse, course: AbstractCourse, requisite_type: Requisite
-) -> None:
-    """
-        add_requisite!(rc, tc, requisite_type)
-
-    Add course rc as a requisite, of type requisite_type, for target course tc.
-
-    # Arguments
-    Required:
-    - `rc::AbstractCourse` : requisite course.
-    - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
-    - `requisite_type::Requisite` : requisite type.
-
-    # Requisite types
-    One of the following requisite types must be specified for the `requisite_type`:
-    - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
-    - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
-    - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
-    """
-
-    course.requisites[requisite_course.id] = requisite_type
-
-
-def add_requisites(
-    requisite_courses: List[AbstractCourse],
-    course: AbstractCourse,
-    requisite_types: List[Requisite],
-) -> None:
-    """
-        add_requisite!([rc1, rc2, ...], tc, [requisite_type1, requisite_type2, ...])
-
-    Add a collection of requisites to target course tc.
-
-    # Arguments
-    Required:
-    - `rc::Array{AbstractCourse}` : and array of requisite courses.
-    - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
-    - `requisite_type::Array{Requisite}` : an array of requisite types.
-
-    # Requisite types
-    The following requisite types may be specified for the `requisite_type`:
-    - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
-    - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
-    - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
-    """
-
-    assert len(requisite_courses) == len(requisite_types)
-    for i in range(len(requisite_courses)):
-        course.requisites[requisite_courses[i].id] = requisite_types[i]
-
-
-def delete_requisite(requisite_course: Course, course: Course) -> None:
-    """
-        delete_requisite!(rc, tc)
-
-    Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
-    error is thrown.
-
-    # Arguments
-    Required:
-    - `rc::AbstractCourse` : requisite course.
-    - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
-
-    """
-    # if !haskey(course.requisites, requisite_course.id)
-    #    error("The requisite you are trying to delete does not exist")
-    # end
-    del course.requisites[requisite_course.id]

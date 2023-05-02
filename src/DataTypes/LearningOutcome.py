@@ -53,23 +53,21 @@ class LearningOutcome:
         self.metadata = {}
         self.vertex_id = {}  # curriculum id -> vertex id
 
+    def add_lo_requisite(
+        self, requisite_lo: "LearningOutcome", requisite_type: Requisite
+    ) -> None:
+        """
+        add_lo_requisite!(rlo, tlo, requisite_type)
+        Add learning outcome rlo as a requisite, of type requisite_type, for target learning outcome tlo
+        outcome tlo.
+        """
+        self.requisites[requisite_lo.id] = requisite_type
 
-def add_lo_requisite(
-    requisite_lo: LearningOutcome, lo: LearningOutcome, requisite_type: Requisite
-) -> None:
-    """
-    add_lo_requisite!(rlo, tlo, requisite_type)
-    Add learning outcome rlo as a requisite, of type requisite_type, for target learning outcome tlo
-    outcome tlo.
-    """
-    lo.requisites[requisite_lo.id] = requisite_type
-
-
-def add_lo_requisites(
-    requisite_lo: List[LearningOutcome],
-    lo: LearningOutcome,
-    requisite_type: List[Requisite],
-) -> None:
-    assert len(requisite_lo) == len(requisite_type)
-    for i in range(len(requisite_lo)):
-        lo.requisites[requisite_lo[i].id] = requisite_type[i]
+    def add_lo_requisites(
+        self,
+        requisite_lo: List["LearningOutcome"],
+        requisite_type: List[Requisite],
+    ) -> None:
+        assert len(requisite_lo) == len(requisite_type)
+        for i in range(len(requisite_lo)):
+            self.requisites[requisite_lo[i].id] = requisite_type[i]

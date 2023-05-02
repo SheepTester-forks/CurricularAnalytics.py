@@ -15,6 +15,7 @@ class CreateTerms(Protocol):
         self,
         curric: Curriculum,
         additional_courses: List[AbstractCourse] = [],
+        *,
         min_terms: int = 2,
         max_terms: int = 10,
         min_cpt: int = 3,
@@ -26,6 +27,7 @@ class CreateTerms(Protocol):
 def bin_filling(
     curric: Curriculum,
     additional_courses: List[AbstractCourse] = [],
+    *,
     min_terms: int = 2,
     max_terms: int = 10,
     min_cpt: int = 3,

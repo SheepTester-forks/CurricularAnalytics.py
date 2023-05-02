@@ -7,7 +7,7 @@ from typing import Any, Dict, FrozenSet, List, Literal, Set, Tuple, TypedDict
 from networkx import DiGraph, set_edge_attributes
 from src.CurricularAnalytics import isvalid_curriculum
 
-from src.DataTypes.Course import AbstractCourse, Course, add_requisite, course_id
+from src.DataTypes.Course import AbstractCourse, Course, course_id
 from src.DataTypes.DataTypes import (
     Requisite,
     System,
@@ -186,7 +186,7 @@ class Curriculum:
             if old_id != c1.id:
                 for c2 in self.courses:
                     if old_id in (c2.requisites):
-                        add_requisite(c1, c2, c2.requisites[old_id])
+                        c2.add_requisite(c1, c2.requisites[old_id])
                         del c2.requisites[old_id]
         return self
 

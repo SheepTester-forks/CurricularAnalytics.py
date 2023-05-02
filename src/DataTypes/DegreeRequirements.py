@@ -34,10 +34,9 @@ _grade_strs = [
     "A➕",
 ]
 
-"function for converting a letter grade into a integer, divide by 3 to convert to 4-point GPA scale"
-
 
 def grade(letter_grade: str) -> Grade:
+    "function for converting a letter grade into a integer, divide by 3 to convert to 4-point GPA scale"
     if letter_grade in _failing_grades:
         return 0
     try:
@@ -46,10 +45,8 @@ def grade(letter_grade: str) -> Grade:
         raise Exception(f"letter grade {letter_grade} is not supported")
 
 
-"function for converting an integer letter grade, divide by 3 to convert to 4-point GPA scale"
-
-
 def from_grade(int_grade: Grade) -> str:
+    "function for converting an integer letter grade, divide by 3 to convert to 4-point GPA scale"
     if int_grade == 0 or 2 <= int_grade <= 13:
         return _grade_strs[int_grade]
     else:
@@ -141,8 +138,7 @@ class CourseSet(AbstractRequirement):
     double_count: bool
     "Each course in the course set can satisfy any other requirement that has the same course. Default = false"
 
-    # Constructor
-    # A requirement may involve a set of courses, or a set of requirements, but not both
+    # r".^" is a regex that matches nothing
     def __init__(
         self,
         name: str,
@@ -152,11 +148,13 @@ class CourseSet(AbstractRequirement):
         course_catalog: CourseCatalog = CourseCatalog("", ""),
         prefix_regex: Regex = r".^",
         num_regex: Regex = r".^",
-        course_regex: Regex = r".^",
         min_grade: Grade = grade("D"),
         double_count: bool = False,
     ) -> None:
-        # r".^" is a regex that matches nothing
+        """
+        Constructor
+        A requirement may involve a set of courses, or a set of requirements, but not both
+        """
         self.name = name
         self.description = description
         self.credit_hours = credit_hours
@@ -166,13 +164,10 @@ class CourseSet(AbstractRequirement):
         self.prefix_regex = prefix_regex
         self.num_regex = num_regex
         self.double_count = double_count
-        for (
-            c
-        ) in (
-            course_catalog.catalog.items()
-        ):  # search the supplied course catalog for courses satisfying both prefix and num regular expressions
-            if re.search(prefix_regex, c[1].prefix) and re.search(num_regex, c[1].num):
-                course_reqs.append((c[1], min_grade))
+        # search the supplied course catalog for courses satisfying both prefix and num regular expressions
+        for c in course_catalog.catalog.values():
+            if re.search(prefix_regex, c.prefix) and re.search(num_regex, c.num):
+                course_reqs.append((c, min_grade))
 
 
 class RequirementSet(AbstractRequirement):
@@ -228,9 +223,6 @@ class RequirementSet(AbstractRequirement):
             raise Exception("satisfy cannot be a negative number")
         elif satisfy == 0:
             self.satisfy = len(requirements)  # satisfy all requirements
-        elif satisfy < len(requirements):
-            self.satisfy = satisfy
         else:
-            self.satisfy = len(
-                requirements
-            )  # if trying satisfy more then the # of requirements, just satisfy all
+            # if trying satisfy more then the # of requirements, just satisfy all
+            self.satisfy = min(satisfy, len(requirements))

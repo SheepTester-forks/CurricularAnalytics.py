@@ -1,14 +1,14 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 class Student:
     id: int
     "Unique ID for student"
-    total_credits: int
+    total_credits: int = 0
     "The total number of credit hours the student has earned"
-    gpa: float
+    gpa: float = 0.0
     "The student's GPA"
-    total_points: float
+    total_points: float = 0
     "The total number of points the student has earned"
 
     attributes: Dict[Any, Any]
@@ -17,7 +17,7 @@ class Student:
     "Indicates whether the student has stopped out. (False if the student has, True if still enrolled)"
     stopsem: bool
     "The term the student stopped out."
-    termcredits: int
+    termcredits: int = 0
     "The number of credits the student has enrolled in for a given term."
     performance: Dict[Any, Any]
     "Stores the grades the student has made in each course."
@@ -28,15 +28,11 @@ class Student:
     termpassed: List[int]
     "An array that represents the term in which the student passed each course."
 
-    def __init__(self, id: int, attributes: Dict[Any, Any] = {}) -> None:
+    def __init__(self, id: int, attributes: Optional[Dict[Any, Any]] = None) -> None:
         "Constructor"
         self.id = id
-        self.termcredits = 0
         self.performance = {}
-        self.gpa = 0.0
-        self.total_credits = 0
-        self.total_points = 0
-        self.attributes = attributes
+        self.attributes = attributes or {}
 
 
 def simple_students(number: int) -> List[Student]:
