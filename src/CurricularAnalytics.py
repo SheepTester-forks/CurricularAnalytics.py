@@ -17,8 +17,6 @@ from src.DataTypes.Course import AbstractCourse, Course, add_requisite
 from src.DataTypes.Curriculum import (
     Curriculum,
     CurriculumMetricKey,
-    course_from_id,
-    course_from_vertex,
 )
 from src.DataTypes.DataTypes import System, co, quarter, semester, strict_co
 from src.DataTypes.DegreePlan import DegreePlan
@@ -79,8 +77,8 @@ def isvalid_curriculum(c: Curriculum, error_msg: StringIO = StringIO()) -> bool:
     for course in c.courses:
         for k, r in course.requisites.items():
             if r == strict_co:
-                v_d = course_from_id(c, course.id).vertex_id[c.id]  # destination vertex
-                v_s = course_from_id(c, k).vertex_id[c.id]  # source vertex
+                v_d = c.course_from_id(course.id).vertex_id[c.id]  # destination vertex
+                v_s = c.course_from_id(k).vertex_id[c.id]  # source vertex
                 g.add_edge(v_d, v_s)
     new_cycles = nx.simple_cycles(g)
     new_cycles = [cyc for cyc in new_cycles if len(cyc) != 2]  # remove length-2 cycles
@@ -769,7 +767,7 @@ def merge_curricula(
         #    print(f"total requisistes = {len(c.requisites)},")
         for req in c.requisites:
             #        print(f" requisite id: {req} ")
-            req_course = course_from_id(c2, req)
+            req_course = c2.course_from_id(req)
             if find_match(req_course, merged_courses, match_criteria) != None:
                 # requisite already exists in c1
                 #            print(f" match in c1 - {course_from_id(c1, req).name} ")
@@ -879,7 +877,7 @@ def dead_ends(
     dead_end_courses: List[Course] = []
     paths = all_paths(curric.graph)
     for p in paths:
-        course = course_from_vertex(curric, p[-1])
+        course = curric.course_from_vertex(p[-1])
         if not isinstance(course, Course) or course.prefix == "":
             continue
         if course.prefix not in prefixes:

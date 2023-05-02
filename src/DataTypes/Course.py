@@ -66,6 +66,10 @@ class AbstractCourse(ABC):
     "Course-related metadata"
 
     @abstractmethod
+    def default_id(self) -> int:
+        ...
+
+    @abstractmethod
     def copy(self: Self) -> Self:
         "create an indentical coures, but with a new course id"
         ...
@@ -128,7 +132,7 @@ class Course(AbstractCourse):
         self.num = num
         self.institution = institution
         if id == 0:
-            self.id = hash(self.name + self.prefix + self.num + self.institution)
+            self.id = self.default_id()
         else:
             self.id = id
         self.college = college
@@ -150,6 +154,9 @@ class Course(AbstractCourse):
         self.vertex_id = {}
 
         self.passrate = passrate
+
+    def default_id(self) -> int:
+        return course_id(self.name, self.prefix, self.num, self.institution)
 
     def copy(self) -> "Course":
         return Course(
@@ -185,7 +192,7 @@ class CourseCollection(AbstractCourse):
         self.courses = courses
         self.institution = institution
         if id == 0:
-            self.id = hash(self.name + self.institution + str(len(courses)))
+            self.id = self.default_id()
         else:
             self.id = id
         self.college = college
@@ -204,6 +211,9 @@ class CourseCollection(AbstractCourse):
         self.learning_outcomes = learning_outcomes
         self.vertex_id = {}  # curriculum id -> vertex id
 
+    def default_id(self) -> int:
+        return hash(self.name + self.institution + str(len(self.courses)))
+
     def copy(self) -> "CourseCollection":
         return CourseCollection(
             self.name,
@@ -215,7 +225,7 @@ class CourseCollection(AbstractCourse):
         )
 
 
-def course_id(prefix: str, num: str, name: str, institution: str) -> int:
+def course_id(name: str, prefix: str, num: str, institution: str) -> int:
     return hash(name + prefix + num + institution)
 
 

@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Tuple
-from src.DataTypes.Course import Course
+from src.DataTypes.Course import Course, course_id
 
 ##############################################################
 # Course Catalog data type
@@ -34,30 +34,26 @@ class CourseCatalog:
         self.date_range = date_range
         self.id = hash(self.name + self.institution)
         if len(courses) > 0:
-            add_courses(self, courses)
+            self.add_courses(courses)
 
+    def add_course(self, course: Course) -> None:
+        "add a course to a course catalog, if the course is already in the catalog, it is not added again"
+        if not self.is_duplicate(course):
+            self.catalog[course.id] = course
 
-# add a course to a course catalog, if the course is already in the catalog, it is not added again
-def add_course(cc: CourseCatalog, course: Course) -> None:
-    if not is_duplicate(cc, course):
-        cc.catalog[course.id] = course
+    def add_courses(self, courses: List[Course]) -> None:
+        for course in courses:
+            self.add_course(course)
 
+    def is_duplicate(self, course: Course) -> bool:
+        return course.id in self.catalog
 
-def add_courses(cc: CourseCatalog, courses: List[Course]) -> None:
-    for course in courses:
-        add_course(cc, course)
-
-
-def is_duplicate(cc: CourseCatalog, course: Course) -> bool:
-    return course.id in (cc.catalog)
-
-
-# Return a course in a course catalog
-def course(cc: CourseCatalog, prefix: str, num: str, name: str) -> Course:
-    hash_val = hash(name + prefix + num + cc.institution)
-    if hash_val in (cc.catalog):
-        return cc.catalog[hash_val]
-    else:
-        raise Exception(
-            f"Course: {prefix} {num}: {name} at {cc.institution} does not exist in catalog: {cc.name}"
-        )
+    def course(self, prefix: str, num: str, name: str) -> Course:
+        "Return a course in a course catalog"
+        hash_val = course_id(name, prefix, num, self.institution)
+        if hash_val in self.catalog:
+            return self.catalog[hash_val]
+        else:
+            raise Exception(
+                f"Course: {prefix} {num}: {name} at {self.institution} does not exist in catalog: {self.name}"
+            )
