@@ -1,5 +1,5 @@
-from abc import ABC
-from typing import Any, Dict, List, Literal, Set, TypedDict
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, TypeVar, TypedDict
 
 from src.DataTypes.DataTypes import Requisite
 from src.DataTypes.LearningOutcome import LearningOutcome
@@ -14,6 +14,8 @@ CourseMetrics = TypedDict(
         "requisite distance": int,
     },
 )
+
+Self = TypeVar("Self", bound="AbstractCourse")
 
 
 # Course-related data types:
@@ -62,6 +64,11 @@ class AbstractCourse(ABC):
     "Course-related metrics"
     metadata: Dict[str, Any]
     "Course-related metadata"
+
+    @abstractmethod
+    def copy(self: Self) -> Self:
+        "create an indentical coures, but with a new course id"
+        ...
 
 
 ##############################################################
@@ -144,10 +151,21 @@ class Course(AbstractCourse):
 
         self.passrate = passrate
 
+    def copy(self) -> "Course":
+        return Course(
+            self.name,
+            self.credit_hours,
+            prefix=self.prefix,
+            learning_outcomes=self.learning_outcomes,
+            num=self.num,
+            institution=self.institution,
+            canonical_name=self.canonical_name,
+        )
+
 
 class CourseCollection(AbstractCourse):
     courses: List[Course]
-    "Courses associated with the collection                                   "
+    "Courses associated with the collection"
 
     # Constructor
     def __init__(
@@ -155,6 +173,7 @@ class CourseCollection(AbstractCourse):
         name: str,
         credit_hours: float,
         courses: List[Course],
+        learning_outcomes: List[LearningOutcome] = [],
         institution: str = "",
         college: str = "",
         department: str = "",
@@ -182,7 +201,18 @@ class CourseCollection(AbstractCourse):
             "requisite distance": -1,
         }
         self.metadata = {}
+        self.learning_outcomes = learning_outcomes
         self.vertex_id = {}  # curriculum id -> vertex id
+
+    def copy(self) -> "CourseCollection":
+        return CourseCollection(
+            self.name,
+            self.credit_hours,
+            courses=[course.copy() for course in self.courses],
+            learning_outcomes=self.learning_outcomes,
+            institution=self.institution,
+            canonical_name=self.canonical_name,
+        )
 
 
 def course_id(prefix: str, num: str, name: str, institution: str) -> int:

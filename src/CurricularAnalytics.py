@@ -13,7 +13,7 @@ from queue import Queue
 from typing import FrozenSet, List, Literal, Optional, Tuple
 
 import networkx as nx
-from src.DataTypes.Course import AbstractCourse, Course, CourseMetricKey, add_requisite
+from src.DataTypes.Course import AbstractCourse, Course, add_requisite
 from src.DataTypes.Curriculum import (
     Curriculum,
     CurriculumMetricKey,
@@ -751,7 +751,7 @@ def merge_curricula(
     """
     merged_courses = (c1.courses).copy()
     extra_courses: List[AbstractCourse] = []  # courses in c2 but not in c1
-    new_courses: List[Course] = []
+    new_courses: List[AbstractCourse] = []
     for course in c2.courses:
         matched = False
         for target_course in c1.courses:
@@ -763,17 +763,7 @@ def merge_curricula(
     # patch-up requisites of extra_courses, using course ids form c1 where appropriate
     for c in extra_courses:
         # for each extra course create an indentical coures, but with a new course id
-        new_courses.append(
-            Course(
-                c.name,
-                c.credit_hours,
-                prefix=c.prefix,
-                learning_outcomes=c.learning_outcomes,
-                num=c.num,
-                institution=c.institution,
-                canonical_name=c.canonical_name,
-            )
-        )
+        new_courses.append(c.copy())
     for j, c in enumerate(extra_courses):
         #    print(f"\n {c.name}: ")
         #    print(f"total requisistes = {len(c.requisites)},")
@@ -854,17 +844,14 @@ def find_match(
     return None
 
 
-def homology(curricula: List[Curriculum], strict: bool = False) -> Matrix[float]:
-    similarity_matrix: Matrix[float] = Matrix(I, len(curricula), len(curricula))  # TODO
-    for i in range(len(curricula)):
-        for j in range(len(curricula)):
-            similarity_matrix[i, j] = similarity(
-                curricula[i], curricula[j], strict=strict
-            )
-            similarity_matrix[j, i] = similarity(
-                curricula[j], curricula[i], strict=strict
-            )
-    return similarity_matrix
+def homology(curricula: List[Curriculum], strict: bool = False) -> List[List[float]]:
+    return [
+        [
+            similarity(curricula[i], curricula[j], strict=strict)
+            for j in range(len(curricula))
+        ]
+        for i in range(len(curricula))
+    ]
 
 
 def dead_ends(
