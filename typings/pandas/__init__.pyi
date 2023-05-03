@@ -4,6 +4,7 @@ from typing import (
     Iterable,
     Literal,
     Sequence,
+    Tuple,
     TypeVar,
 )
 
@@ -18,8 +19,10 @@ T = TypeVar("T")
 
 class DataFrame(Generic[T]):
     columns: Sequence[Hashable]
+    shape: Tuple[int, int]
 
     def iterrows(self) -> Iterable[tuple[Hashable, Series[T]]]: ...
+    def nunique(self) -> Series[Hashable]: ...
 
 class Series(Generic[T]):
     def __getitem__(self, key: str) -> T: ...
@@ -30,6 +33,7 @@ def read_csv(
     *,
     delimiter: str | None | lib.NoDefault = ...,
     header: int | Sequence[int] | None | Literal["infer"] = ...,
+    nrows: int | None = ...,
 ) -> DataFrame[Hashable]: ...
 def concat(
     objs: Iterable[DataFrame[T]],

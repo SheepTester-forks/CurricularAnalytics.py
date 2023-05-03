@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Union
+from typing import Dict, Hashable, List, Literal, Union
 
 import pandas as pd
 
@@ -89,14 +89,14 @@ def find_cell(row: pd.Series[str], header: str) -> str:
 
 
 def read_all_courses(
-    df_courses: "pd.DataFrame[str]", lo_Course: Dict[int, List[LearningOutcome]] = {}
-) -> Union[Dict[int, Course], Literal[False]]:
+    df_courses: pd.DataFrame[Hashable], lo_Course: Dict[int, List[LearningOutcome]] = {}
+) -> Dict[int, Course]:
     course_dict: Dict[int, Course] = {}
     for _, row in df_courses.iterrows():
         c_ID = row["Course ID"]
         c_Name = find_cell(row, "Course Name")
         c_Credit = row["Credit Hours"]
-        c_Credit = float(c_Credit)  # if isinstance(c_Credit, str) else c_Credit
+        c_Credit = float(c_Credit) if isinstance(c_Credit, str) else c_Credit
         c_Prefix = str(row[(("Prefix"))])
         c_Number = find_cell(row, ("Number"))
         # if not isinstance(c_Number, str):
