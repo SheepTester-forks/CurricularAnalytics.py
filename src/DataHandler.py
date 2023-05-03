@@ -37,8 +37,9 @@ from src.DataTypes.LearningOutcome import LearningOutcome
 
 
 def read_csv(raw_file_path: str):
-    file_path = remove_empty_lines(raw_file_path)
-    if isinstance(file_path, bool) and not file_path:
+    try:
+        file_path = remove_empty_lines(raw_file_path)
+    except ValueError:
         return False
     # dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
     dict_curric_system = {"semester": semester, "quarter": quarter, "": semester}

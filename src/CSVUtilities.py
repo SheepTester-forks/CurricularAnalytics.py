@@ -3,7 +3,7 @@ from typing import Dict, List, Literal, Union
 import pandas as pd
 
 from src.DataTypes.Course import Course
-from src.DataTypes.DataTypes import co, pre, strict_co
+from src.DataTypes.DataTypes import Requisite, co, pre, strict_co
 from src.DataTypes.LearningOutcome import LearningOutcome
 
 
@@ -12,83 +12,42 @@ def readfile(file_path: str) -> List[str]:
         return f.readlines()
 
 
-def remove_empty_lines(file_path: str) -> Union[str, Literal[False]]:
-    if file_path[-4:] != ".csv":
-        print("Input is not a csv file")
-        return False
-    temp_file = file_path[:-4] + "_temp.csv"
-    file = readfile(file_path)
+def remove_empty_lines(file_path: str) -> str:
+    if not file_path.endswith(".csv"):
+        raise ValueError("Input is not a csv file")
+    temp_file: str = file_path[:-4] + "_temp.csv"
+    file: List[str] = readfile(file_path)
     with open(temp_file, "w") as f:
-        new_file = ""
+        new_file: str = ""
         for line in file:
-            line = line.replace("\r", "")
-            if len(line) > 0 and not line.replace('"', "").startswith("#"):
+            line: str = line.replace("\r", "")
+            if line and not line.replace('"', "").startswith("#"):
                 line = line + "\n"
                 new_file = new_file + line
-        if len(new_file) > 0:
+        if new_file:
             new_file = new_file[:-1]
         f.write(new_file)
     return temp_file
 
 
+def _course_reqs(course: Course, requisite: Requisite) -> str:
+    reqs = ";".join(
+        str(
+            course_id
+            for course_id, req_type in course.requisites.items()
+            if req_type == requisite
+        )
+    )
+    return f'"{reqs}"' if reqs else ""
+
+
 def course_line(
     course: Course, term_id: Union[str, int], *, metrics: bool = False
 ) -> str:
-    course_ID = course.id
-    course_name = course.name
-    course_prefix = course.prefix
-    course_num = course.num
-    # course_vertex = course.vertex_id
-    course_prereq = '"'
-    course_coreq = '"'
-    course_scoreq = '"'
-    for requesite in course.requisites.items():
-        if requesite[1] == pre:
-            course_prereq = course_prereq + str(requesite[0]) + ";"
-        elif requesite[1] == co:
-            course_coreq = course_coreq + str(requesite[0]) + ";"
-        elif requesite[1] == strict_co:
-            course_scoreq = course_scoreq + str(requesite[0]) + ";"
-    course_prereq = course_prereq[:-1]
-    if len(course_prereq) > 0:
-        course_prereq = course_prereq + '"'
-    course_coreq = course_coreq[:-1]
-    if len(course_coreq) > 0:
-        course_coreq = course_coreq + '"'
-    course_scoreq = course_scoreq[:-1]
-    if len(course_scoreq) > 0:
-        course_scoreq = course_scoreq + '"'
-    course_chours = course.credit_hours
-    course_inst = course.institution
-    course_canName = course.canonical_name
-    course_term = str(term_id) if isinstance(term_id, int) else term_id
-    course_term = "" if course_term == "" else course_term + ","
-    if metrics == False:
-        c_line = (
-            "\n"
-            + str(course_ID)
-            + ',"'
-            + str(course_name)
-            + '","'
-            + str(course_prefix)
-            + '","'
-            + str(course_num)
-            + '",'
-            + str(course_prereq)
-            + ","
-            + str(course_coreq)
-            + ","
-            + str(course_scoreq)
-            + ","
-            + str(course_chours)
-            + ',"'
-            + str(course_inst)
-            + '","'
-            + str(course_canName)
-            + '",'
-            + course_term
-        )
-    else:
+    c_line: str = f'\n{course.id},"{course.name}","{course.prefix}","{course.num}","{_course_reqs(course, pre)}","{_course_reqs(course, co)}","{_course_reqs(course, strict_co)}",{course.credit_hours},"{course.institution}","{course.canonical_name}",'
+    if term_id != "":
+        c_line += f"{term_id},"
+    if metrics:
         # protect against missing metrics values in course
         if (
             course.metrics["complexity"] == -1
@@ -96,51 +55,17 @@ def course_line(
             or course.metrics["delay factor"] == -1
             or course.metrics["centrality"] == -1
         ):
-            raise Exception(
-                "Cannot call course_line(;metrics=true) if the curriculum's courses do not have complexity, blocking factor, delay factor, and centrality values stored in their metrics dictionary."
+            raise KeyError(
+                "Cannot call course_line(metrics=True) if the curriculum's courses do not have complexity, blocking factor, delay factor, and centrality values stored in their metrics dictionary."
             )
-        complexity = course.metrics["complexity"]
-        blocking_factor = course.metrics["blocking factor"]
-        delay_factor = course.metrics["delay factor"]
-        centrality = course.metrics["centrality"]
-        c_line = (
-            "\n"
-            + str(course_ID)
-            + ',"'
-            + str(course_name)
-            + '","'
-            + str(course_prefix)
-            + '","'
-            + str(course_num)
-            + '",'
-            + str(course_prereq)
-            + ","
-            + str(course_coreq)
-            + ","
-            + str(course_scoreq)
-            + ","
-            + str(course_chours)
-            + ',"'
-            + str(course_inst)
-            + '","'
-            + str(course_canName)
-            + '",'
-            + course_term
-            + str(complexity)
-            + ","
-            + str(blocking_factor)
-            + ","
-            + str(delay_factor)
-            + ","
-            + str(centrality)
-        )
+        c_line += f'{course.metrics["complexity"]},{course.metrics["blocking factor"]},{course.metrics["delay factor"]},{course.metrics["centrality"]}'
     return c_line
 
 
 def csv_line_reader(line: str, delimeter: str = ",") -> List[str]:
-    quotes = False
+    quotes: bool = False
     result: List[str] = []
-    item = ""
+    item: str = ""
     for ch in line:
         if ch == '"':
             quotes = not quotes
@@ -148,8 +73,8 @@ def csv_line_reader(line: str, delimeter: str = ",") -> List[str]:
             result.append(item)
             item = ""
         else:
-            item = item + str(ch)
-    if len(item) > 0:
+            item += ch
+    if item:
         result.append(item)
     return result
 

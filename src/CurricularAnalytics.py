@@ -13,7 +13,7 @@ from queue import Queue
 from typing import FrozenSet, List, Literal, Optional, Tuple
 
 import networkx as nx
-from src.DataTypes.Course import AbstractCourse, Course, add_requisite
+from src.DataTypes.Course import AbstractCourse, Course
 from src.DataTypes.Curriculum import (
     Curriculum,
     CurriculumMetricKey,
@@ -772,13 +772,13 @@ def merge_curricula(
             if find_match(req_course, merged_courses, match_criteria) != None:
                 # requisite already exists in c1
                 #            print(f" match in c1 - {course_from_id(c1, req).name} ")
-                add_requisite(req_course, new_courses[j], c.requisites[req])
+                new_courses[j].add_requisite(req_course, c.requisites[req])
             elif find_match(req_course, extra_courses, match_criteria) != None:
                 # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
                 #            print(" match in extra courses, ")
                 i = next(i for i, x in enumerate(extra_courses) if x == req_course)
                 #            print(f" index of match = {i} ")
-                add_requisite(new_courses[i], new_courses[j], c.requisites[req])
+                new_courses[j].add_requisite(new_courses[i], c.requisites[req])
             else:  # requisite is neither in c1 or 2 -- this shouldn't happen => error
                 raise Exception(f"requisite error on course: {c.name}")
     merged_courses = [*merged_courses, *new_courses]
