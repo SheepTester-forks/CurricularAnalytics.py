@@ -89,7 +89,8 @@ def find_cell(row: pd.Series[str], header: str) -> str:
 
 
 def read_all_courses(
-    df_courses: pd.DataFrame[Hashable], lo_Course: Dict[int, List[LearningOutcome]] = {}
+    df_courses: pd.DataFrame[pd.CsvInferTypes],
+    lo_Course: Dict[int, List[LearningOutcome]] = {},
 ) -> Dict[int, Course]:
     course_dict: Dict[int, Course] = {}
     for _, row in df_courses.iterrows():

@@ -6,6 +6,7 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
+    Union,
 )
 
 from pandas._libs import lib
@@ -14,6 +15,10 @@ from pandas._typing import (
 )
 
 __all__ = ["DataFrame", "Series", "read_csv"]
+
+# Not sure if this is comprehensive, as Pandas doesn't document this anywhere.
+# I think this is where they infer types: https://github.com/pandas-dev/pandas/blob/042ebab0248193b343ede6d87397871bf8931fca/pandas/_libs/lib.pyx#L2394
+CsvInferTypes = Union[str, int, float, bool]
 
 T = TypeVar("T")
 
@@ -34,7 +39,7 @@ def read_csv(
     delimiter: str | None | lib.NoDefault = ...,
     header: int | Sequence[int] | None | Literal["infer"] = ...,
     nrows: int | None = ...,
-) -> DataFrame[Hashable]: ...
+) -> DataFrame[CsvInferTypes]: ...
 def concat(
     objs: Iterable[DataFrame[T]],
     *,

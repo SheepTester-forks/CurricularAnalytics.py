@@ -73,7 +73,7 @@ def read_csv(raw_file_path: str) -> Union[Curriculum, DegreePlan]:
     file_path = remove_empty_lines(raw_file_path)
     header_fields: Dict[HeaderKey, str] = {}
     rows_read: int = 0
-    frames: Dict[SectionKey, pd.DataFrame[Hashable]] = {}
+    frames: Dict[SectionKey, pd.DataFrame[pd.CsvInferTypes]] = {}
     # Open the CSV file and read in the basic information such as the type (curric or degreeplan), institution, degree type, etc
     with open(file_path) as csv_file:
 
@@ -143,7 +143,7 @@ def read_csv(raw_file_path: str) -> Union[Curriculum, DegreePlan]:
 
     if "Courses" not in frames:
         raise ValueError("Could not find Courses")
-    df_all_courses: pd.DataFrame[Hashable] = (
+    df_all_courses: pd.DataFrame[pd.CsvInferTypes] = (
         pd.concat(
             [frames["Courses"], frames["Additional Courses"]],
         )
