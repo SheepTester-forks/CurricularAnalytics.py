@@ -38,7 +38,7 @@ def find_courses(courses: List[AbstractCourse], course_id: int) -> bool:
     return any(course_id == course.id for course in courses)
 
 
-def _course_reqs(course: Course, requisite: Requisite) -> str:
+def _course_reqs(course: AbstractCourse, requisite: Requisite) -> str:
     reqs = ";".join(
         str(
             course_id
@@ -50,9 +50,12 @@ def _course_reqs(course: Course, requisite: Requisite) -> str:
 
 
 def course_line(
-    course: Course, term_id: Union[str, int], *, metrics: bool = False
+    course: AbstractCourse, term_id: Union[str, int], *, metrics: bool = False
 ) -> str:
-    c_line: str = f'\n{course.id},"{course.name}","{course.prefix}","{course.num}","{_course_reqs(course, pre)}","{_course_reqs(course, co)}","{_course_reqs(course, strict_co)}",{course.credit_hours},"{course.institution}","{course.canonical_name}",'
+    prefix_num: str = (
+        f'"{course.prefix}","{course.num}"' if isinstance(course, Course) else ","
+    )
+    c_line: str = f'\n{course.id},"{course.name}",{prefix_num},"{_course_reqs(course, pre)}","{_course_reqs(course, co)}","{_course_reqs(course, strict_co)}",{course.credit_hours},"{course.institution}","{course.canonical_name}",'
     if term_id != "":
         c_line += f"{term_id},"
     if metrics:
