@@ -20,19 +20,31 @@ julia> dp = read_csv("./mydata/UBW_plan.csv")
 """
 from io import StringIO, TextIOWrapper
 import os
-from typing import Dict, Hashable, List, Literal, Optional, Union
+from typing import Dict, Hashable, List, Literal, Optional, Tuple, Union
 
 import pandas as pd
-from src.CSVUtilities import csv_line_reader, read_all_courses, remove_empty_lines
+from src.CSVUtilities import (
+    course_line,
+    csv_line_reader,
+    find_courses,
+    generate_course_lo,
+    generate_curric_lo,
+    read_all_courses,
+    read_courses,
+    read_terms,
+    remove_empty_lines,
+    write_learning_outcomes,
+)
 from src.CurricularAnalytics import (
     blocking_factor,
     centrality,
     complexity,
     delay_factor,
 )
+from src.DataTypes.Course import Course
 from src.DataTypes.Curriculum import Curriculum
 from src.DataTypes.DataTypes import quarter, semester
-from src.DataTypes.DegreePlan import DegreePlan
+from src.DataTypes.DegreePlan import DegreePlan, Term
 from src.DataTypes.LearningOutcome import LearningOutcome
 
 HeaderKey = Literal[
@@ -69,7 +81,13 @@ section_keys: List[SectionKey] = [
 dict_curric_system = {"semester": semester, "quarter": quarter, "": semester}
 
 
-def read_csv(raw_file_path: str) -> Union[Curriculum, DegreePlan]:
+def read_csv(
+    raw_file_path: str,
+) -> Union[
+    Curriculum,
+    DegreePlan,
+    Tuple[List[Term], List[Course], List[Course], Curriculum, str, List[Course]],
+]:
     file_path = remove_empty_lines(raw_file_path)
     header_fields: Dict[HeaderKey, str] = {}
     rows_read: int = 0
@@ -175,16 +193,16 @@ def read_csv(raw_file_path: str) -> Union[Curriculum, DegreePlan]:
             institution=header_fields["Institution"],
             CIP=header_fields["CIP"],
         )
-        terms = read_terms(df_all_courses, all_courses, all_courses_arr)
+        terms = read_terms(df_all_courses, all_courses, list(all_courses.values()))
         # If some courses has term informations but some does not
         if isinstance(terms, tuple):
             # Add curriculum to the output tuple
-            output = (
-                *terms,
+            return (
+                *terms,  # * operator enumrates the terms
                 curric,
-                dp_name,
-                ac_arr,
-            )  # ... operator enumrates the terms
+                header_fields["Degree Plan"],
+                list(additional_courses.values()),
+            )
         else:
             degree_plan = DegreePlan(
                 header_fields["Degree Plan"],
@@ -192,9 +210,9 @@ def read_csv(raw_file_path: str) -> Union[Curriculum, DegreePlan]:
                 terms,
                 list(additional_courses.values()),
             )
-            output = degree_plan
+            return degree_plan
     else:
-        curric_courses = read_all_courses(df_courses, course_learning_outcomes)
+        curric_courses = read_all_courses(frames["Courses"], course_learning_outcomes)
         curric = Curriculum(
             header_fields["Curriculum"],
             list(curric_courses.values()),
@@ -204,8 +222,7 @@ def read_csv(raw_file_path: str) -> Union[Curriculum, DegreePlan]:
             institution=header_fields["Institution"],
             CIP=header_fields["CIP"],
         )
-        output = curric
-    return output
+        return curric
 
 
 def write_csv_curriculum(
@@ -274,14 +291,15 @@ def write_csv_degree_plan(
 def write_csv_content(
     csv_file: TextIOWrapper,
     program: Union[Curriculum, DegreePlan],
-    *,
     is_degree_plan: bool,
-    metrics=False,
+    *,
+    metrics: bool = False,
 ) -> None:
     # dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = {semester: "semester", quarter: "quarter"}
+    curric: Curriculum
     # Write Curriculum Name
-    if is_degree_plan:
+    if isinstance(program, DegreePlan):
         # Grab a copy of the curriculum
         curric = program.curriculum
         curric_name = "Curriculum," + '"' + str(curric.name) + '"' + ",,,,,,,,,"
@@ -301,7 +319,7 @@ def write_csv_content(
 
     # Write Degree Type
     curric_dtype = "\nDegree Type," + '"' + str(curric.degree_type) + '"' + ",,,,,,,,,"
-    csv_file.write(urric_dtype)
+    csv_file.write(curric_dtype)
 
     # Write System Type (Semester or Quarter)
     curric_stype = (
@@ -314,7 +332,7 @@ def write_csv_content(
     csv_file.write(curric_stype)
 
     # Write CIP Code
-    curric_CIP = "\nCIP," + '"' + str(curric.CIP) + '"' + ",,,,,,,,,"
+    curric_CIP = "\nCIP," + '"' + str(curric.cip) + '"' + ",,,,,,,,,"
     csv_file.write(curric_CIP)
 
     # Define course header
@@ -344,7 +362,7 @@ def write_csv_content(
         centrality(curric)
 
     # write courses (and additional courses for degree plan)
-    if is_degree_plan:
+    if isinstance(program, DegreePlan):
         # Iterate through each term and each course in the term and write them to the degree plan
         for term_id, term in enumerate(program.terms):
             for course in term.courses:

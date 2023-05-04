@@ -17,7 +17,10 @@ from pandas._typing import (
 __all__ = ["DataFrame", "Series", "read_csv"]
 
 # Not sure if this is comprehensive, as Pandas doesn't document this anywhere.
-# I think this is where they infer types: https://github.com/pandas-dev/pandas/blob/042ebab0248193b343ede6d87397871bf8931fca/pandas/_libs/lib.pyx#L2394
+# I think this is where they infer types:
+# https://github.com/pandas-dev/pandas/blob/042ebab0248193b343ede6d87397871bf8931fca/pandas/_libs/lib.pyx#L2394
+# NOTE: For empty fields (eg ,,), Julia CSV.jl parses them as missing, while
+# Pandas parses them as NaN
 CsvInferTypes = Union[str, int, float, bool]
 
 T = TypeVar("T")
