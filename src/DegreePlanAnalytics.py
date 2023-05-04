@@ -2,9 +2,8 @@
 from io import StringIO
 import math
 from src.DataTypes.Course import AbstractCourse
-from src.DataTypes.Curriculum import course_from_id
 
-from src.DataTypes.DegreePlan import DegreePlan, find_term
+from src.DataTypes.DegreePlan import DegreePlan
 
 
 # Basic metrics for a degree plan, based soley on credits
@@ -58,14 +57,14 @@ def basic_metrics(plan: DegreePlan):
     var: float = 0
     # req_distance = 0
     avg = plan.credit_hours / plan.num_terms
-    for i in range(plan.num_terms):
-        if plan.terms[i].credit_hours > max:
-            max = plan.terms[i].credit_hours
+    for i, term in enumerate(plan.terms, 1):
+        if term.credit_hours > max:
+            max = term.credit_hours
             max_term = i
-        if plan.terms[i].credit_hours < min:
-            min = plan.terms[i].credit_hours
+        if term.credit_hours < min:
+            min = term.credit_hours
             min_term = i
-        var = var + (plan.terms[i].credit_hours - avg) ** 2
+        var = var + (term.credit_hours - avg) ** 2
     plan.metrics["max. credits in a term"] = max
     plan.metrics["max. credit term"] = max_term
     buf.write(f"  max. credits in a term = {max}, in term {max_term}\n")
@@ -106,14 +105,12 @@ def requisite_distance(plan: DegreePlan, course: AbstractCourse) -> int:
     In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
     The requisite distance metric computed by this function is stored in the associated `Course` data object.
     """
-    distance: int = 0
-    term = find_term(plan, course)
-    for req in course.requisites:
-        distance = distance + (
-            term - find_term(plan, course_from_id(plan.curriculum, req))
-        )
-    course.metrics["requisite distance"] = distance
-    return distance
+    term: int = plan.find_term(course)
+    course.metrics["requisite distance"] = sum(
+        (term - plan.find_term(plan.curriculum.course_from_id(req)))
+        for req in course.requisites
+    )
+    return course.metrics["requisite distance"]
 
 
 def plan_requisite_distance(plan: DegreePlan) -> int:
@@ -141,8 +138,7 @@ def plan_requisite_distance(plan: DegreePlan) -> int:
     distances across all courses in a degree plan is described in [Optimized Degree Plans]@ref.
     The requisite distance metric computed by this function will be stored in the associated `DegreePlan` data object.
     """
-    distance: int = 0
-    for c in plan.curriculum.courses:
-        distance = distance + requisite_distance(plan, c)
-    plan.metrics["requisite distance"] = distance
-    return distance
+    plan.metrics["requisite distance"] = sum(
+        requisite_distance(plan, c) for c in plan.curriculum.courses
+    )
+    return plan.metrics["requisite distance"]

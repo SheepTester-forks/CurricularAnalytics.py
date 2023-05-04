@@ -40,7 +40,7 @@ def bin_filling(
     UC.sort(key=course_num)
     while len(UC) > 0:
         c = select_vertex(curric, term_courses, UC)
-        if (c) != None:
+        if c != None:
             UC.remove(c)
             if term_credits + c.credit_hours <= max_cpt:
                 term_courses.append(c)
