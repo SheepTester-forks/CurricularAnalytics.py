@@ -20,7 +20,7 @@ julia> dp = read_csv("./mydata/UBW_plan.csv")
 """
 from io import StringIO, TextIOWrapper
 import os
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 import pandas as pd
 from src.CSVUtilities import (
@@ -204,30 +204,55 @@ def read_csv(
                 list(additional_courses.values()),
             )
         else:
-            degree_plan = DegreePlan(
+            return DegreePlan(
                 header_fields["Degree Plan"],
                 curric,
                 terms,
                 list(additional_courses.values()),
             )
-            return degree_plan
     else:
-        curric_courses = read_all_courses(frames["Courses"], course_learning_outcomes)
-        curric = Curriculum(
+        return Curriculum(
             header_fields["Curriculum"],
-            list(curric_courses.values()),
+            list(
+                read_all_courses(frames["Courses"], course_learning_outcomes).values()
+            ),
             learning_outcomes=curric_learning_outcomes,
             degree_type=header_fields["Degree Type"],
             system_type=dict_curric_system[header_fields["System Type"].lower()],
             institution=header_fields["Institution"],
             CIP=header_fields["CIP"],
         )
-        return curric
 
 
-def write_csv_curriculum(
-    curric: Curriculum, file_path: str, *, iostream: bool = False, metrics: bool = False
-) -> Union[StringIO, Literal[True]]:
+@overload
+def write_csv(
+    program: Union[Curriculum, DegreePlan],
+    file_path: str,
+    *,
+    iostream: Literal[True],
+    metrics: bool = False,
+) -> StringIO:
+    ...
+
+
+@overload
+def write_csv(
+    program: Union[Curriculum, DegreePlan],
+    file_path: str,
+    *,
+    iostream: Literal[False] = False,
+    metrics: bool = False,
+) -> None:
+    ...
+
+
+def write_csv(
+    program: Union[Curriculum, DegreePlan],
+    file_path: str,
+    *,
+    iostream: bool = False,
+    metrics: bool = False,
+) -> Optional[StringIO]:
     """
         write_csv(c:Curriculum, file_path:AbstractString)
 
@@ -243,112 +268,71 @@ def write_csv_curriculum(
     ```julia-repl
     julia> write_csv(c, "./mydata/UBW_curric.csv")
     ```
+
+        write_csv(dp:DegreePlan, file_path:AbstractString)
+
+    Write (i.e., serialize) a `DegreePlan` data object to disk as a CSV file. To read
+    (i.e., deserialize) a degree plan CSV file, use the corresponding `read_csv` function.
+    The file format used to store degree plans is described in [File Format](@ref).
+
+    # Arguments
+    - `dp:DegreePlan` : the `DegreePlan` data object to be serialized.
+    - `file_path:AbstractString` : the absolute or relative path where the CSV file will be stored.
+
+    # Examples:
+    ```julia-repl
+    julia> write_csv(dp, "./mydata/UBW_plan.csv")
+    ```
     """
-    if iostream == True:
+    if iostream:
         csv_file = StringIO()
-        write_csv_content(csv_file, curric, False, metrics=metrics)
+        write_csv_content(csv_file, program, metrics=metrics)
         return csv_file
     else:
         with open(file_path, "w") as csv_file:
-            write_csv_content(csv_file, curric, False, metrics=metrics)
-        return True
-
-
-# TODO - Reduce duplicated code between this and the curriculum version of the function
-"""
-    write_csv(dp:DegreePlan, file_path:AbstractString)
-
-Write (i.e., serialize) a `DegreePlan` data object to disk as a CSV file. To read
-(i.e., deserialize) a degree plan CSV file, use the corresponding `read_csv` function.
-The file format used to store degree plans is described in [File Format](@ref).
-
-# Arguments
-- `dp:DegreePlan` : the `DegreePlan` data object to be serialized.
-- `file_path:AbstractString` : the absolute or relative path where the CSV file will be stored.
-
-# Examples:
-```julia-repl
-julia> write_csv(dp, "./mydata/UBW_plan.csv")
-```
-"""
-
-
-def write_csv_degree_plan(
-    original_plan: DegreePlan,
-    file_path: str,
-    iostream: bool = False,
-    metrics: bool = False,
-) -> Optional[Literal[True]]:
-    if iostream:
-        csv_file = StringIO()  # TODO: I think it's supposed to return this
-        write_csv_content(csv_file, original_plan, True, metrics=metrics)
-    else:
-        with open(file_path, "w") as csv_file:
-            write_csv_content(csv_file, original_plan, True, metrics=metrics)
-        return True
+            write_csv_content(csv_file, program, metrics=metrics)
 
 
 def write_csv_content(
     csv_file: TextIOWrapper,
     program: Union[Curriculum, DegreePlan],
-    is_degree_plan: bool,
     *,
     metrics: bool = False,
 ) -> None:
     # dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = {semester: "semester", quarter: "quarter"}
-    curric: Curriculum
+    # Grab a copy of the curriculum
+    curric: Curriculum = (
+        program.curriculum if isinstance(program, DegreePlan) else program
+    )
     # Write Curriculum Name
-    if isinstance(program, DegreePlan):
-        # Grab a copy of the curriculum
-        curric = program.curriculum
-        curric_name = "Curriculum," + '"' + str(curric.name) + '"' + ",,,,,,,,,"
-    else:
-        curric = program
-        curric_name = "Curriculum," + str(curric.name) + ",,,,,,,,,"
-    csv_file.write(curric_name)
+    csv_file.write(f'Curriculum,"{curric.name}",,,,,,,,,')
 
     # Write Degree Plan Name
-    if is_degree_plan:
-        dp_name = "\nDegree Plan," + '"' + str(program.name) + '"' + ",,,,,,,,,"
-        csv_file.write(dp_name)
+    if isinstance(program, DegreePlan):
+        csv_file.write(f'\nDegree Plan,"{program.name}",,,,,,,,,')
 
     # Write Institution Name
-    curric_ins = "\nInstitution," + '"' + str(curric.institution) + '"' + ",,,,,,,,,"
-    csv_file.write(curric_ins)
+    csv_file.write(f'\nInstitution,"{curric.institution}",,,,,,,,,')
 
     # Write Degree Type
-    curric_dtype = "\nDegree Type," + '"' + str(curric.degree_type) + '"' + ",,,,,,,,,"
-    csv_file.write(curric_dtype)
+    csv_file.write(f'\nDegree Type,"{curric.degree_type}",,,,,,,,,')
 
     # Write System Type (Semester or Quarter)
-    curric_stype = (
-        "\nSystem Type,"
-        + '"'
-        + str(dict_curric_system[curric.system_type])
-        + '"'
-        + ",,,,,,,,,"
-    )
-    csv_file.write(curric_stype)
+    csv_file.write(f'\nSystem Type,"{dict_curric_system[curric.system_type]}",,,,,,,,,')
 
     # Write CIP Code
-    curric_CIP = "\nCIP," + '"' + str(curric.cip) + '"' + ",,,,,,,,,"
-    csv_file.write(curric_CIP)
+    csv_file.write(f'\nCIP,"{curric.cip}",,,,,,,,,')
 
     # Define course header
-    if is_degree_plan:
-        if metrics:
-            course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term,Complexity,Blocking,Delay,Centrality"
-        else:
-            # 11 cols for degree plans (including term)
-            course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
-    else:
-        if metrics:
-            course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Complexity,Blocking,Delay,Centrality"
-        else:
-            # 10 cols for curricula (no term)
-            course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
+    # 10 cols for curricula (no term)
     csv_file.write("\nCourses,,,,,,,,,,")
+    course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
+    if isinstance(program, DegreePlan):
+        # 11 cols for degree plans (including term)
+        course_header += ",Term"
+    if metrics:
+        course_header += ",Complexity,Blocking,Delay,Centrality"
     csv_file.write(course_header)
 
     # Define dict to store all course learning outcomes
@@ -364,34 +348,30 @@ def write_csv_content(
     # write courses (and additional courses for degree plan)
     if isinstance(program, DegreePlan):
         # Iterate through each term and each course in the term and write them to the degree plan
-        for term_id, term in enumerate(program.terms):
+        for term_id, term in enumerate(program.terms, 1):
             for course in term.courses:
-                if not hasattr(program, "additional_courses") or not find_courses(
-                    program.additional_courses, course.id
-                ):
+                if not find_courses(program.additional_courses, course.id):
                     csv_file.write(course_line(course, term_id, metrics=metrics))
-        # Check if the original plan has additional courses defined
-        if not hasattr(program, "additional_courses"):
-            # Write the additional courses section of the CSV
-            csv_file.write("\nAdditional Courses,,,,,,,,,,")
-            csv_file.write(course_header)
-            # Iterate through each term
-            for term_id, term in enumerate(program.terms):
-                # Iterate through each course in the current term
-                for course in term.courses:
-                    # Check if the current course is an additional course, if so, write it here
-                    if find_courses(program.additional_courses, course.id):
-                        csv_file.write(course_line(course, term_id, metrics=metrics))
-                    # Check if the current course has learning outcomes, if so store them
-                    if len(course.learning_outcomes) > 0:
-                        all_course_lo[course.id] = course.learning_outcomes
+        # Write the additional courses section of the CSV
+        csv_file.write("\nAdditional Courses,,,,,,,,,,")
+        csv_file.write(course_header)
+        # Iterate through each term
+        for term_id, term in enumerate(program.terms, 1):
+            # Iterate through each course in the current term
+            for course in term.courses:
+                # Check if the current course is an additional course, if so, write it here
+                if find_courses(program.additional_courses, course.id):
+                    csv_file.write(course_line(course, term_id, metrics=metrics))
+                # Check if the current course has learning outcomes, if so store them
+                if course.learning_outcomes:
+                    all_course_lo[course.id] = course.learning_outcomes
     else:
         # Iterate through each course in the curriculum
         for course in curric.courses:
             # Write the current course to the CSV
-            csv_file.write(course_line(course, "", metrics=metrics))
+            csv_file.write(course_line(course, metrics=metrics))
             # Check if the course has learning outcomes, if it does store them
-            if len(course.learning_outcomes) > 0:
+            if course.learning_outcomes:
                 all_course_lo[course.id] = course.learning_outcomes
 
     # Write course and curriculum learning outcomes, if any

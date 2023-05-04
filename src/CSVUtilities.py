@@ -1,6 +1,6 @@
 from io import TextIOWrapper
 import math
-from typing import Dict, Hashable, List, Literal, Union
+from typing import Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import pandas as pd
 
@@ -50,13 +50,13 @@ def _course_reqs(course: AbstractCourse, requisite: Requisite) -> str:
 
 
 def course_line(
-    course: AbstractCourse, term_id: Union[str, int], *, metrics: bool = False
+    course: AbstractCourse, term_id: Optional[int] = None, *, metrics: bool = False
 ) -> str:
     prefix_num: str = (
         f'"{course.prefix}","{course.num}"' if isinstance(course, Course) else ","
     )
     c_line: str = f'\n{course.id},"{course.name}",{prefix_num},"{_course_reqs(course, pre)}","{_course_reqs(course, co)}","{_course_reqs(course, strict_co)}",{course.credit_hours},"{course.institution}","{course.canonical_name}",'
-    if term_id != "":
+    if term_id is not None:
         c_line += f"{term_id},"
     if metrics:
         # protect against missing metrics values in course
@@ -90,14 +90,19 @@ def csv_line_reader(line: str, delimeter: str = ",") -> List[str]:
     return result
 
 
-def find_cell(row: pd.Series[pd.CsvInferTypes], header: str) -> str:
+CellType = TypeVar("CellType", str, int, float, bool)
+
+
+def find_cell(
+    row: pd.Series[pd.CsvInferTypes], header: str, type: Callable[..., CellType] = str
+) -> CellType:
     if header not in row:  # I assume this means if header is not in names
         raise KeyError(f"{header} column is missing")
     cell: pd.CsvInferTypes = row[header]
     if isinstance(cell, float) and math.isnan(cell):
-        return ""
+        return type()
     else:
-        return str(cell)
+        return type(cell)
 
 
 def read_all_courses(
@@ -111,7 +116,7 @@ def read_all_courses(
             raise ValueError("Course IDs must be unique")
         course_dict[c_ID] = Course(
             find_cell(row, "Course Name"),
-            float(row["Credit Hours"]),
+            find_cell(row, "Credit Hours", float),
             prefix=find_cell(row, "Prefix"),
             learning_outcomes=lo_Course.get(c_ID, []),
             num=find_cell(row, "Number"),
@@ -120,16 +125,16 @@ def read_all_courses(
             id=c_ID,
         )
     for _, row in df_courses.iterrows():
-        c_ID = int(row["Course ID"])
-        pre_reqs = find_cell(row, "Prerequisites")
+        c_ID: int = int(row["Course ID"])
+        pre_reqs: str = find_cell(row, "Prerequisites")
         if pre_reqs:
             for pre_req in pre_reqs.split(";"):
                 course_dict[c_ID].add_requisite(course_dict[int(pre_req)], pre)
-        co_reqs = find_cell(row, "Corequisites")
+        co_reqs: str = find_cell(row, "Corequisites")
         if co_reqs:
             for co_req in co_reqs.split(";"):
                 course_dict[c_ID].add_requisite(course_dict[int(co_req)], co)
-        sco_reqs = find_cell(row, "Strict-Corequisites")
+        sco_reqs: str = find_cell(row, "Strict-Corequisites")
         if sco_reqs:
             for sco_req in sco_reqs.split(";"):
                 course_dict[c_ID].add_requisite(course_dict[int(sco_req)], strict_co)
@@ -150,27 +155,24 @@ def read_terms(
     df_courses: pd.DataFrame[pd.CsvInferTypes],
     course_dict: Dict[int, Course],
     course_arr: List[Course],
-):
+) -> Union[List[Term], Tuple[List[Term], List[Course], List[Course]]]:
     terms: Dict[int, List[Course]] = {}
     have_term: List[Course] = []
     not_have_term: List[Course] = []
     for _, row in df_courses.iterrows():
         c_ID = int(find_cell(row, "Course ID"))
-        term_ID = int(find_cell(row, "Term") or -1)
+        term_ID: int = find_cell(row, "Term", int)
         for course in course_arr:
             if course_dict[c_ID].id == course.id:  # This could be simplified with logic
-                if term_ID != -1:  # operations rather than four if statemnts
+                if term_ID != 0:  # operations rather than four if statemnts
                     have_term.append(course)
-                    if term_ID in terms:
-                        terms[term_ID].append(course)
-                    else:
-                        terms[term_ID] = [course]
+                    terms.setdefault(term_ID, []).append(course)
                 else:
                     not_have_term.append(course)
                 break
-    terms_arr = [
-        Term(terms[term].copy() if term in terms else [])
-        for term in range(1, len(terms) + 1)
+    terms_arr: List[Term] = [
+        Term(list(terms[term]) if term in terms else [])
+        for term in range(1, len(terms) + 1)  # Term IDs are 1-indexed
     ]
     if not_have_term:
         return terms_arr, have_term, not_have_term
@@ -183,29 +185,26 @@ def generate_course_lo(
 ) -> Dict[int, List[LearningOutcome]]:
     lo_dict: Dict[int, LearningOutcome] = {}
     for _, row in df_learning_outcomes.iterrows():
-        lo_ID = int(row["Learning Outcome ID"])
+        lo_ID: int = int(row["Learning Outcome ID"])
         if lo_ID in lo_dict:
             raise ValueError("Learning Outcome ID must be unique")
         lo_dict[lo_ID] = LearningOutcome(
             find_cell(row, "Learning Outcome"),
             find_cell(row, "Description"),
-            int(row["Hours"]),
+            find_cell(row, "Hours", int),
         )
     for _, row in df_learning_outcomes.iterrows():
-        lo_ID = int(row["Learning Outcome ID"])
-        reqs = find_cell(row, "Requisites")
+        lo_ID: int = int(row["Learning Outcome ID"])
+        reqs: str = find_cell(row, "Requisites")
         if reqs:
-            for req in reqs:
+            for req in reqs.split(";"):
                 # adds all requisite courses for the learning outcome as prerequisites
-                lo_dict[lo_ID].add_lo_requisite(lo_dict[req], pre)
+                lo_dict[lo_ID].add_lo_requisite(lo_dict[int(req)], pre)
     lo_Course: Dict[int, List[LearningOutcome]] = {}
     for _, row in df_learning_outcomes.iterrows():
-        c_ID = find_cell(row, "Course ID")
-        lo_ID = find_cell(row, "Learning Outcome ID")
-        if c_ID in lo_Course:
-            lo_Course[c_ID].append(lo_dict[lo_ID])
-        else:
-            lo_Course[c_ID] = [lo_dict[lo_ID]]
+        c_ID: int = int(row["Course ID"])
+        lo_ID: int = int(row["Learning Outcome ID"])
+        lo_Course.setdefault(c_ID, []).append(lo_dict[lo_ID])
     return lo_Course
 
 
@@ -214,8 +213,8 @@ def generate_curric_lo(
 ) -> List[LearningOutcome]:
     learning_outcomes: List[LearningOutcome] = []
     for _, row in df_curric_lo.iterrows():
-        lo_name = find_cell(row, "Learning Outcome")
-        lo_description = find_cell(row, "Description")
+        lo_name: str = find_cell(row, "Learning Outcome")
+        lo_description: str = find_cell(row, "Description")
         learning_outcomes.append(LearningOutcome(lo_name, lo_description, 0))
     return learning_outcomes
 
@@ -240,37 +239,16 @@ def write_learning_outcomes(
         )
         for course_ID, lo_arr in all_course_lo.items():
             for lo in lo_arr:
-                lo_ID = lo.id
-                lo_name = lo.name
-                lo_desc = lo.description
-                lo_prereq = '"'
-                for requesite in lo.requisites.keys():
-                    lo_prereq = lo_prereq + str(requesite) + ";"
-                lo_prereq = lo_prereq[:-1]
-                if lo_prereq:
-                    lo_prereq = lo_prereq + '"'
-                lo_hours = lo.hours
-                lo_line = (
-                    "\n"
-                    + str(course_ID)
-                    + ","
-                    + str(lo_ID)
-                    + ',"'
-                    + str(lo_name)
-                    + '","'
-                    + str(lo_desc)
-                    + '","'
-                    + str(lo_prereq)
-                    + '",'
-                    + str(lo_hours)
-                    + ",,,,,"
+                lo_prereq: str = ";".join(
+                    str(requesite) for requesite in lo.requisites.keys()
                 )
-                csv_file.write(lo_line)
+                if lo_prereq:
+                    lo_prereq = f'"{lo_prereq}"'
+                csv_file.write(
+                    f'\n{course_ID},{lo.id},"{lo.name}","{lo.description}",{lo_prereq},{lo.hours},,,,,'
+                )
     if curric.learning_outcomes:
         csv_file.write("\nCurriculum Learning Outcomes,,,,,,,,,,")
         csv_file.write("\nLearning Outcome,Description,,,,,,,,,")
         for lo in curric.learning_outcomes:
-            lo_name = lo.name
-            lo_desc = lo.description
-            lo_line = '\n"' + str(lo_name) + '","' + str(lo_desc) + '",,,,,,,,,'
-            csv_file.write(lo_line)
+            csv_file.write(f'\n"{lo.name}","{lo.description}",,,,,,,,,')
