@@ -117,13 +117,13 @@ def read_csv(
                     raise ValueError("Only Degree Plan can have additional courses")
 
             # This is the row containing Course ID, Course Name, Prefix, etc
-            read_line: List[str] = readline()
             skip_rows: int = rows_read
+            read_line: List[str] = readline()
 
             # Checks that all courses have an ID, and counts the total number of courses
             while (
-                len(read_line) > 0
-                and key not in section_keys
+                read_line
+                and read_line[0] not in section_keys
                 and not read_line[0].startswith("#")
             ):
                 if key == "Courses":
@@ -153,7 +153,7 @@ def read_csv(
                 if not is_dp and "Term" in frames[key].columns:
                     raise ValueError("Curriculum cannot have term information.")
 
-            key = read_line[0]
+            key = read_line[0] if read_line else ""
 
     # Current file is the temp file created by remove_empty_lines(), remove the file.
     if file_path[-8:] == "_temp.csv":

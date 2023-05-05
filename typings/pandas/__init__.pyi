@@ -23,6 +23,8 @@ __all__ = ["DataFrame", "Series", "read_csv"]
 # Pandas parses them as NaN
 CsvInferTypes = Union[str, int, float, bool]
 
+Axis = Literal[0, 1, "index", "columns", "rows"]
+
 T = TypeVar("T")
 
 class DataFrame(Generic[T]):
@@ -30,7 +32,7 @@ class DataFrame(Generic[T]):
     shape: Tuple[int, int]
 
     def iterrows(self) -> Iterable[tuple[Hashable, Series[T]]]: ...
-    def nunique(self) -> Series[Hashable]: ...
+    def nunique(self, axis: Axis = 0) -> Series[Hashable]: ...
 
 class Series(Generic[T]):
     def __getitem__(self, key: str) -> T: ...
@@ -46,5 +48,5 @@ def read_csv(
 def concat(
     objs: Iterable[DataFrame[T]],
     *,
-    axis: Literal[0, 1, "index", "columns"] = 0,
+    axis: Axis = 0,
 ) -> DataFrame[T]: ...
