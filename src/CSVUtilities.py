@@ -94,11 +94,11 @@ CellType = TypeVar("CellType", str, int, float, bool)
 
 
 def find_cell(
-    row: pd.Series[pd.CsvInferTypes], header: str, type: Callable[..., CellType] = str
+    row: "pd.Series[pd.CsvInferTypes]", header: str, type: Callable[..., CellType] = str
 ) -> CellType:
     if header not in row:  # I assume this means if header is not in names
         raise KeyError(f"{header} column is missing")
-    cell: pd.CsvInferTypes = row[header]
+    cell: "pd.CsvInferTypes" = row[header]
     if isinstance(cell, float) and math.isnan(cell):
         return type()
     else:
@@ -106,7 +106,7 @@ def find_cell(
 
 
 def read_all_courses(
-    df_courses: pd.DataFrame[pd.CsvInferTypes],
+    df_courses: "pd.DataFrame[pd.CsvInferTypes]",
     lo_Course: Dict[int, List[LearningOutcome]] = {},
 ) -> Dict[int, Course]:
     course_dict: Dict[int, Course] = {}
@@ -142,7 +142,7 @@ def read_all_courses(
 
 
 def read_courses(
-    df_courses: pd.DataFrame[pd.CsvInferTypes], all_courses: Dict[int, Course]
+    df_courses: "pd.DataFrame[pd.CsvInferTypes]", all_courses: Dict[int, Course]
 ) -> Dict[int, Course]:
     course_dict: Dict[int, Course] = {}
     for _, row in df_courses.iterrows():
@@ -152,7 +152,7 @@ def read_courses(
 
 
 def read_terms(
-    df_courses: pd.DataFrame[pd.CsvInferTypes],
+    df_courses: "pd.DataFrame[pd.CsvInferTypes]",
     course_dict: Dict[int, Course],
     course_arr: List[Course],
 ) -> Union[List[Term], Tuple[List[Term], List[Course], List[Course]]]:
@@ -181,7 +181,7 @@ def read_terms(
 
 
 def generate_course_lo(
-    df_learning_outcomes: pd.DataFrame[pd.CsvInferTypes],
+    df_learning_outcomes: "pd.DataFrame[pd.CsvInferTypes]",
 ) -> Dict[int, List[LearningOutcome]]:
     lo_dict: Dict[int, LearningOutcome] = {}
     for _, row in df_learning_outcomes.iterrows():
@@ -209,7 +209,7 @@ def generate_course_lo(
 
 
 def generate_curric_lo(
-    df_curric_lo: pd.DataFrame[pd.CsvInferTypes],
+    df_curric_lo: "pd.DataFrame[pd.CsvInferTypes]",
 ) -> List[LearningOutcome]:
     learning_outcomes: List[LearningOutcome] = []
     for _, row in df_curric_lo.iterrows():

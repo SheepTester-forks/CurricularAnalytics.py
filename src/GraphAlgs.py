@@ -15,7 +15,8 @@ from src.DataTypes.DataTypes import (
 
 
 class HashComparable(Protocol):
-    __hash__: ClassVar[None]  # type: ignore[assignment]
+    def __hash__(self) -> int:
+        ...
 
     def __lt__(self, __other: Any) -> bool:
         ...
@@ -26,8 +27,8 @@ T = TypeVar("T", bound=HashComparable)
 
 # Depth-first search, returns edge classification using EdgeClass, as well as the discovery and finish time for each vertex.
 def dfs(
-    g: nx.Graph[T],
-) -> Tuple[Dict[nx.Edge[T], EdgeClass], Dict[T, int], Dict[T, int]]:
+    g: "nx.Graph[T]",
+) -> Tuple[Dict["nx.Edge[T]", EdgeClass], Dict[T, int], Dict[T, int]]:
     """
     dfs(g)
 
@@ -59,7 +60,7 @@ def dfs(
     # discover and finish times
     d = {node: 0 for node in g.nodes}
     f = {node: 0 for node in g.nodes}
-    edge_type: Dict[nx.Edge[T], EdgeClass] = {}
+    edge_type: Dict["nx.Edge[T]", EdgeClass] = {}
     for s in g.nodes:
         if d[s] == 0:  # undiscovered
             # a closure, shares variable space w/ outer function
@@ -88,7 +89,7 @@ def dfs(
 # In a DFS of a DAG, sorting the vertices according to their finish times in the DFS will yeild a topological sorting of the
 # DAG vertices.
 def topological_sort(
-    g: nx.DiGraph[T], sort: Literal["", "descending", "ascending"] = ""
+    g: "nx.DiGraph[T]", sort: Literal["", "descending", "ascending"] = ""
 ) -> List[List[T]]:
     """
         topological_sort(g; <keyword arguments>)
@@ -128,7 +129,7 @@ def topological_sort(
 
 
 # transpose of DAG
-def gad(g: nx.DiGraph[T]) -> nx.DiGraph[T]:
+def gad(g: "nx.DiGraph[T]") -> "nx.DiGraph[T]":
     """
         gad(g)
 
@@ -143,7 +144,7 @@ def gad(g: nx.DiGraph[T]) -> nx.DiGraph[T]:
 
 
 # The set of all vertices in the graph reachable from vertex s
-def reachable_from(g: nx.Graph[T], s: T, vlist: Optional[List[T]] = None) -> List[T]:
+def reachable_from(g: "nx.Graph[T]", s: T, vlist: Optional[List[T]] = None) -> List[T]:
     """
         reachable_from(g, s)
 
@@ -164,7 +165,7 @@ def reachable_from(g: nx.Graph[T], s: T, vlist: Optional[List[T]] = None) -> Lis
 
 
 # The subgraph induced by vertex s and the vertices reachable from vertex s
-def reachable_from_subgraph(g: nx.Graph[T], s: T) -> nx.Graph[T]:
+def reachable_from_subgraph(g: "nx.Graph[T]", s: T) -> "nx.Graph[T]":
     """
         reachable_from_subgraph(g, s)
 
@@ -182,7 +183,7 @@ def reachable_from_subgraph(g: nx.Graph[T], s: T) -> nx.Graph[T]:
 
 
 # The set of all vertices in the graph that can reach vertex s
-def reachable_to(g: nx.DiGraph[T], t: T) -> List[T]:
+def reachable_to(g: "nx.DiGraph[T]", t: T) -> List[T]:
     """
         reachable_to(g, t)
 
@@ -197,7 +198,7 @@ def reachable_to(g: nx.DiGraph[T], t: T) -> List[T]:
 
 
 # The subgraph induced by vertex s and the vertices that can reach s
-def reachable_to_subgraph(g: nx.DiGraph[T], s: T) -> nx.DiGraph[T]:
+def reachable_to_subgraph(g: "nx.DiGraph[T]", s: T) -> "nx.DiGraph[T]":
     """
         reachable_to_subgraph(g, t)
 
@@ -220,7 +221,7 @@ def reachable_to_subgraph(g: nx.DiGraph[T], s: T) -> nx.DiGraph[T]:
 
 
 # The set of all vertices reachable to and reachable from vertex s
-def reach(g: nx.DiGraph[T], v: T) -> List[T]:
+def reach(g: "nx.DiGraph[T]", v: T) -> List[T]:
     """
         reach(g, v)
 
@@ -236,7 +237,7 @@ def reach(g: nx.DiGraph[T], v: T) -> List[T]:
 
 
 # Subgraph induced by the reach of a vertex
-def reach_subgraph(g: nx.DiGraph[T], v: T) -> nx.DiGraph[T]:
+def reach_subgraph(g: "nx.DiGraph[T]", v: T) -> "nx.DiGraph[T]":
     """
         reach_subgraph(g, v)
 
@@ -259,7 +260,7 @@ def reach_subgraph(g: nx.DiGraph[T], v: T) -> nx.DiGraph[T]:
 
 
 # find all paths in a graph
-def all_paths(g: nx.DiGraph[T]) -> List[List[T]]:
+def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
     """
         all_paths(g)
 
@@ -319,7 +320,7 @@ def all_paths(g: nx.DiGraph[T]) -> List[List[T]]:
 
 # The longest path from vertx s to any other vertex in a DAG G (not necessarily unique).
 # Note: in a DAG G, longest paths in G = shortest paths in -G
-def longest_path(g: nx.Graph[T], s: T) -> List[T]:
+def longest_path(g: "nx.Graph[T]", s: T) -> List[T]:
     """
         longest_path(g, s)
 
@@ -351,7 +352,7 @@ def longest_path(g: nx.Graph[T], s: T) -> List[T]:
 
 
 # Find all of the longest paths in an acyclic graph.
-def longest_paths(g: nx.DiGraph[T]) -> List[List[T]]:
+def longest_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
     """
         longest_paths(g)
 
@@ -385,7 +386,7 @@ def longest_paths(g: nx.DiGraph[T]) -> List[List[T]]:
 
 # determine the number of edges crossing a graph cut, where s is the set of vertices on one side of the cut,
 # and the other side are the remanining vertices in g.
-def edge_crossings(g: nx.Graph[T], s: List[T]) -> int:
+def edge_crossings(g: "nx.Graph[T]", s: List[T]) -> int:
     """
         edge_crossing(g, s)
 
@@ -410,7 +411,7 @@ def edge_crossings(g: nx.Graph[T], s: List[T]) -> int:
     return total
 
 
-def edge_crossings_vertex(g: nx.Graph[T], s: T, d: List[T]) -> int:
+def edge_crossings_vertex(g: "nx.Graph[T]", s: T, d: List[T]) -> int:
     """
     find number of crossing from a single vertex to all vertices in some vertex set d
     """

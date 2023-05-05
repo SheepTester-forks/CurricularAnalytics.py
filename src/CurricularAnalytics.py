@@ -44,62 +44,6 @@ from src.GraphAlgs import (
 MatchCriterion = Literal["prefix", "num", "name", "canonical name", "credit hours"]
 
 
-def isvalid_curriculum(c: Curriculum, error_msg: StringIO = StringIO()) -> bool:
-    """
-        isvalid_curriculum(c:Curriculum, errors:IOBuffer)
-
-    Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
-    whether or not it contains a requisite cycle, or requisites that cannot be satisfied.  Returns
-    a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it is not.
-
-    If ``G_c`` is not valid, the `errors` buffer. To view these errors, use:
-
-    ```julia-repl
-    julia> errors = IOBuffer()
-    julia> isvalid_curriculum(c, errors)
-    julia> println(String(take!(errors)))
-    ```
-
-    A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this
-    case it is not possible to complete the curriculum. For the case of unsatisfiable requistes, consider
-    two courses ``c_1`` and ``c_2``, with ``c_1`` a prerequisite for ``c_2``. If a third course ``c_3``
-    is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course
-    on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
-    """
-    g = c.graph.copy()
-    validity = True
-    # First check for simple cycles
-    cycles = nx.simple_cycles(g)
-    # Next check for cycles that could be created by strict co-requisites.
-    # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in
-    # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
-    # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
-    for course in c.courses:
-        for k, r in course.requisites.items():
-            if r == strict_co:
-                v_d = c.course_from_id(course.id).vertex_id[c.id]  # destination vertex
-                v_s = c.course_from_id(k).vertex_id[c.id]  # source vertex
-                g.add_edge(v_d, v_s)
-    new_cycles = nx.simple_cycles(g)
-    new_cycles = [cyc for cyc in new_cycles if len(cyc) != 2]  # remove length-2 cycles
-    cycles = set(
-        tuple(cyc) for cyc in [*new_cycles, *cycles]
-    )  # remove redundant cycles
-    if len(cycles) != 0:
-        validity = False
-        if c.institution != "":
-            error_msg.write(f"\n{c.institution}: ")
-        error_msg.write(f" curriculum '{c.name}' has requisite cycles:\n")
-        for cyc in cycles:
-            error_msg.write("(")
-            for i, v in enumerate(cyc):
-                if i != len(cyc) - 1:
-                    error_msg.write(f"{c.courses[v].name}, ")
-                else:
-                    error_msg.write(f"{c.courses[v].name})\n")
-    return validity
-
-
 def extraneous_requisites(c: Curriculum, *, debug: bool = False) -> List[List[int]]:
     """
         extraneous_requisites(c:Curriculum; print=false)

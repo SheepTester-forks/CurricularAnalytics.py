@@ -1,7 +1,7 @@
 from io import StringIO
 from typing import Any, Dict, List, Set, TypedDict
 
-from networkx import DiGraph
+import networkx as nx
 from src.DataTypes.Course import AbstractCourse
 from src.DataTypes.Curriculum import Curriculum
 from src.DataTypes.DataTypes import pre
@@ -88,7 +88,7 @@ class DegreePlan:
     "Curriculum the degree plan satisfies"
     additional_courses: List[AbstractCourse]
     "Additional (non-required) courses added to the degree plan, e.g., these may be preparatory courses"
-    graph: DiGraph[int]
+    graph: "nx.DiGraph[int]"
     "Directed graph representation of pre-/co-requisite structure of the degre plan"
     terms: List[Term]
     "The terms associated with the degree plan"

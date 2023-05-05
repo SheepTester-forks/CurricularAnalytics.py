@@ -8,7 +8,6 @@ from src.CurricularAnalytics import (
     dead_ends,
     delay_factor,
     extraneous_requisites,
-    isvalid_curriculum,
     similarity,
 )
 from src.DataHandler import read_csv
@@ -35,7 +34,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         # Test isvalid_curriculum()
         errors = StringIO()
-        self.assertFalse(isvalid_curriculum(curric, errors))
+        self.assertFalse(curric.isvalid(errors))
         # @test String(take!(errors)) == "\nCurriculum Cycle contains the following requisite cycles:\n(A)\n"
 
     def test_create_unsatisfiable_requisites(self) -> None:
@@ -60,13 +59,13 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         curric = Curriculum("Unsatisfiable", [a, b, c], sortby_ID=False)
         errors = StringIO()
-        self.assertFalse(isvalid_curriculum(curric, errors))
+        self.assertFalse(curric.isvalid(errors))
 
     def test_big_unsatisfiable_curric(self):
         curric = read_csv("big_unsatisfiable_curric.csv")
         self.assertIsInstance(curric, Curriculum)
         assert isinstance(curric, Curriculum)
-        self.assertFalse(isvalid_curriculum(curric))
+        self.assertFalse(curric.isvalid())
 
     def test_extraneous_prerequisite(self) -> None:
         """
@@ -187,7 +186,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         # Test isvalid_curriculum() and extraneous_requisites()
         errors = StringIO()
-        self.assertTrue(isvalid_curriculum(curric, errors))
+        self.assertTrue(curric.isvalid(errors))
         self.assertEqual(len(extraneous_requisites(curric)), 0)
 
         self.assertEqual(
@@ -238,7 +237,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         # Test isvalid_curriculum() and extraneous_requisites()
         errors = StringIO()
-        self.assertTrue(isvalid_curriculum(curric, errors))
+        self.assertTrue(curric.isvalid(errors))
         self.assertEqual(len(extraneous_requisites(curric)), 0)
 
         # Test analytics
@@ -365,7 +364,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
 
     def test_isvalid_curriculum(self) -> None:
         errors = StringIO()
-        self.assertTrue(isvalid_curriculum(self.curric, errors))
+        self.assertTrue(self.curric.isvalid(errors))
 
     def test_extraneous_requisites(self) -> None:
         self.assertEqual(len(extraneous_requisites(self.curric)), 0)
