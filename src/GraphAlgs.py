@@ -108,11 +108,11 @@ def topological_sort(
     strings: `ascending`, `descending`.
     """
     _edges_type, _d, f = dfs(g)
-    topo_order = sorted(f.keys(), reverse=True)
+    topo_order = sorted(f.keys(), key=lambda k: f[k], reverse=True)
     wcc = [list(s) for s in nx.weakly_connected_components(g)]
     if sort == "descending":
         wcc.sort(
-            key=lambda x: (len(x), x[0]), reverse=True
+            key=lambda x: (-len(x), x[0])
         )  # order components by size, if same size, by lower index
     elif sort == "ascending":
         wcc.sort(

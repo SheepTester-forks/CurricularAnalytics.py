@@ -82,7 +82,7 @@ def extraneous_requisites(c: Curriculum, *, debug: bool = False) -> List[List[in
                         if g.has_edge(u, v):  # possible redundant requsisite
                             # TODO: If this edge is a co-requisite it is an error, as it would be impossible to satsify.
                             # This needs to be checked here.
-                            remove = True
+                            remove: bool = True
                             for n in nb:  # check for co- or strict_co requisites
                                 if nx.has_path(
                                     c.graph, n, v
@@ -90,38 +90,28 @@ def extraneous_requisites(c: Curriculum, *, debug: bool = False) -> List[List[in
                                     req_type = c.courses[n].requisites[
                                         c.courses[u].id
                                     ]  # the requisite relationship between u and n
-                                    if (req_type == co) or (
-                                        req_type == strict_co
+                                    if (
+                                        req_type == co or req_type == strict_co
                                     ):  # is u a co or strict_co requisite for n?
                                         remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
-                            if remove == True:
-                                if (
-                                    next(
-                                        (
-                                            x
-                                            for x in redundant_reqs
-                                            if x == [c.courses[u].id, c.courses[v].id]
-                                        ),
-                                        None,
-                                    )
-                                    == None
+                            if remove:
+                                if all(
+                                    x != [c.courses[u].id, c.courses[v].id]
+                                    for x in redundant_reqs
                                 ):  # make sure redundant requisite wasn't previously found
                                     redundant_reqs.append(
                                         [c.courses[u].id, c.courses[v].id]
                                     )
-                                    if debug == True:
-                                        string = (
-                                            string
-                                            + f"-{c.courses[v].name} has redundant requisite {c.courses[u].name}\n"
-                                        )
+                                    if debug:
+                                        string += f"-{c.courses[v].name} has redundant requisite {c.courses[u].name}\n"
                                 extraneous = True
-    if (extraneous == True) and (debug == True):
-        if c.institution != "":
+    if extraneous and debug:
+        if c.institution:
             msg.write(f"\n{c.institution}: ")
         msg.write(f"curriculum {c.name} has extraneous requisites:\n")
         msg.write(string)
     if debug == True:
-        print(str(msg))
+        print(msg.getvalue())
     return redundant_reqs
 
 
