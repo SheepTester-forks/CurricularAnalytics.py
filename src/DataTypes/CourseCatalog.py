@@ -23,6 +23,7 @@ class CourseCatalog:
         self,
         name: str,
         institution: str,
+        *,
         courses: List[Course] = [],
         catalog: Dict[int, Course] = {},
         date_range: Tuple[Any, ...] = (),

@@ -118,6 +118,7 @@ class Curriculum:
         self,
         name: str,
         courses: List[AbstractCourse],
+        *,
         learning_outcomes: List[LearningOutcome] = [],
         degree_type: str = "BS",
         system_type: System = semester,
@@ -125,6 +126,7 @@ class Curriculum:
         CIP: str = "",
         id: int = 0,
         sortby_ID: bool = True,
+        warn: bool = False,
     ) -> None:
         "Constructor"
         self.name = name
@@ -167,11 +169,11 @@ class Curriculum:
         self.course_learning_outcome_graph = nx.DiGraph()
         self.create_course_learning_outcome_graph()
         errors = StringIO()
-        if not self.isvalid(errors):
+        if warn and not self.isvalid(errors):
             print(
                 "WARNING: Curriculum was created, but is invalid due to requisite cycle(s):"
             )  # TODO: yellow
-            print(errors)
+            print(errors.getvalue())
 
     # TODO: update a curriculum graph if requisites have been added/removed or courses have been added/removed
     # def update_curriculum(curriculum:Curriculum, courses:Array{Course}=())

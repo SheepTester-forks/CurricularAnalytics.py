@@ -89,7 +89,7 @@ def dfs(
 # In a DFS of a DAG, sorting the vertices according to their finish times in the DFS will yeild a topological sorting of the
 # DAG vertices.
 def topological_sort(
-    g: "nx.DiGraph[T]", sort: Literal["", "descending", "ascending"] = ""
+    g: "nx.DiGraph[T]", *, sort: Literal["", "descending", "ascending"] = ""
 ) -> List[List[T]]:
     """
         topological_sort(g; <keyword arguments>)
@@ -298,7 +298,7 @@ def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
         ):  # work backwards from sink v to all sources reachable to v in BFS fashion
             x = que.get()  # grab a path from the queue
             for i, edge in enumerate(
-                g.in_edges(x[1])
+                g.in_edges(x[0])
             ):  # consider the in-neighbors at the beginning of the current path
                 u, _ = edge
                 if i == 0:  # first neighbor, build onto exising path

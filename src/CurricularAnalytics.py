@@ -10,7 +10,7 @@ directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a 
 from io import StringIO
 import math
 from queue import Queue
-from typing import FrozenSet, List, Literal, Optional, Tuple
+from typing import FrozenSet, List, Literal, Optional, Tuple, Union, overload
 
 import networkx as nx
 from src.DataTypes.Course import AbstractCourse, Course
@@ -156,11 +156,8 @@ def blocking_factor(c: Curriculum) -> Tuple[int, List[int]]:
     ```
     where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
     """
-    b: int = 0
-    bf: List[int] = []
-    for i, v in enumerate(c.graph.nodes):
-        bf[i] = blocking_factor_course(c, v)
-        b += bf[i]
+    bf: List[int] = [blocking_factor_course(c, v) for v in c.graph.nodes]
+    b: int = sum(bf)
     c.metrics["blocking factor"] = b, bf
     return b, bf
 
@@ -308,7 +305,6 @@ def complexity(c: Curriculum) -> Tuple[float, List[float]]:
     ``v_3`` in that curriculum, has a higher combined complexity.
     """
     course_complexity: List[float] = []  # Array{Number, 1}(undef, c.num_courses)
-    curric_complexity: float = 0
     if "delay factor" not in c.metrics:
         delay_factor(c)
     if "blocking factor" not in c.metrics:
@@ -323,7 +319,7 @@ def complexity(c: Curriculum) -> Tuple[float, List[float]]:
                 (c.courses[v].metrics["complexity"] * 2) / 3, ndigits=1
             )
         course_complexity[v] = c.courses[v].metrics["complexity"]
-        curric_complexity += course_complexity[v]
+    curric_complexity: float = sum(course_complexity)
     c.metrics["complexity"] = curric_complexity, course_complexity
     return curric_complexity, course_complexity
 
@@ -390,39 +386,48 @@ def compare_curricula(c1: Curriculum, c2: Curriculum) -> StringIO:
     return report
 
 
+@overload
 def courses_from_vertices(
-    curriculum: Curriculum, vertices: List[int]
+    curriculum: Curriculum, vertices: List[int], *, course: Literal["object"] = "object"
 ) -> List[AbstractCourse]:
+    ...
+
+
+@overload
+def courses_from_vertices(
+    curriculum: Curriculum, vertices: List[int], *, course: Literal["name", "fullname"]
+) -> List[str]:
+    ...
+
+
+def courses_from_vertices(
+    curriculum: Curriculum,
+    vertices: List[int],
+    *,
+    course: Literal["object", "name", "fullname"] = "object",
+) -> Union[List[AbstractCourse], List[str]]:
     """
     Create a list of courses or course names from a array of vertex IDs.
     The array returned can be (keyword arguments):
     -course data objects : object
-    """
-    course_list: List[AbstractCourse] = []
-    for v in vertices:
-        course_list.append(curriculum.courses[v])
-    return course_list
-
-
-def courses_names_from_vertices(
-    curriculum: Curriculum, vertices: List[int], *, course: Literal["name", "fullname"]
-) -> List[str]:
-    """
-    Create a list of courses or course names from a array of vertex IDs.
-    The array returned can be (keyword arguments):
     -the names of courses : name
     -the full names of courses (prefix, number, name) : fullname
     """
-    course_list: List[str] = []
-    for v in vertices:
-        c = curriculum.courses[v]
-        if course == "name":
-            course_list.append(f"{c.name}")
-        if course == "fullname":
-            course_list.append(
-                f"{c.prefix} {c.num} - {c.name}" if isinstance(c, Course) else c.name
-            )
-    return course_list
+    if course == "object":
+        return [curriculum.courses[v] for v in vertices]
+    else:
+        course_list: List[str] = []
+        for v in vertices:
+            c = curriculum.courses[v]
+            if course == "name":
+                course_list.append(f"{c.name}")
+            if course == "fullname":
+                course_list.append(
+                    f"{c.prefix} {c.num} - {c.name}"
+                    if isinstance(c, Course)
+                    else c.name
+                )
+        return course_list
 
 
 # Basic metrics for a currciulum.

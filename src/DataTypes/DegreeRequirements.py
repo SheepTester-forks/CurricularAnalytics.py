@@ -144,6 +144,7 @@ class CourseSet(AbstractRequirement):
         name: str,
         credit_hours: float,
         course_reqs: List[Tuple[Course, Grade]] = [],
+        *,
         description: str = "",
         course_catalog: CourseCatalog = CourseCatalog("", ""),
         prefix_regex: Regex = r".^",
@@ -210,6 +211,7 @@ class RequirementSet(AbstractRequirement):
         name: str,
         credit_hours: float,
         requirements: List[AbstractRequirement],
+        *,
         description: str = "",
         satisfy: int = 0,
     ) -> None:

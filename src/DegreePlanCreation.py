@@ -72,6 +72,7 @@ def create_degree_plan(
     create_terms: CreateTerms = bin_filling,
     name: str = "",
     additional_courses: List[AbstractCourse] = [],
+    *,
     min_terms: int = 1,
     max_terms: int = 10,
     min_cpt: int = 3,

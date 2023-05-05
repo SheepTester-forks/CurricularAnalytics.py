@@ -28,7 +28,7 @@ class Student:
     termpassed: List[int]
     "An array that represents the term in which the student passed each course."
 
-    def __init__(self, id: int, attributes: Optional[Dict[Any, Any]] = None) -> None:
+    def __init__(self, id: int, *, attributes: Optional[Dict[Any, Any]] = None) -> None:
         "Constructor"
         self.id = id
         self.performance = {}
