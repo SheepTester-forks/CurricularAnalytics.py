@@ -345,13 +345,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
         canonical_name="Elective",
     )
 
-    curric = Curriculum(
-        "Underwater Basket Weaving",
-        [A, B, C, D, E, F, G, H],
-        institution="ACME State University",
-        CIP="445786",
-        sortby_ID=False,
-    )
+    curric: Curriculum
 
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
@@ -361,6 +355,14 @@ class Test8VertexTestCurriculum(unittest.TestCase):
         self.C.add_requisite(self.D, co)
         self.E.add_requisite(self.C, pre)
         self.F.add_requisite(self.D, pre)
+
+        self.curric = Curriculum(
+            "Underwater Basket Weaving",
+            [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H],
+            institution="ACME State University",
+            CIP="445786",
+            sortby_ID=False,
+        )
 
     def test_isvalid_curriculum(self) -> None:
         errors = StringIO()
@@ -390,24 +392,24 @@ class Test8VertexTestCurriculum(unittest.TestCase):
         self.assertEqual(self.curric.metrics["max. blocking factor"], 3)
         self.assertEqual(len(self.curric.metrics["max. blocking factor courses"]), 1)
         self.assertEqual(
-            self.curric.metrics["max. blocking factor courses"][1].name,
+            self.curric.metrics["max. blocking factor courses"][0].name,
             "Basic Basket Forms Lab",
         )
         self.assertEqual(self.curric.metrics["max. centrality"], 9)
         self.assertEqual(len(self.curric.metrics["max. centrality courses"]), 1)
         self.assertEqual(
-            self.curric.metrics["max. centrality courses"][1].name, "Basic Basket Forms"
+            self.curric.metrics["max. centrality courses"][0].name, "Basic Basket Forms"
         )
         self.assertEqual(self.curric.metrics["max. delay factor"], 3.0)
         self.assertEqual(len(self.curric.metrics["max. delay factor courses"]), 5)
         self.assertEqual(
-            self.curric.metrics["max. delay factor courses"][1].name,
+            self.curric.metrics["max. delay factor courses"][0].name,
             "Introduction to Baskets",
         )
         self.assertEqual(self.curric.metrics["max. complexity"], 6.0)
         self.assertEqual(len(self.curric.metrics["max. complexity courses"]), 1)
         self.assertEqual(
-            self.curric.metrics["max. complexity courses"][1].name,
+            self.curric.metrics["max. complexity courses"][0].name,
             "Basic Basket Forms Lab",
         )
 

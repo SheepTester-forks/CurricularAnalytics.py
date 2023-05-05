@@ -259,11 +259,10 @@ def centrality(c: Curriculum) -> Tuple[int, List[int]]:
     q(c) = \\sum_{v \\in V} q(v).
     ```
     """
-    cent: int = 0
-    cf: List[int] = []  # Array{Int, 1}(undef, c.num_courses)
+    cf: List[int] = [0] * c.num_courses
     for i, v in enumerate(c.graph.nodes):
         cf[i] = centrality_course(c, v)
-        cent += cf[i]
+    cent: int = sum(cf)
     c.metrics["centrality"] = cent, cf
     return cent, cf
 
@@ -304,10 +303,10 @@ def complexity(c: Curriculum) -> Tuple[float, List[float]]:
     courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
     ``v_3`` in that curriculum, has a higher combined complexity.
     """
-    course_complexity: List[float] = []  # Array{Number, 1}(undef, c.num_courses)
-    if "delay factor" not in c.metrics:
+    course_complexity: List[float] = [0.0] * c.num_courses
+    if c.metrics["delay factor"][0] == -1:
         delay_factor(c)
-    if "blocking factor" not in c.metrics:
+    if c.metrics["blocking factor"][0] == -1:
         blocking_factor(c)
     for v in c.graph.nodes:
         c.courses[v].metrics["complexity"] = (
@@ -591,8 +590,8 @@ def write_course_names(
 ) -> None:
     if len(courses) == 1:
         write_course_name(buf, courses[0])
-    else:
-        for c in courses:
+    elif courses:
+        for c in courses[:-1]:
             write_course_name(buf, c)
             buf.write(separator)
         write_course_name(buf, courses[-1])

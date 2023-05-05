@@ -13,7 +13,7 @@ from src.DataTypes.LearningOutcome import LearningOutcome
 
 def readfile(file_path: str) -> List[str]:
     with open(file_path) as f:
-        return f.readlines()
+        return f.read().splitlines()
 
 
 def remove_empty_lines(file_path: str) -> str:
@@ -24,10 +24,8 @@ def remove_empty_lines(file_path: str) -> str:
     with open(temp_file, "w") as f:
         new_file: str = ""
         for line in file:
-            line: str = line.replace("\r", "")
             if line and not line.replace('"', "").startswith("#"):
-                line = line + "\n"
-                new_file = new_file + line
+                new_file = new_file + line + "\n"
         if new_file:
             new_file = new_file[:-1]
         f.write(new_file)
