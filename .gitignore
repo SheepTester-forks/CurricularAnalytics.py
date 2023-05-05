@@ -7,3 +7,4 @@ temp.csv
 node_modules/
 yarn.lock
 Dockerfile
+__pycache__

@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "curricularanalytics"
@@ -19,3 +19,4 @@ classifiers = [
   "License :: OSI Approved :: GNU AFFERO GENERAL PUBLIC LICENSE",
   "Operating System :: OS Independent",
 ]
+dependencies = ["networkx >= 3.1", "pandas >= 2.0.1"]
