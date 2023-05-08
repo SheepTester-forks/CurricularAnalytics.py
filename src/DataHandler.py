@@ -18,6 +18,7 @@ julia> c = read_csv("./mydata/UBW_curric.csv")
 julia> dp = read_csv("./mydata/UBW_plan.csv")
 ```
 """
+from collections import defaultdict
 from io import StringIO, TextIOWrapper
 import os
 from typing import Dict, List, Literal, Optional, Tuple, Union, overload
@@ -145,7 +146,24 @@ def read_csv(
                 read_line = readline()
 
             frames[key] = pd.read_csv(
-                file_path, header=skip_rows, nrows=rows_read - skip_rows, delimiter=","
+                file_path,
+                header=skip_rows,
+                nrows=rows_read - 2 - skip_rows,
+                delimiter=",",
+                dtype=defaultdict(
+                    lambda: str,
+                    {
+                        "Course ID": int,
+                        "Credit Hours": float,
+                        "Term": int,
+                        "Complexity": float,
+                        "Blocking": int,
+                        "Delay": int,
+                        "Centrality": int,
+                        "Learning Outcome ID": int,
+                        "Hours": int,
+                    },
+                ),
             )
             if key == "Courses":
                 if frames[key].shape[0] != frames[key].nunique()["Course ID"]:
@@ -182,7 +200,10 @@ def read_csv(
     if is_dp:
         all_courses = read_all_courses(df_all_courses, course_learning_outcomes)
         additional_courses = read_courses(
-            frames["Additional Courses"] or pd.DataFrame(), all_courses
+            frames["Additional Courses"]
+            if "Additional Courses" in frames
+            else pd.DataFrame(),
+            all_courses,
         )
         curric = Curriculum(
             header_fields["Curriculum"],

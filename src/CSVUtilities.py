@@ -38,11 +38,9 @@ def find_courses(courses: List[AbstractCourse], course_id: int) -> bool:
 
 def _course_reqs(course: AbstractCourse, requisite: Requisite) -> str:
     reqs = ";".join(
-        str(
-            course_id
-            for course_id, req_type in course.requisites.items()
-            if req_type == requisite
-        )
+        str(course_id)
+        for course_id, req_type in course.requisites.items()
+        if req_type == requisite
     )
     return f'"{reqs}"' if reqs else ""
 
@@ -53,9 +51,9 @@ def course_line(
     prefix_num: str = (
         f'"{course.prefix}","{course.num}"' if isinstance(course, Course) else ","
     )
-    c_line: str = f'\n{course.id},"{course.name}",{prefix_num},"{_course_reqs(course, pre)}","{_course_reqs(course, co)}","{_course_reqs(course, strict_co)}",{course.credit_hours},"{course.institution}","{course.canonical_name}",'
+    c_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{course.credit_hours},"{course.institution}","{course.canonical_name}"'
     if term_id is not None:
-        c_line += f"{term_id},"
+        c_line += f",{term_id}"
     if metrics:
         # protect against missing metrics values in course
         if (

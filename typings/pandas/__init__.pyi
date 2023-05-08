@@ -1,10 +1,12 @@
 from typing import (
+    Dict,
     Generic,
     Hashable,
     Iterable,
     Literal,
     Sequence,
     Tuple,
+    Type,
     TypeVar,
     Union,
 )
@@ -24,6 +26,7 @@ __all__ = ["DataFrame", "Series", "read_csv"]
 CsvInferTypes = Union[str, int, float, bool]
 
 Axis = Literal[0, 1, "index", "columns", "rows"]
+Dtype = Type[Union[str, complex, bool]]
 
 T = TypeVar("T")
 
@@ -32,7 +35,7 @@ class DataFrame(Generic[T]):
     shape: Tuple[int, int]
 
     def iterrows(self) -> Iterable[tuple[Hashable, Series[T]]]: ...
-    def nunique(self, axis: Axis = 0) -> Series[Hashable]: ...
+    def nunique(self, axis: Axis = 0) -> Series[int]: ...
 
 class Series(Generic[T]):
     def __getitem__(self, key: str) -> T: ...
@@ -44,6 +47,7 @@ def read_csv(
     delimiter: str | None | lib.NoDefault = ...,
     header: int | Sequence[int] | None | Literal["infer"] = ...,
     nrows: int | None = ...,
+    dtype: Dict[Hashable, Dtype] | None = ...,
 ) -> DataFrame[CsvInferTypes]: ...
 def concat(
     objs: Iterable[DataFrame[T]],

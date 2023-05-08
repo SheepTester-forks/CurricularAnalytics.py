@@ -135,7 +135,7 @@ class DataHandlerTests(unittest.TestCase):
 
     def test_degree_plan_data_format(self) -> None:
         "test the data file format used for degree plans"
-        dp = read_csv("degree_plan.csv")
+        dp = read_csv("./test/degree_plan.csv")
         self.assertIsInstance(dp, DegreePlan)
         assert isinstance(dp, DegreePlan)
 
@@ -327,86 +327,90 @@ class DataHandlerTests(unittest.TestCase):
            (A,C) - pre;  (C,E) -  pre; (B,C) - pre; (D,C) - co; (C,E) - pre; (D,F) - pre
         """
 
-        A = Course(
-            "Introduction to Baskets",
-            3,
-            institution="ACME State University",
-            prefix="BW",
-            num="101",
-            canonical_name="Baskets I",
-        )
-        B = Course(
-            "Swimming",
-            3,
-            institution="ACME State University",
-            prefix="PE",
-            num="115",
-            canonical_name="Physical Education",
-        )
-        C = Course(
-            "Basic Basket Forms",
-            3,
-            institution="ACME State University",
-            prefix="BW",
-            num="111",
-            canonical_name="Baskets I",
-        )
-        D = Course(
-            "Basic Basket Forms Lab",
-            1,
-            institution="ACME State University",
-            prefix="BW",
-            num="111L",
-            canonical_name="Baskets I Laboratory",
-        )
-        E = Course(
-            "Advanced Basketry",
-            3,
-            institution="ACME State University",
-            prefix="CS",
-            num="300",
-            canonical_name="Baskets II",
-        )
-        F = Course(
-            "Basket Materials & Decoration",
-            3,
-            institution="ACME State University",
-            prefix="BW",
-            num="214",
-            canonical_name="Basket Materials",
-        )
+        try:
+            A = Course(
+                "Introduction to Baskets",
+                3,
+                institution="ACME State University",
+                prefix="BW",
+                num="101",
+                canonical_name="Baskets I",
+            )
+            B = Course(
+                "Swimming",
+                3,
+                institution="ACME State University",
+                prefix="PE",
+                num="115",
+                canonical_name="Physical Education",
+            )
+            C = Course(
+                "Basic Basket Forms",
+                3,
+                institution="ACME State University",
+                prefix="BW",
+                num="111",
+                canonical_name="Baskets I",
+            )
+            D = Course(
+                "Basic Basket Forms Lab",
+                1,
+                institution="ACME State University",
+                prefix="BW",
+                num="111L",
+                canonical_name="Baskets I Laboratory",
+            )
+            E = Course(
+                "Advanced Basketry",
+                3,
+                institution="ACME State University",
+                prefix="CS",
+                num="300",
+                canonical_name="Baskets II",
+            )
+            F = Course(
+                "Basket Materials & Decoration",
+                3,
+                institution="ACME State University",
+                prefix="BW",
+                num="214",
+                canonical_name="Basket Materials",
+            )
 
-        C.add_requisite(A, pre)
-        C.add_requisite(B, pre)
-        C.add_requisite(D, co)
-        E.add_requisite(C, pre)
-        F.add_requisite(D, pre)
+            C.add_requisite(A, pre)
+            C.add_requisite(B, pre)
+            C.add_requisite(D, co)
+            E.add_requisite(C, pre)
+            F.add_requisite(D, pre)
 
-        curric1 = Curriculum(
-            "Underwater Basket Weaving",
-            [A, B, C, D, E, F],
-            institution="ACME State University",
-            CIP="445786",
-        )
-        # write curriculum to secondary storage
-        self.assertIsNone(write_csv(curric1, "./test/UBW-curric.csv"))
-        # read from same location
-        curric2 = read_csv("./test/UBW-curric.csv")
-        self.assertEqual(str(curric1), str(curric2))  # read/write invariance test
-        os.remove("./test/UBW-curric.csv")
+            curric1 = Curriculum(
+                "Underwater Basket Weaving",
+                [A, B, C, D, E, F],
+                institution="ACME State University",
+                CIP="445786",
+            )
+            # write curriculum to secondary storage
+            self.assertIsNone(write_csv(curric1, "./test/UBW-curric.csv"))
+            # read from same location
+            curric2 = read_csv("./test/UBW-curric.csv")
+            self.assertEqual(str(curric1), str(curric2))  # read/write invariance test
 
-        terms = [
-            Term([A, B]),
-            Term([C, D]),
-            Term([E, F]),
-        ]
+            terms = [
+                Term([A, B]),
+                Term([C, D]),
+                Term([E, F]),
+            ]
 
-        dp1 = DegreePlan("3-term UBW plan", curric1, terms)
-        # write degree plan to secondary storage
-        self.assertIsNone(write_csv(dp1, "UBW-degree-plan.csv"))
-        # read from same location
-        dp2 = read_csv("./test/UBW-degree-plan.csv")
+            dp1 = DegreePlan("3-term UBW plan", curric1, terms)
+            # write degree plan to secondary storage
+            self.assertIsNone(write_csv(dp1, "UBW-degree-plan.csv"))
+            # read from same location
+            dp2 = read_csv("./test/UBW-degree-plan.csv")
 
-        self.assertEqual(str(dp1), str(dp2))  # read/write invariance test
-
-        os.remove("./test/UBW-degree-plan.csv")
+            self.assertEqual(str(dp1), str(dp2))  # read/write invariance test
+        finally:
+            try:
+                os.remove("./test/UBW-curric.csv")
+                os.remove("./test/UBW-degree-plan.csv")
+            except FileNotFoundError:
+                pass
