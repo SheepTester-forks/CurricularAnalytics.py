@@ -212,7 +212,7 @@ def read_csv(
             degree_type=header_fields["Degree Type"],
             system_type=dict_curric_system[header_fields["System Type"].lower()],
             institution=header_fields["Institution"],
-            CIP=header_fields["CIP"],
+            cip=header_fields["CIP"],
         )
         terms = read_terms(df_all_courses, all_courses, list(all_courses.values()))
         # If some courses has term informations but some does not
@@ -241,7 +241,7 @@ def read_csv(
             degree_type=header_fields["Degree Type"],
             system_type=dict_curric_system[header_fields["System Type"].lower()],
             institution=header_fields["Institution"],
-            CIP=header_fields["CIP"],
+            cip=header_fields["CIP"],
         )
 
 

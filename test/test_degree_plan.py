@@ -80,7 +80,7 @@ curric = Curriculum(
     "Underwater Basket Weaving",
     [A, B, C, D, E, F, G, H],
     institution="ACME State University",
-    CIP="445786",
+    cip="445786",
 )
 
 

@@ -330,7 +330,7 @@ class DataHandlerTests(unittest.TestCase):
         try:
             A = Course(
                 "Introduction to Baskets",
-                3,
+                3.0,
                 institution="ACME State University",
                 prefix="BW",
                 num="101",
@@ -338,7 +338,7 @@ class DataHandlerTests(unittest.TestCase):
             )
             B = Course(
                 "Swimming",
-                3,
+                3.0,
                 institution="ACME State University",
                 prefix="PE",
                 num="115",
@@ -346,7 +346,7 @@ class DataHandlerTests(unittest.TestCase):
             )
             C = Course(
                 "Basic Basket Forms",
-                3,
+                3.0,
                 institution="ACME State University",
                 prefix="BW",
                 num="111",
@@ -354,7 +354,7 @@ class DataHandlerTests(unittest.TestCase):
             )
             D = Course(
                 "Basic Basket Forms Lab",
-                1,
+                1.0,
                 institution="ACME State University",
                 prefix="BW",
                 num="111L",
@@ -362,7 +362,7 @@ class DataHandlerTests(unittest.TestCase):
             )
             E = Course(
                 "Advanced Basketry",
-                3,
+                3.0,
                 institution="ACME State University",
                 prefix="CS",
                 num="300",
@@ -370,7 +370,7 @@ class DataHandlerTests(unittest.TestCase):
             )
             F = Course(
                 "Basket Materials & Decoration",
-                3,
+                3.0,
                 institution="ACME State University",
                 prefix="BW",
                 num="214",
@@ -387,7 +387,7 @@ class DataHandlerTests(unittest.TestCase):
                 "Underwater Basket Weaving",
                 [A, B, C, D, E, F],
                 institution="ACME State University",
-                CIP="445786",
+                cip="445786",
             )
             # write curriculum to secondary storage
             self.assertIsNone(write_csv(curric1, "./test/UBW-curric.csv"))
@@ -403,7 +403,7 @@ class DataHandlerTests(unittest.TestCase):
 
             dp1 = DegreePlan("3-term UBW plan", curric1, terms)
             # write degree plan to secondary storage
-            self.assertIsNone(write_csv(dp1, "UBW-degree-plan.csv"))
+            self.assertIsNone(write_csv(dp1, "./test/UBW-degree-plan.csv"))
             # read from same location
             dp2 = read_csv("./test/UBW-degree-plan.csv")
 

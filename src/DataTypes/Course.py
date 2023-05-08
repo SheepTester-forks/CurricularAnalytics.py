@@ -241,6 +241,9 @@ class Course(AbstractCourse):
             canonical_name=self.canonical_name,
         )
 
+    def __repr__(self) -> str:
+        return f"Course(id={self.id}, vertex_id={self.vertex_id}, name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata}, passrate={self.passrate})"
+
 
 class CourseCollection(AbstractCourse):
     courses: List[Course]
@@ -296,6 +299,9 @@ class CourseCollection(AbstractCourse):
             institution=self.institution,
             canonical_name=self.canonical_name,
         )
+
+    def __repr__(self) -> str:
+        return f"Course(id={self.id}, vertex_id={self.vertex_id}, courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata})"
 
 
 def course_id(name: str, prefix: str, num: str, institution: str) -> int:

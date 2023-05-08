@@ -69,7 +69,7 @@ class Curriculum:
 
     # Examples:
     ```julia-repl
-    julia> Curriculum("Biology", courses, institution="South Harmon Tech", degree_type=AS, CIP="26.0101")
+    julia> Curriculum("Biology", courses, institution="South Harmon Tech", degree_type=AS, cip="26.0101")
     ```
     """
 
@@ -123,7 +123,7 @@ class Curriculum:
         degree_type: str = "BS",
         system_type: System = semester,
         institution: str = "",
-        CIP: str = "",
+        cip: str = "",
         id: int = 0,
         sortby_ID: bool = True,
         warn: bool = False,
@@ -137,7 +137,7 @@ class Curriculum:
             self.id = hash(self.name + self.institution + str(self.degree_type))
         else:
             self.id = id
-        self.cip = CIP
+        self.cip = cip
         if sortby_ID:
             self.courses = sorted(courses, key=lambda c: c.id)
         else:
@@ -427,3 +427,6 @@ class Curriculum:
                     else:
                         error_msg.write(f"{self.courses[v].name})\n")
         return validity
+
+    def __repr__(self) -> str:
+        return f"Curriculum(id={self.id}, name={repr(self.name)}, institution={repr(self.institution)}, degree_type={repr(self.degree_type)}, system_type={self.system_type} cip={repr(self.cip)}, courses={self.courses}, num_courses={self.num_courses}, credit_hours={self.credit_hours}, graph={self.graph}, learning_outcomes={self.learning_outcomes}, learning_outcome_graph={self.learning_outcome_graph}, course_learning_outcome_graph={self.course_learning_outcome_graph}, metrics={self.metrics}, metadata={self.metadata})"

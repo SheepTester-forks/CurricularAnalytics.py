@@ -41,6 +41,9 @@ class Term:
         self.metrics = {}
         self.metadata = {}
 
+    def __repr__(self) -> str:
+        return f"Term(courses={self.courses}, num_courses={self.num_courses}, credit_hours={self.credit_hours}, metrics={self.metrics}, metadata={self.metadata})"
+
 
 DegreePlanMetrics = TypedDict(
     "DegreePlanMetrics",
@@ -88,8 +91,8 @@ class DegreePlan:
     "Curriculum the degree plan satisfies"
     additional_courses: List[AbstractCourse]
     "Additional (non-required) courses added to the degree plan, e.g., these may be preparatory courses"
-    graph: "nx.DiGraph[int]"
-    "Directed graph representation of pre-/co-requisite structure of the degre plan"
+    # graph: "nx.DiGraph[int]"
+    # "Directed graph representation of pre-/co-requisite structure of the degre plan"
     terms: List[Term]
     "The terms associated with the degree plan"
     num_terms: int
@@ -222,3 +225,6 @@ class DegreePlan:
             for c in term.courses:
                 print(f" {c.name} ")
             print("\n")
+
+    def __repr__(self) -> str:
+        return f"DegreePlan(name={repr(self.name)}, curriculum={self.curriculum}, additional_courses={self.additional_courses}, terms={self.terms}, num_terms={self.num_terms}, credit_hours={self.credit_hours},metrics={self.metrics}, metadata={self.metadata})"

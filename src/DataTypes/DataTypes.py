@@ -27,6 +27,15 @@ class System(Enum):
     semester = auto()
     quarter = auto()
 
+    def __repr__(self) -> str:
+        return (
+            "semester"
+            if self is self.semester
+            else "quarter"
+            if self is self.quarter
+            else ""
+        )
+
 
 semester = System.semester
 quarter = System.quarter
@@ -38,6 +47,21 @@ class Requisite(Enum):
     strict_co = auto()
     custom = auto()
     belong_to = auto()
+
+    def __repr__(self) -> str:
+        return (
+            "pre"
+            if self is self.pre
+            else "co"
+            if self is self.co
+            else "strict_co"
+            if self is self.strict_co
+            else "custom"
+            if self is self.custom
+            else "belong_to"
+            if self is self.belong_to
+            else ""
+        )
 
 
 pre = Requisite.pre
@@ -53,6 +77,19 @@ class EdgeClass(Enum):
     forward_edge = auto()
     cross_edge = auto()
 
+    def __repr__(self) -> str:
+        return (
+            "tree_edge"
+            if self is self.tree_edge
+            else "back_edge"
+            if self is self.back_edge
+            else "forward_edge"
+            if self is self.forward_edge
+            else "cross_edge"
+            if self is self.cross_edge
+            else ""
+        )
+
 
 tree_edge = EdgeClass.tree_edge
 back_edge = EdgeClass.back_edge
@@ -64,6 +101,17 @@ class EdgeType(Enum):
     c_to_c = auto()
     lo_to_lo = auto()
     lo_to_c = auto()
+
+    def __repr__(self) -> str:
+        return (
+            "c_to_c"
+            if self is self.c_to_c
+            else "lo_to_lo"
+            if self is self.lo_to_lo
+            else "lo_to_c"
+            if self is self.lo_to_c
+            else ""
+        )
 
 
 c_to_c = EdgeType.c_to_c

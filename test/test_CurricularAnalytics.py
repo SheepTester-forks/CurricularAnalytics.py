@@ -180,7 +180,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
             "Underwater Basket Weaving",
             [A, B, C, D, E, F, G, H],
             institution="ACME State University",
-            CIP="445786",
+            cip="445786",
             sortby_ID=False,
         )
 
@@ -360,7 +360,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             "Underwater Basket Weaving",
             [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H],
             institution="ACME State University",
-            CIP="445786",
+            cip="445786",
             sortby_ID=False,
         )
 
@@ -418,7 +418,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             "Underwater Basket Weaving (no elective)",
             [self.A, self.B, self.C, self.D, self.E, self.F, self.G],
             institution="ACME State University",
-            CIP="445786",
+            cip="445786",
             sortby_ID=False,
         )
         self.assertEqual(similarity(curric_mod, self.curric), 0.875)
@@ -448,7 +448,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             "Underwater Basket Weaving (w/ Calc)",
             [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H, I, J],
             institution="ACME State University",
-            CIP="445786",
+            cip="445786",
             sortby_ID=False,
         )
         de = dead_ends(curric_de, frozenset({"BW"}))

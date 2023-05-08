@@ -726,7 +726,7 @@ def merge_curricula(
         learning_outcomes=learning_outcomes,
         degree_type=degree_type,
         institution=institution,
-        CIP=CIP,
+        cip=CIP,
     )
     return merged_curric
 
