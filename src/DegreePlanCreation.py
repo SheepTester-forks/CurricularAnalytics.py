@@ -97,12 +97,12 @@ def select_vertex(
     curric: Curriculum, term_courses: List[AbstractCourse], UC: List[AbstractCourse]
 ):
     for target in UC:
-        t_id = target.vertex_id[curric.id]
+        t_id = target.id
         UCs = UC.copy()
         UCs = [c for c in UCs if c.id != target.id]
         invariant1 = True
         for source in UCs:
-            s_id = source.vertex_id[curric.id]
+            s_id = source.id
             if has_path(curric.graph, s_id, t_id):  # target cannot be moved to AC
                 invariant1 = False  # invariant 1 violated
                 break  # try a new target

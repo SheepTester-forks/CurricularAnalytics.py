@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Tuple
+
 from src.DataTypes.Course import Course, course_id
 
 ##############################################################

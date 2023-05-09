@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Literal, Optional, TypeVar, TypedDict
+from typing import Any, Dict, List, Literal, Optional, TypedDict, TypeVar
 
 from src.DataTypes.DataTypes import Requisite
 from src.DataTypes.LearningOutcome import LearningOutcome

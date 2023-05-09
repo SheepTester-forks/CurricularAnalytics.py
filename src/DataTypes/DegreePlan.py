@@ -1,10 +1,10 @@
 from io import StringIO
 from typing import Any, Dict, List, Set, TypedDict
 
-import networkx as nx
 from src.DataTypes.Course import AbstractCourse
 from src.DataTypes.Curriculum import Curriculum
 from src.DataTypes.DataTypes import pre
+from src.GraphAlgs import edge_crossings
 
 ##############################################################
 # Term data type
@@ -196,6 +196,34 @@ class DegreePlan:
                 else:
                     dp_classes.add(c.id)
         return validity
+
+    def knowledge_transfer(self) -> List[float]:
+        """
+            knowledge_transfer(dp)
+
+        Determine the number of requisites crossing the "cut" in a degree plan that occurs between each term.
+
+        # Arguments
+        - `dp:DegreePlan` : the degree to analyze.
+
+        Returns an array of crossing values between the courses in the first term and the remainder of the degree plan,
+        between the courses in the first two terms in the degree plan, and the remainder of the degree plan, etc.
+        The number of values returned will be one less than the number of terms in the degree plan.
+
+        ```julia-repl
+        julia> knowledge_transfer(dp)
+        ```
+        """
+        ec_terms: List[float] = []
+        s: List[int] = []
+        for term in self.terms:
+            sum = 0
+            for c in term.courses:
+                s.append(c.id)
+            sum += edge_crossings(self.curriculum.graph, s)
+            ec_terms.append(sum)
+        del ec_terms[-1]
+        return ec_terms  # the last value will always be zero, so remove it
 
     def find_term(self, course: AbstractCourse) -> int:
         """

@@ -1,5 +1,5 @@
-from io import TextIOWrapper
 import math
+from io import TextIOWrapper
 from typing import Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import pandas as pd

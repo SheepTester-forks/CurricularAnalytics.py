@@ -1,4 +1,5 @@
 from typing import List
+
 from src.DataTypes.Course import Course
 from src.DataTypes.DegreeRequirements import Grade
 

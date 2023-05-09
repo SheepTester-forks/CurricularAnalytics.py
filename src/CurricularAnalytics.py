@@ -7,19 +7,12 @@ A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v
 directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 
-from io import StringIO
 import math
+from io import StringIO
 from typing import List
 
 from src.DataTypes.Course import AbstractCourse, Course
-from src.DataTypes.Curriculum import (
-    Curriculum,
-    CurriculumMetricKey,
-)
-from src.DataTypes.DegreePlan import DegreePlan
-from src.GraphAlgs import (
-    edge_crossings,
-)
+from src.DataTypes.Curriculum import Curriculum, CurriculumMetricKey
 
 
 def basic_statistics(
@@ -93,32 +86,3 @@ def write_course_name(buf: StringIO, c: AbstractCourse) -> None:
 
 def homology(curricula: List[Curriculum], *, strict: bool = False) -> List[List[float]]:
     return [[c1.similarity(c2, strict=strict) for c2 in curricula] for c1 in curricula]
-
-
-def knowledge_transfer(dp: DegreePlan) -> List[float]:
-    """
-        knowledge_transfer(dp)
-
-    Determine the number of requisites crossing the "cut" in a degree plan that occurs between each term.
-
-    # Arguments
-    - `dp:DegreePlan` : the degree to analyze.
-
-    Returns an array of crossing values between the courses in the first term and the remainder of the degree plan,
-    between the courses in the first two terms in the degree plan, and the remainder of the degree plan, etc.
-    The number of values returned will be one less than the number of terms in the degree plan.
-
-    ```julia-repl
-    julia> knowledge_transfer(dp)
-    ```
-    """
-    ec_terms: List[float] = []
-    s: List[int] = []
-    for term in dp.terms:
-        sum = 0
-        for c in term.courses:
-            s.append(c.id)
-        sum += edge_crossings(dp.curriculum.graph, s)
-        ec_terms.append(sum)
-    del ec_terms[-1]
-    return ec_terms  # the last value will always be zero, so remove it

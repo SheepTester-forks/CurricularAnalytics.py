@@ -18,12 +18,13 @@ julia> c = read_csv("./mydata/UBW_curric.csv")
 julia> dp = read_csv("./mydata/UBW_plan.csv")
 ```
 """
+import os
 from collections import defaultdict
 from io import StringIO, TextIOWrapper
-import os
 from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 import pandas as pd
+
 from src.CSVUtilities import (
     course_line,
     csv_line_reader,
@@ -35,12 +36,6 @@ from src.CSVUtilities import (
     read_terms,
     remove_empty_lines,
     write_learning_outcomes,
-)
-from src.CurricularAnalytics import (
-    blocking_factor,
-    centrality,
-    complexity,
-    delay_factor,
 )
 from src.DataTypes.Course import Course
 from src.DataTypes.Curriculum import Curriculum
@@ -361,10 +356,10 @@ def write_csv_content(
 
     # if metrics is true ensure that all values are present before writing courses
     if metrics:
-        complexity(curric)
-        blocking_factor(curric)
-        delay_factor(curric)
-        centrality(curric)
+        curric.complexity()
+        curric.blocking_factor()
+        curric.delay_factor()
+        curric.centrality()
 
     # write courses (and additional courses for degree plan)
     if isinstance(program, DegreePlan):

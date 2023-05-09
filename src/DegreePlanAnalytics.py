@@ -1,8 +1,8 @@
 # File DegreePlanAnalytics.jl
-from io import StringIO
 import math
-from src.DataTypes.Course import AbstractCourse
+from io import StringIO
 
+from src.DataTypes.Course import AbstractCourse
 from src.DataTypes.DegreePlan import DegreePlan
 
 

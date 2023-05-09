@@ -1,6 +1,6 @@
 from typing import List
-from src.DataTypes.DegreePlan import DegreePlan
 
+from src.DataTypes.DegreePlan import DegreePlan
 from src.DataTypes.Student import Student
 
 
