@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from io import StringIO
 from typing import Any, Dict, List, Literal, Optional, TypedDict, TypeVar
 
 from src.DataTypes.DataTypes import Requisite
@@ -354,3 +355,24 @@ class CourseCollection(AbstractCourse):
 
 def course_id(name: str, prefix: str, num: str, institution: str) -> int:
     return hash(name + prefix + num + institution)
+
+
+def write_course_names(
+    buf: StringIO, courses: List[AbstractCourse], *, separator: str = ", "
+) -> None:
+    if len(courses) == 1:
+        _write_course_name(buf, courses[0])
+    elif courses:
+        for c in courses[:-1]:
+            _write_course_name(buf, c)
+            buf.write(separator)
+        _write_course_name(buf, courses[-1])
+
+
+def _write_course_name(buf: StringIO, c: AbstractCourse) -> None:
+    if isinstance(c, Course):
+        if c.prefix:
+            buf.write(f"{c.prefix} ")
+        if c.num:
+            buf.write(f"{c.num} - ")
+    buf.write(f"{c.name}")  # name is a required item

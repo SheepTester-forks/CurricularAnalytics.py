@@ -18,8 +18,13 @@ from typing import (
 
 import networkx as nx
 
-from src.CurricularAnalytics import write_course_names
-from src.DataTypes.Course import AbstractCourse, Course, MatchCriterion, course_id
+from src.DataTypes.Course import (
+    AbstractCourse,
+    Course,
+    MatchCriterion,
+    course_id,
+    write_course_names,
+)
 from src.DataTypes.DataTypes import (
     Requisite,
     System,

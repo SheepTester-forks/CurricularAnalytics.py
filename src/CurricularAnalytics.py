@@ -11,7 +11,6 @@ import math
 from io import StringIO
 from typing import List
 
-from src.DataTypes.Course import AbstractCourse, Course
 from src.DataTypes.Curriculum import Curriculum, CurriculumMetricKey
 
 
@@ -61,27 +60,6 @@ def basic_statistics(
     buf.write(f"\n  Max. = {max_metric}")
     buf.write(f"\n  Min. = {min_metric}")
     return buf
-
-
-def write_course_names(
-    buf: StringIO, courses: List[AbstractCourse], *, separator: str = ", "
-) -> None:
-    if len(courses) == 1:
-        write_course_name(buf, courses[0])
-    elif courses:
-        for c in courses[:-1]:
-            write_course_name(buf, c)
-            buf.write(separator)
-        write_course_name(buf, courses[-1])
-
-
-def write_course_name(buf: StringIO, c: AbstractCourse) -> None:
-    if isinstance(c, Course):
-        if c.prefix:
-            buf.write(f"{c.prefix} ")
-        if c.num:
-            buf.write(f"{c.num} - ")
-    buf.write(f"{c.name}")  # name is a required item
 
 
 def homology(curricula: List[Curriculum], *, strict: bool = False) -> List[List[float]]:

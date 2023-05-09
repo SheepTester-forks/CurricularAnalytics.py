@@ -1,6 +1,6 @@
 __version__ = "1.4.0"
 
-from src.CurricularAnalytics import basic_statistics, homology, knowledge_transfer
+from src.CurricularAnalytics import basic_statistics, homology
 from src.DataHandler import read_csv, write_csv
 from src.DataTypes.Course import AbstractCourse, Course, CourseCollection, course_id
 from src.DataTypes.CourseCatalog import CourseCatalog
@@ -48,7 +48,6 @@ from src.GraphAlgs import (
     reachable_to_subgraph,
     topological_sort,
 )
-
 
 # print(
 #     AA,
