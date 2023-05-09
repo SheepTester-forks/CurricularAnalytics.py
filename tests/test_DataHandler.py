@@ -18,7 +18,7 @@ from curricularanalytics import (
 class DataHandlerTests(unittest.TestCase):
     def test_curriclum_data_format(self) -> None:
         "test the data file format used for curricula"
-        curric = read_csv("./test/curriculum.csv")
+        curric = read_csv("./tests/curriculum.csv")
         self.assertIsInstance(curric, Curriculum)
         assert isinstance(curric, Curriculum)
 
@@ -142,7 +142,7 @@ class DataHandlerTests(unittest.TestCase):
 
     def test_degree_plan_data_format(self) -> None:
         "test the data file format used for degree plans"
-        dp = read_csv("./test/degree_plan.csv")
+        dp = read_csv("./tests/degree_plan.csv")
         self.assertIsInstance(dp, DegreePlan)
         assert isinstance(dp, DegreePlan)
 
@@ -397,9 +397,9 @@ class DataHandlerTests(unittest.TestCase):
                 cip="445786",
             )
             # write curriculum to secondary storage
-            self.assertIsNone(write_csv(curric1, "./test/UBW-curric.csv"))
+            self.assertIsNone(write_csv(curric1, "./tests/UBW-curric.csv"))
             # read from same location
-            curric2 = read_csv("./test/UBW-curric.csv")
+            curric2 = read_csv("./tests/UBW-curric.csv")
             self.assertEqual(str(curric1), str(curric2))  # read/write invariance test
 
             terms = [
@@ -410,14 +410,14 @@ class DataHandlerTests(unittest.TestCase):
 
             dp1 = DegreePlan("3-term UBW plan", curric1, terms)
             # write degree plan to secondary storage
-            self.assertIsNone(write_csv(dp1, "./test/UBW-degree-plan.csv"))
+            self.assertIsNone(write_csv(dp1, "./tests/UBW-degree-plan.csv"))
             # read from same location
-            dp2 = read_csv("./test/UBW-degree-plan.csv")
+            dp2 = read_csv("./tests/UBW-degree-plan.csv")
 
             self.assertEqual(str(dp1), str(dp2))  # read/write invariance test
         finally:
             try:
-                os.remove("./test/UBW-curric.csv")
-                os.remove("./test/UBW-degree-plan.csv")
+                os.remove("./tests/UBW-curric.csv")
+                os.remove("./tests/UBW-degree-plan.csv")
             except FileNotFoundError:
                 pass

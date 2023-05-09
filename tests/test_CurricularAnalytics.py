@@ -49,7 +49,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         self.assertFalse(curric.isvalid(errors))
 
     def test_big_unsatisfiable_curric(self):
-        curric = read_csv("test/big_unsatisfiable_curric.csv")
+        curric = read_csv("tests/big_unsatisfiable_curric.csv")
         self.assertIsInstance(curric, Curriculum)
         assert isinstance(curric, Curriculum)
         self.assertFalse(curric.isvalid())
