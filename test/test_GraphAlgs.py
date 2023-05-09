@@ -2,7 +2,7 @@ import unittest
 
 import networkx as nx
 
-from src import (
+from curricularanalytics import (
     all_paths,
     cross_edge,
     dfs,

@@ -1,4 +1,4 @@
-from src import Course, Curriculum, DegreePlan, Term, co, pre
+from curricularanalytics import Course, Curriculum, DegreePlan, Term, co, pre
 
 A = Course(
     "Introduction to Baskets",

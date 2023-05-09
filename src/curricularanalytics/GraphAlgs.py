@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, Protocol, Tuple, TypeVar
 
 import networkx as nx
 
-from src.DataTypes.DataTypes import (
+from curricularanalytics.DataTypes.DataTypes import (
     EdgeClass,
     back_edge,
     cross_edge,

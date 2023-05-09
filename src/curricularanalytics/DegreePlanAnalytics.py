@@ -2,8 +2,8 @@
 import math
 from io import StringIO
 
-from src.DataTypes.Course import AbstractCourse
-from src.DataTypes.DegreePlan import DegreePlan
+from curricularanalytics.DataTypes.Course import AbstractCourse
+from curricularanalytics.DataTypes.DegreePlan import DegreePlan
 
 
 # Basic metrics for a degree plan, based soley on credits

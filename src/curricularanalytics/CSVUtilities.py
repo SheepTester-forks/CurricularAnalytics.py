@@ -4,11 +4,11 @@ from typing import Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import pandas as pd
 
-from src.DataTypes.Course import AbstractCourse, Course
-from src.DataTypes.Curriculum import Curriculum
-from src.DataTypes.DataTypes import Requisite, co, pre, strict_co
-from src.DataTypes.DegreePlan import Term
-from src.DataTypes.LearningOutcome import LearningOutcome
+from curricularanalytics.DataTypes.Course import AbstractCourse, Course
+from curricularanalytics.DataTypes.Curriculum import Curriculum
+from curricularanalytics.DataTypes.DataTypes import Requisite, co, pre, strict_co
+from curricularanalytics.DataTypes.DegreePlan import Term
+from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
 
 
 def readfile(file_path: str) -> List[str]:

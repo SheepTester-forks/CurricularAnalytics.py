@@ -7,8 +7,8 @@ import re
 from abc import ABC
 from typing import List, Tuple
 
-from src.DataTypes.Course import Course
-from src.DataTypes.CourseCatalog import CourseCatalog
+from curricularanalytics.DataTypes.Course import Course
+from curricularanalytics.DataTypes.CourseCatalog import CourseCatalog
 
 Grade = int
 "Create an integer data type called Grade"

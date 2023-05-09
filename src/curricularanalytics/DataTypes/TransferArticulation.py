@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from src.DataTypes.CourseCatalog import CourseCatalog
+from curricularanalytics.DataTypes.CourseCatalog import CourseCatalog
 
 
 class TransferArticulation:

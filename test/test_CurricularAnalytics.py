@@ -1,7 +1,7 @@
 import unittest
 from io import StringIO
 
-from src import Course, Curriculum, co, pre, read_csv, strict_co
+from curricularanalytics import Course, Curriculum, co, pre, read_csv, strict_co
 
 
 class CurricularAnalyticsTests(unittest.TestCase):

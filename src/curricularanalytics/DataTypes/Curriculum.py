@@ -18,14 +18,14 @@ from typing import (
 
 import networkx as nx
 
-from src.DataTypes.Course import (
+from curricularanalytics.DataTypes.Course import (
     AbstractCourse,
     Course,
     MatchCriterion,
     course_id,
     write_course_names,
 )
-from src.DataTypes.DataTypes import (
+from curricularanalytics.DataTypes.DataTypes import (
     Requisite,
     System,
     belong_to,
@@ -38,8 +38,8 @@ from src.DataTypes.DataTypes import (
     semester,
     strict_co,
 )
-from src.DataTypes.LearningOutcome import LearningOutcome
-from src.GraphAlgs import all_paths, longest_paths, reachable_from
+from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
+from curricularanalytics.GraphAlgs import all_paths, longest_paths, reachable_from
 
 CurriculumMetrics = TypedDict(
     "CurriculumMetrics",

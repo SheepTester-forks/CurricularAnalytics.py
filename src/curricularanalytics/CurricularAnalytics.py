@@ -11,7 +11,7 @@ import math
 from io import StringIO
 from typing import List
 
-from src.DataTypes.Curriculum import Curriculum, CurriculumMetricKey
+from curricularanalytics.DataTypes.Curriculum import Curriculum, CurriculumMetricKey
 
 
 def basic_statistics(

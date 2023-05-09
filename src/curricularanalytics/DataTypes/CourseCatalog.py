@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Tuple
 
-from src.DataTypes.Course import Course, course_id
+from curricularanalytics.DataTypes.Course import Course, course_id
 
 ##############################################################
 # Course Catalog data type

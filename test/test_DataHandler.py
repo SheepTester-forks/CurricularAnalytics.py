@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from src import (
+from curricularanalytics import (
     Course,
     Curriculum,
     DegreePlan,

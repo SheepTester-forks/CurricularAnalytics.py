@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from typing import Any, Dict, List, Literal, Optional, TypedDict, TypeVar
 
-from src.DataTypes.DataTypes import Requisite
-from src.DataTypes.LearningOutcome import LearningOutcome
+from curricularanalytics.DataTypes.DataTypes import Requisite
+from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
 
 CourseMetrics = TypedDict(
     "CourseMetrics",

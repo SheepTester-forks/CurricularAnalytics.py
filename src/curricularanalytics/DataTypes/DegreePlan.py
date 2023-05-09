@@ -1,10 +1,10 @@
 from io import StringIO
 from typing import Any, Dict, List, Set, TypedDict
 
-from src.DataTypes.Course import AbstractCourse
-from src.DataTypes.Curriculum import Curriculum
-from src.DataTypes.DataTypes import pre
-from src.GraphAlgs import edge_crossings
+from curricularanalytics.DataTypes.Course import AbstractCourse
+from curricularanalytics.DataTypes.Curriculum import Curriculum
+from curricularanalytics.DataTypes.DataTypes import pre
+from curricularanalytics.GraphAlgs import edge_crossings
 
 ##############################################################
 # Term data type
