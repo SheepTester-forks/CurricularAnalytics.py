@@ -1,8 +1,4 @@
-from src.DataTypes.Course import Course
-from src.DataTypes.Curriculum import Curriculum
-from src.DataTypes.DataTypes import co, pre
-from src.DataTypes.DegreePlan import DegreePlan, Term
-
+from src import Course, Curriculum, DegreePlan, Term, co, pre
 
 A = Course(
     "Introduction to Baskets",

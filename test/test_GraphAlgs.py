@@ -1,10 +1,10 @@
 import unittest
 
 import networkx as nx
-from src.DataTypes.DataTypes import cross_edge, tree_edge
 
-from src.GraphAlgs import (
+from src import (
     all_paths,
+    cross_edge,
     dfs,
     gad,
     longest_path,
@@ -16,6 +16,7 @@ from src.GraphAlgs import (
     reachable_to,
     reachable_to_subgraph,
     topological_sort,
+    tree_edge,
 )
 
 

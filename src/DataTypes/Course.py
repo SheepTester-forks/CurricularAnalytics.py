@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, TypeVar, TypedDict
+from typing import Any, Dict, List, Literal, Optional, TypeVar, TypedDict
 
 from src.DataTypes.DataTypes import Requisite
 from src.DataTypes.LearningOutcome import LearningOutcome
@@ -16,6 +16,8 @@ CourseMetrics = TypedDict(
 )
 
 Self = TypeVar("Self", bound="AbstractCourse")
+
+MatchCriterion = Literal["prefix", "num", "name", "canonical name", "credit hours"]
 
 
 # Course-related data types:
@@ -39,8 +41,6 @@ class AbstractCourse(ABC):
 
     id: int
     "Unique course id"
-    vertex_id: Dict[int, int]
-    "The vertex id of the course w/in a curriculum graph, stored as (curriculum_id, vertex_id)"
 
     name: str
     "Name of the course, e.g., Introduction to Psychology"
@@ -145,6 +145,54 @@ class AbstractCourse(ABC):
         # end
         del self.requisites[requisite_course.id]
 
+    def match(
+        self,
+        other: "AbstractCourse",
+        match_criteria: List[MatchCriterion] = [],
+    ) -> bool:
+        is_matched = False
+        if len(match_criteria) == 0:
+            return self == other
+        else:
+            for criterion in match_criteria:
+                if criterion not in [
+                    "prefix",
+                    "num",
+                    "name",
+                    "canonical name",
+                    "credit hours",
+                ]:
+                    raise Exception(f"invalid match criteria: {criterion}")
+                elif criterion == "prefix":
+                    is_matched = (
+                        self.prefix == other.prefix
+                        if isinstance(self, Course) and isinstance(other, Course)
+                        else True
+                    )
+                elif criterion == "num":
+                    is_matched = (
+                        self.num == other.num
+                        if isinstance(self, Course) and isinstance(other, Course)
+                        else True
+                    )
+                elif criterion == "name":
+                    is_matched = self.name == other.name
+                elif criterion == "canonical name":
+                    is_matched = self.canonical_name == other.canonical_name
+                elif criterion == "credit hours":
+                    is_matched = self.credit_hours == other.credit_hours
+        return is_matched
+
+    def find_match(
+        self,
+        course_set: List["AbstractCourse"],
+        match_criteria: List[MatchCriterion] = [],
+    ) -> Optional["AbstractCourse"]:
+        for c in course_set:
+            if self.match(c, match_criteria):
+                return self
+        return None
+
 
 ##############################################################
 # Course data type
@@ -242,7 +290,7 @@ class Course(AbstractCourse):
         )
 
     def __repr__(self) -> str:
-        return f"Course(id={self.id}, vertex_id={self.vertex_id}, name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata}, passrate={self.passrate})"
+        return f"Course(id={self.id}, name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata}, passrate={self.passrate})"
 
 
 class CourseCollection(AbstractCourse):
@@ -301,7 +349,7 @@ class CourseCollection(AbstractCourse):
         )
 
     def __repr__(self) -> str:
-        return f"Course(id={self.id}, vertex_id={self.vertex_id}, courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata})"
+        return f"Course(id={self.id}, courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata})"
 
 
 def course_id(name: str, prefix: str, num: str, institution: str) -> int:

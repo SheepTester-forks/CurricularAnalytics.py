@@ -1,11 +1,18 @@
 import os
 import unittest
 
-from src.DataHandler import read_csv, write_csv
-from src.DataTypes.Course import Course
-from src.DataTypes.Curriculum import Curriculum
-from src.DataTypes.DataTypes import co, pre, semester, strict_co
-from src.DataTypes.DegreePlan import DegreePlan, Term
+from src import (
+    Course,
+    Curriculum,
+    DegreePlan,
+    Term,
+    co,
+    pre,
+    read_csv,
+    semester,
+    strict_co,
+    write_csv,
+)
 
 
 class DataHandlerTests(unittest.TestCase):

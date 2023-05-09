@@ -1,20 +1,7 @@
-from io import StringIO
 import unittest
-from src.CurricularAnalytics import (
-    basic_metrics,
-    blocking_factor,
-    centrality,
-    complexity,
-    dead_ends,
-    delay_factor,
-    extraneous_requisites,
-    similarity,
-)
-from src.DataHandler import read_csv
+from io import StringIO
 
-from src.DataTypes.Course import Course
-from src.DataTypes.Curriculum import Curriculum
-from src.DataTypes.DataTypes import co, pre, strict_co
+from src import Course, Curriculum, co, pre, read_csv, strict_co
 
 
 class CurricularAnalyticsTests(unittest.TestCase):
@@ -91,7 +78,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         curric = Curriculum("Extraneous", [a, b, c, d], sortby_ID=False)
         # Test extraneous_requisites()
-        self.assertEqual(len(extraneous_requisites(curric)), 1)
+        self.assertEqual(len(curric.extraneous_requisites()), 1)
 
     def test_8_vertex_test_curriculum(self) -> None:
         """
@@ -187,15 +174,15 @@ class CurricularAnalyticsTests(unittest.TestCase):
         # Test isvalid_curriculum() and extraneous_requisites()
         errors = StringIO()
         self.assertTrue(curric.isvalid(errors))
-        self.assertEqual(len(extraneous_requisites(curric)), 0)
+        self.assertEqual(len(curric.extraneous_requisites()), 0)
 
         self.assertEqual(
-            delay_factor(curric), (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
+            curric.delay_factor(), (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
         )
-        self.assertEqual(blocking_factor(curric), (8, [2, 2, 1, 3, 0, 0, 0, 0]))
-        self.assertEqual(centrality(curric), (9, [0, 0, 9, 0, 0, 0, 0, 0]))
+        self.assertEqual(curric.blocking_factor(), (8, [2, 2, 1, 3, 0, 0, 0, 0]))
+        self.assertEqual(curric.centrality(), (9, [0, 0, 9, 0, 0, 0, 0, 0]))
         self.assertEqual(
-            complexity(curric), (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
+            curric.complexity(), (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
         )
 
     def test_7_vertex_test_curriculum(self) -> None:
@@ -238,16 +225,16 @@ class CurricularAnalyticsTests(unittest.TestCase):
         # Test isvalid_curriculum() and extraneous_requisites()
         errors = StringIO()
         self.assertTrue(curric.isvalid(errors))
-        self.assertEqual(len(extraneous_requisites(curric)), 0)
+        self.assertEqual(len(curric.extraneous_requisites()), 0)
 
         # Test analytics
         self.assertEqual(
-            delay_factor(curric), (33.0, [5.0, 5.0, 5.0, 5.0, 3.0, 5.0, 5.0])
+            curric.delay_factor(), (33.0, [5.0, 5.0, 5.0, 5.0, 3.0, 5.0, 5.0])
         )
-        self.assertEqual(blocking_factor(curric), (16, [6, 3, 4, 2, 0, 0, 1]))
-        self.assertEqual(centrality(curric), (49, [0, 9, 12, 18, 0, 0, 10]))
+        self.assertEqual(curric.blocking_factor(), (16, [6, 3, 4, 2, 0, 0, 1]))
+        self.assertEqual(curric.centrality(), (49, [0, 9, 12, 18, 0, 0, 10]))
         self.assertEqual(
-            complexity(curric), (49.0, [11.0, 8.0, 9.0, 7.0, 3.0, 5.0, 6.0])
+            curric.complexity(), (49.0, [11.0, 8.0, 9.0, 7.0, 3.0, 5.0, 6.0])
         )
 
     def test_delay_factor_multiple_paths(self) -> None:
@@ -265,7 +252,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         D.add_requisite(C, pre)
 
         curric = Curriculum("Delay Factor Test", [A, B, C, D], sortby_ID=False)
-        self.assertEqual(delay_factor(curric), (12.0, [3.0, 3.0, 3.0, 3.0]))
+        self.assertEqual(curric.delay_factor(), (12.0, [3.0, 3.0, 3.0, 3.0]))
 
 
 class Test8VertexTestCurriculum(unittest.TestCase):
@@ -369,10 +356,10 @@ class Test8VertexTestCurriculum(unittest.TestCase):
         self.assertTrue(self.curric.isvalid(errors))
 
     def test_extraneous_requisites(self) -> None:
-        self.assertEqual(len(extraneous_requisites(self.curric)), 0)
+        self.assertEqual(len(self.curric.extraneous_requisites()), 0)
 
     def test_basic_metrics(self) -> None:
-        basic_metrics(self.curric)
+        self.curric.basic_metrics()
         self.assertEqual(self.curric.credit_hours, 22)
         self.assertEqual(self.curric.num_courses, 8)
         self.assertEqual(
@@ -421,11 +408,11 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             cip="445786",
             sortby_ID=False,
         )
-        self.assertEqual(similarity(curric_mod, self.curric), 0.875)
-        self.assertEqual(similarity(self.curric, curric_mod), 1.0)
+        self.assertEqual(curric_mod.similarity(self.curric), 0.875)
+        self.assertEqual(self.curric.similarity(curric_mod), 1.0)
 
     def dead_ends(self) -> None:
-        de = dead_ends(self.curric, frozenset({"BW"}))
+        de = self.curric.dead_ends(frozenset({"BW"}))
         self.assertEqual(de, (frozenset({"BW"}), []))
         I = Course(
             "Calculus I",
@@ -451,7 +438,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             cip="445786",
             sortby_ID=False,
         )
-        de = dead_ends(curric_de, frozenset({"BW"}))
+        de = curric_de.dead_ends(frozenset({"BW"}))
         self.assertEqual(len(de[1]), 1)
         self.assertEqual(de[1][0], J)
 
