@@ -241,10 +241,6 @@ class Curriculum:
                 return lo
         raise ValueError(f"The lo associated with id {id} is not in the curriculum.")
 
-    def course_from_vertex(self, vertex: int) -> AbstractCourse:
-        "Return the course associated with a vertex id in a curriculum graph"
-        return self.courses[vertex]
-
     @property
     def total_credits(self) -> float:
         "The total number of credit hours in a curriculum"
@@ -404,13 +400,14 @@ class Curriculum:
             for cyc in cycles:
                 error_msg.write("(")
                 for i, v in enumerate(cyc):
+                    name: str = self.course_from_id(v).name
                     if i != len(cyc) - 1:
-                        error_msg.write(f"{self.courses[v].name}, ")
+                        error_msg.write(f"{name}, ")
                     else:
-                        error_msg.write(f"{self.courses[v].name})\n")
+                        error_msg.write(f"{name})\n")
         return validity
 
-    def extraneous_requisites(self, *, debug: bool = False) -> List[List[int]]:
+    def extraneous_requisites(self, *, debug: bool = False) -> Set[Tuple[int, int]]:
         """
             extraneous_requisites(c:Curriculum; print=false)
 
@@ -427,7 +424,7 @@ class Curriculum:
         except nx.NetworkXNoCycle:
             pass
         msg = StringIO()
-        redundant_reqs: List[List[int]] = []
+        redundant_reqs: Set[Tuple[int, int]] = set()
         g = self.graph
         que: Queue[int] = Queue()
         components = nx.weakly_connected_components(g)
@@ -450,24 +447,23 @@ class Curriculum:
                                 # This needs to be checked here.
                                 remove: bool = True
                                 for n in nb:  # check for co- or strict_co requisites
+                                    neighbor = self.course_from_id(n)
                                     if nx.has_path(
                                         self.graph, n, v
                                     ):  # is there a path from n to v?
-                                        req_type = self.courses[n].requisites[
-                                            self.courses[u].id
+                                        req_type = neighbor.requisites[
+                                            u
                                         ]  # the requisite relationship between u and n
                                         if (
                                             req_type == co or req_type == strict_co
                                         ):  # is u a co or strict_co requisite for n?
                                             remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
                                 if remove:
-                                    if all(
-                                        x != [self.courses[u].id, self.courses[v].id]
-                                        for x in redundant_reqs
-                                    ):  # make sure redundant requisite wasn't previously found
-                                        redundant_reqs.append(
-                                            [self.courses[u].id, self.courses[v].id]
-                                        )
+                                    if (
+                                        u,
+                                        v,
+                                    ) not in redundant_reqs:  # make sure redundant requisite wasn't previously found
+                                        redundant_reqs.add((u, v))
                                         if debug:
                                             string += f"-{self.courses[v].name} has redundant requisite {self.courses[u].name}\n"
                                     extraneous = True
@@ -481,7 +477,7 @@ class Curriculum:
         return redundant_reqs
 
     # Compute the blocking factor of a course
-    def blocking_factor_course(self, course: int) -> int:
+    def blocking_factor_course(self, course: AbstractCourse) -> int:
         """
             blocking_factor(c:Curriculum, course:Int)
 
@@ -495,8 +491,8 @@ class Curriculum:
         ``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course
         ``c_i`` to ``c_j`` in curriculum ``c``.
         """
-        b = len(reachable_from(self.graph, course))
-        self.courses[course].metrics["blocking factor"] = b
+        b = len(reachable_from(self.graph, course.id))
+        course.metrics["blocking factor"] = b
         return b
 
     # Compute the blocking factor of a curriculum
@@ -510,13 +506,13 @@ class Curriculum:
         ```
         where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
         """
-        bf: List[int] = [self.blocking_factor_course(v) for v in self.graph.nodes]
+        bf: List[int] = [self.blocking_factor_course(course) for course in self.courses]
         b: int = sum(bf)
         self.metrics["blocking factor"] = b, bf
         return b, bf
 
     # Compute the delay factor of a course
-    def delay_factor_course(self, course: int) -> int:
+    def delay_factor_course(self, course: AbstractCourse) -> int:
         """
             delay_factor(c:Curriculum, course:Int)
 
@@ -531,9 +527,9 @@ class Curriculum:
         where ``v_i \\overset{p}{\\leadsto} v_j`` denotes a directed path ``p`` in ``G_c`` from vertex
         ``v_i`` to ``v_j``.
         """
-        if self.courses[course].metrics["delay factor"] == -1:
+        if course.metrics["delay factor"] == -1:
             self.delay_factor()
-        return self.courses[course].metrics["delay factor"]
+        return course.metrics["delay factor"]
 
     # Compute the delay factor of a curriculum
     def delay_factor(self) -> Tuple[int, List[int]]:
@@ -547,24 +543,21 @@ class Curriculum:
         where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
         """
         g = self.graph
-        df: List[int] = [1] * self.num_courses
-        for v in g.nodes:
-            for path in all_paths(g):
-                for vtx in path:
-                    path_length = len(
-                        path
-                    )  # path_length in terms of # of vertices, not edges
-                    if path_length > df[vtx]:
-                        df[vtx] = path_length
-        d = 0
-        for v in g.nodes:
-            self.courses[v].metrics["delay factor"] = df[v]
-            d += df[v]
-        self.metrics["delay factor"] = d, df
-        return d, df
+        df: Dict[int, int] = {course.id: 0 for course in self.courses}
+        for path in all_paths(g):
+            for vtx in path:
+                path_length = len(
+                    path
+                )  # path_length in terms of # of vertices, not edges
+                if path_length > df[vtx]:
+                    df[vtx] = path_length
+        for course in self.courses:
+            course.metrics["delay factor"] = df[course.id]
+        self.metrics["delay factor"] = sum(df.values()), list(df.values())
+        return self.metrics["delay factor"]
 
     # Compute the centrality of a course
-    def centrality_course(self, course: int) -> int:
+    def centrality_course(self, course: AbstractCourse) -> int:
         """
             centrality(c:Curriculum, course:Int)
 
@@ -589,13 +582,13 @@ class Curriculum:
             # conditions: path length is greater than 2, target course must be in the path, the target vertex
             # cannot be the first or last vertex in the path
             if (
-                course in path
+                course.id in path
                 and len(path) > 2
                 and path[0] != course
                 and path[-1] != course
             ):
                 cent += len(path)
-        self.courses[course].metrics["centrality"] = cent
+        course.metrics["centrality"] = cent
         return cent
 
     # Compute the total centrality of all courses in a curriculum
@@ -609,15 +602,13 @@ class Curriculum:
         q(c) = \\sum_{v \\in V} q(v).
         ```
         """
-        cf: List[int] = [0] * self.num_courses
-        for i, v in enumerate(self.graph.nodes):
-            cf[i] = self.centrality_course(v)
+        cf: List[int] = [self.centrality_course(course) for course in self.courses]
         cent: int = sum(cf)
         self.metrics["centrality"] = cent, cf
         return cent, cf
 
     # Compute the complexity of a course
-    def complexity_course(self, course: int) -> float:
+    def complexity_course(self, course: AbstractCourse) -> float:
         """
             complexity(c:Curriculum, course:Int)
 
@@ -628,9 +619,9 @@ class Curriculum:
         ```
         i.e., as a linear combination of the course delay and blocking factors.
         """
-        if self.courses[course].metrics["complexity"] == -1:
+        if course.metrics["complexity"] == -1:
             self.complexity()
-        return self.courses[course].metrics["complexity"]
+        return course.metrics["complexity"]
 
     # Compute the complexity of a curriculum
     def complexity(self) -> Tuple[float, List[float]]:
@@ -651,21 +642,21 @@ class Curriculum:
         courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
         ``v_3`` in that curriculum, has a higher combined complexity.
         """
-        course_complexity: List[float] = [0.0] * self.num_courses
         if self.metrics["delay factor"][0] == -1:
             self.delay_factor()
         if self.metrics["blocking factor"][0] == -1:
             self.blocking_factor()
-        for v in self.graph.nodes:
-            self.courses[v].metrics["complexity"] = (
-                self.courses[v].metrics["delay factor"]
-                + self.courses[v].metrics["blocking factor"]
-            )
-            if self.system_type == quarter:
-                self.courses[v].metrics["complexity"] = round(
-                    (self.courses[v].metrics["complexity"] * 2) / 3, ndigits=1
-                )
-            course_complexity[v] = self.courses[v].metrics["complexity"]
+        course_complexity: List[float] = [
+            course.metrics["delay factor"] + course.metrics["blocking factor"]
+            for course in self.courses
+        ]
+        if self.system_type == quarter:
+            course_complexity = [
+                round((complexity * 2) / 3, ndigits=1)
+                for complexity in course_complexity
+            ]
+        for course, complexity in zip(self.courses, course_complexity):
+            course.metrics["complexity"] = complexity
         curric_complexity: float = sum(course_complexity)
         self.metrics["complexity"] = curric_complexity, course_complexity
         return curric_complexity, course_complexity
@@ -686,10 +677,9 @@ class Curriculum:
         julia> paths = longest_paths(c)
         ```
         """
-        lps: List[List[AbstractCourse]] = []
-        for path in longest_paths(self.graph):  # longest_paths(), GraphAlgs.jl
-            c_path = self.courses_from_vertices(path)
-            lps.append(c_path)
+        lps: List[List[AbstractCourse]] = [
+            self.courses_from_vertices(path) for path in longest_paths(self.graph)
+        ]
         self.metrics["longest paths"] = lps
         return lps
 
@@ -725,7 +715,7 @@ class Curriculum:
             for i, c in enumerate([self, other]):
                 metric = c.metrics[k]
                 maxval = max(metric[1])
-                pos = [j for (j, x) in enumerate(metric[1]) if x == maxval]
+                pos = [i for i, x in enumerate(metric[1]) if x == maxval]
                 report.write(f"   Largest {k} value in C{i} is {maxval} for course: ")
                 for p in pos:
                     report.write(f"{c.courses[p].name}  ")
@@ -758,7 +748,7 @@ class Curriculum:
         -the full names of courses (prefix, number, name) : fullname
         """
         if course == "object":
-            return [self.courses[v] for v in vertices]
+            return [self.course_from_id(v) for v in vertices]
         else:
             course_list: List[str] = []
             for v in vertices:
@@ -969,7 +959,6 @@ class Curriculum:
         """
         merged_courses = self.courses.copy()
         extra_courses: List[AbstractCourse] = []  # courses in c2 but not in c1
-        new_courses: List[AbstractCourse] = []
         for course in other.courses:
             matched = False
             for target_course in self.courses:
@@ -979,10 +968,9 @@ class Curriculum:
             if not matched:
                 extra_courses.append(course)
         # patch-up requisites of extra_courses, using course ids form c1 where appropriate
-        for c in extra_courses:
-            # for each extra course create an indentical coures, but with a new course id
-            new_courses.append(c.copy())
-        for j, c in enumerate(extra_courses):
+        # for each extra course create an indentical coures, but with a new course id
+        new_courses: List[AbstractCourse] = [c.copy() for c in extra_courses]
+        for c, new_course in zip(extra_courses, new_courses):
             #    print(f"\n {c.name}: ")
             #    print(f"total requisistes = {len(c.requisites)},")
             for req in c.requisites:
@@ -991,13 +979,13 @@ class Curriculum:
                 if req_course.find_match(merged_courses, match_criteria) != None:
                     # requisite already exists in c1
                     #            print(f" match in c1 - {course_from_id(c1, req).name} ")
-                    new_courses[j].add_requisite(req_course, c.requisites[req])
+                    new_course.add_requisite(req_course, c.requisites[req])
                 elif req_course.find_match(extra_courses, match_criteria) != None:
                     # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
                     #            print(" match in extra courses, ")
-                    i = next(i for i, x in enumerate(extra_courses) if x == req_course)
+                    i = extra_courses.index(req_course)
                     #            print(f" index of match = {i} ")
-                    new_courses[j].add_requisite(new_courses[i], c.requisites[req])
+                    new_course.add_requisite(new_courses[i], c.requisites[req])
                 else:  # requisite is neither in c1 or 2 -- this shouldn't happen => error
                     raise Exception(f"requisite error on course: {c.name}")
         merged_courses = [*merged_courses, *new_courses]
@@ -1037,7 +1025,7 @@ class Curriculum:
         dead_end_courses: List[Course] = []
         paths = all_paths(self.graph)
         for p in paths:
-            course = self.course_from_vertex(p[-1])
+            course = self.course_from_id(p[-1])
             if not isinstance(course, Course) or course.prefix == "":
                 continue
             if course.prefix not in prefixes:
