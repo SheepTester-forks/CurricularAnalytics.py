@@ -2,8 +2,10 @@
 Term data type
 """
 
+from functools import cached_property
 from io import StringIO
-from typing import Any, Dict, List, Set, TypedDict
+import math
+from typing import Any, Dict, List, NamedTuple, Set, Tuple
 
 from curricularanalytics.DataTypes.Course import AbstractCourse
 from curricularanalytics.DataTypes.Curriculum import Curriculum
@@ -38,21 +40,19 @@ class Term:
         return f"Term(courses={self.courses}, num_courses={self.num_courses}, credit_hours={self.credit_hours}, metadata={self.metadata})"
 
 
-DegreePlanMetrics = TypedDict(
-    "DegreePlanMetrics",
-    {
-        "total credit hours": float,
-        "number of terms": int,
-        "max. credits in a term": float,
-        "max. credit term": int,
-        "min. credits in a term": float,
-        "min. credit term": int,
-        "avg. credits per term": float,
-        "term credit hour std. dev.": float,
-        "requisite distance": int,
-    },
-    total=False,
-)
+class TermMetrics(NamedTuple):
+    min: float
+    "max. credits in a term"
+    min_term: int
+    "max. credit term"
+    max: float
+    "min. credits in a term"
+    max_term: int
+    "min. credit term"
+    average: float
+    "avg. credits per term"
+    stddev: float
+    "term credit hour std. dev."
 
 
 ##############################################################
@@ -92,8 +92,6 @@ class DegreePlan:
     "Number of terms in the degree plan"
     credit_hours: float
     "Total number of credit hours in the degree plan"
-    metrics: DegreePlanMetrics
-    "Dergee Plan-related metrics"
     metadata: Dict[str, Any]
     "Dergee Plan-related metadata"
 
@@ -111,7 +109,6 @@ class DegreePlan:
         self.terms = terms.copy()
         self.credit_hours = sum(term.credit_hours for term in terms)
         self.additional_courses = additional_courses.copy()
-        self.metrics = {}
         self.metadata = {}
 
     # Check if a degree plan is valid.
@@ -247,5 +244,155 @@ class DegreePlan:
                 print(f" {c.name} ")
             print("\n")
 
+    # Basic metrics for a degree plan, based soley on credits
+    @cached_property
+    def basic_metrics(self) -> TermMetrics:
+        r"""
+        Compute the basic metrics associated with degree plan `plan`. The basic
+        metrics are primarily concerned with how credits hours are distributed across the terms in a plan.
+
+        The basic metrics computed include:
+
+        - max. credits in a term: The maximum number of credit hours in any one term in the degree plan.
+        - min. credits in a term: The minimum number of credit hours in any one term in the degree plan.
+        - max. credit term: The earliest term in the degree plan that has the maximum number of credit hours (0-indexed).
+        - min. credit term: The earliest term in the degree plan that has the minimum number of credit hours (0-indexed).
+        - avg. credits per term: The average number of credit hours per term in the degree plan, :math:`\overline{ch}`.
+        - term credit hour std. dev.: The standard deviation of credit hours across all terms :math:`\sigma`.  If :math:`ch_i` denotes the number
+        of credit hours in term :math:`i`, then
+
+        .. math::
+            \sigma = \sqrt{\sum_{i=1}^m {(ch_i - \overline{ch})^2 \over m}}
+        """
+        min_credits: float = self.credit_hours
+        max_credits: float = 0
+        min_term: int = 0
+        max_term: int = 0
+        variance: float = 0
+        average = self.credit_hours / self.num_terms
+        for i, term in enumerate(self.terms):
+            if term.credit_hours > max_credits:
+                max_credits = term.credit_hours
+                max_term = i
+            if term.credit_hours < min_credits:
+                min_credits = term.credit_hours
+                min_term = i
+            variance = variance + (term.credit_hours - average) ** 2
+        return TermMetrics(
+            min_credits,
+            min_term,
+            max_credits,
+            max_term,
+            average,
+            math.sqrt(variance / self.num_terms),
+        )
+
+    def basic_metrics_to_buffer(self) -> StringIO:
+        r"""
+        Compute the basic metrics associated with degree plan `plan`, and return an IO buffer containing these metrics.
+
+        The basic metrics computed include:
+
+        - number of terms : The total number of terms (semesters or quarters) in the degree plan, ``m``.
+        - total credit hours : The total number of credit hours in the degree plan.
+        - max. credits in a term : The maximum number of credit hours in any one term in the degree plan.
+        - min. credits in a term : The minimum number of credit hours in any one term in the degree plan.
+        - max. credit term : The earliest term in the degree plan that has the maximum number of credit hours (1-indexed).
+        - min. credit term : The earliest term in the degree plan that has the minimum number of credit hours (1-indexed).
+        - avg. credits per term: The average number of credit hours per term in the degree plan, :math:`\overline{ch}`.
+        - term credit hour std. dev.: The standard deviation of credit hours across all terms :math:`\sigma`.  If :math:`ch_i` denotes the number
+        of credit hours in term :math:`i`, then
+
+        .. math::
+            \sigma = \sqrt{\sum_{i=1}^m {(ch_i - \overline{ch})^2 \over m}}
+
+        Examples:
+            To view the basic degree plan metrics associated with degree plan `plan` in the Julia console use:
+
+            >>> metrics = plan.basic_metrics_to_buffer()
+            >>> print(metrics.getvalue())
+        """
+        (
+            min_credits,
+            min_term,
+            max_credits,
+            max_term,
+            average,
+            stddev,
+        ) = self.basic_metrics
+        buffer = StringIO()
+        buffer.write(
+            f"\nCurriculum: {self.curriculum.name}\nDegree Plan: {self.name}\n"
+        )
+        buffer.write(f"  total credit hours = {self.credit_hours}\n")
+        buffer.write(f"  number of terms = {self.num_terms}\n")
+        buffer.write(
+            f"  max. credits in a term = {max_credits}, in term {max_term+1}\n"
+        )
+        buffer.write(
+            f"  min. credits in a term = {min_credits}, in term {min_term+1}\n"
+        )
+        buffer.write(
+            f"  avg. credits per term = {average}, with std. dev. = {stddev}\n",
+        )
+        return buffer
+
+    # Degree plan metrics based upon the distance between requsites and the classes that require them.
+    def course_requisite_distance(self, course: AbstractCourse) -> int:
+        r"""
+        For a given degree plan `plan` and target course `course`, this function computes the total distance in the degree plan between `course` and
+        all of its requisite courses.
+
+        Args:
+            course: The target course.
+
+        The distance between a target course and one of its requisites is given by the number of terms that separate the target
+        course from that particular requisite in the degree plan.  To compute the requisite distance, we sum this distance over all
+        requisites.  That is, if write let :math:`T_j^p` denote the term in degree plan :math:`p` that course :math:`c_j` appears in, then for a
+        degree plan with underlying curriculum graph :math:`G_c = (V,E)`, the requisite distance for course :math:`c_j` in degree plan :math:`p`,
+        denoted :math:`rd_{v_j}^p`, is:
+
+        .. math::
+            rd_{v_j}^p = \sum_{\{i | (v_i, v_j) \in E\}} (T_j - T_i).
+
+        In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
+        The requisite distance metric computed by this function is stored in the associated `Course` data object.
+        """
+        return self.requisite_distance[1][course.id]
+
+    @cached_property
+    def requisite_distance(self) -> Tuple[int, Dict[int, int]]:
+        r"""
+        For a given degree plan `plan`, this function computes the total distance between all courses in the degree plan, and
+        the requisites for those courses.
+
+        Args:
+            plan: a valid degree plan (see [Degree Plans](@ref)).
+
+        The distance between a course a requisite is given by the number of terms that separate the course from
+        its requisite in the degree plan.  If :math:`rd_{v_i}^p` denotes the requisite distance between course
+        :math:`c_i` and its requisites in degree plan :math:`p`, then the total requisite distance for a degree plan,
+        denoted :math:`rd^p`, is given by:
+
+        .. math::
+            rd^p = \sum_{v_i \in V} = rd_{v_i}^p
+
+        In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
+        Thus, a degree plan that minimizes these distances is desirable.  A optimization function that minimizes requisite
+        distances across all courses in a degree plan is described in [Optimized Degree Plans]@ref.
+        The requisite distance metric computed by this function will be stored in the associated `DegreePlan` data object.
+        """
+        distances: Dict[int, int] = {
+            course.id: sum(
+                (
+                    self.find_term(course)
+                    - self.find_term(self.curriculum.course_from_id(req))
+                )
+                for req in course.requisites
+            )
+            for course in self.curriculum.courses
+        }
+        return sum(distances.values()), distances
+
     def __repr__(self) -> str:
-        return f"DegreePlan(name={repr(self.name)}, curriculum={self.curriculum}, additional_courses={self.additional_courses}, terms={self.terms}, num_terms={self.num_terms}, credit_hours={self.credit_hours},metrics={self.metrics}, metadata={self.metadata})"
+        return f"DegreePlan(name={repr(self.name)}, curriculum={self.curriculum}, additional_courses={self.additional_courses}, terms={self.terms}, num_terms={self.num_terms}, credit_hours={self.credit_hours}, metadata={self.metadata})"

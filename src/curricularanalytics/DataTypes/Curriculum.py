@@ -1,10 +1,18 @@
 """
 Curriculum data type:
 The required curriculum associated with a degree program.
+
+The curriculum-based metrics in this toolbox are based upon the graph structure of a
+curriculum.  Specifically, assume curriculum ``c`` consists of ``n`` courses ``\\{c_1, \\ldots, c_n\\}``,
+and that there are ``m`` requisite (prerequisite or co-requsitie) relationships between these courses.
+A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v_1, \\ldots, v_n\\}``
+(i.e., one vertex for each course) along with an edge set ``E = \\{e_1, \\ldots, e_m\\}``, where a
+directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 
 from functools import cached_property
 from io import StringIO
+import math
 from queue import Queue
 import sys
 from typing import (
@@ -704,45 +712,45 @@ class Curriculum:
         Complete descriptions of these metrics are provided above.
 
         Example:
-            >>> metrics = basic_metrics(curriculum)
+            >>> metrics = curriculum.basic_metrics_to_buffer()
             >>> print(metrics.getvalue())
         ```
         """
-        buf = StringIO()
+        buffer = StringIO()
         # write metrics to IO buffer
-        buf.write(f"\n{self.institution} ")
-        buf.write(f"\nCurriculum: {self.name}\n")
-        buf.write(f"  credit hours = {self.credit_hours}\n")
-        buf.write(f"  number of courses = {self.num_courses}")
-        buf.write("\n  Blocking Factor --\n")
-        buf.write(f"    entire curriculum = {self.blocking_factor[0]}\n")
-        buf.write(f"    max. value = {self.basic_metrics.max_blocking_factor}, ")
-        buf.write("for course(s): ")
-        write_course_names(buf, self.basic_metrics.max_blocking_factor_courses)
-        buf.write("\n  Centrality --\n")
-        buf.write(f"    entire curriculum = {self.centrality[0]}\n")
-        buf.write(f"    max. value = {self.basic_metrics.max_centrality}, ")
-        buf.write("for course(s): ")
-        write_course_names(buf, self.basic_metrics.max_centrality_courses)
-        buf.write("\n  Delay Factor --\n")
-        buf.write(f"    entire curriculum = {self.delay_factor[0]}\n")
-        buf.write(f"    max. value = {self.basic_metrics.max_delay_factor}, ")
-        buf.write("for course(s): ")
-        write_course_names(buf, self.basic_metrics.max_delay_factor_courses)
-        buf.write("\n  Complexity --\n")
-        buf.write(f"    entire curriculum = {self.complexity[0]}\n")
-        buf.write(f"    max. value = {self.basic_metrics.max_complexity}, ")
-        buf.write("for course(s): ")
-        write_course_names(buf, self.basic_metrics.max_complexity_courses)
-        buf.write("\n  Longest Path(s) --\n")
-        buf.write(
+        buffer.write(f"\n{self.institution} ")
+        buffer.write(f"\nCurriculum: {self.name}\n")
+        buffer.write(f"  credit hours = {self.credit_hours}\n")
+        buffer.write(f"  number of courses = {self.num_courses}")
+        buffer.write("\n  Blocking Factor --\n")
+        buffer.write(f"    entire curriculum = {self.blocking_factor[0]}\n")
+        buffer.write(f"    max. value = {self.basic_metrics.max_blocking_factor}, ")
+        buffer.write("for course(s): ")
+        write_course_names(buffer, self.basic_metrics.max_blocking_factor_courses)
+        buffer.write("\n  Centrality --\n")
+        buffer.write(f"    entire curriculum = {self.centrality[0]}\n")
+        buffer.write(f"    max. value = {self.basic_metrics.max_centrality}, ")
+        buffer.write("for course(s): ")
+        write_course_names(buffer, self.basic_metrics.max_centrality_courses)
+        buffer.write("\n  Delay Factor --\n")
+        buffer.write(f"    entire curriculum = {self.delay_factor[0]}\n")
+        buffer.write(f"    max. value = {self.basic_metrics.max_delay_factor}, ")
+        buffer.write("for course(s): ")
+        write_course_names(buffer, self.basic_metrics.max_delay_factor_courses)
+        buffer.write("\n  Complexity --\n")
+        buffer.write(f"    entire curriculum = {self.complexity[0]}\n")
+        buffer.write(f"    max. value = {self.basic_metrics.max_complexity}, ")
+        buffer.write("for course(s): ")
+        write_course_names(buffer, self.basic_metrics.max_complexity_courses)
+        buffer.write("\n  Longest Path(s) --\n")
+        buffer.write(
             f"    length = {len(self.longest_paths[0])}, number of paths = {len(self.longest_paths)}\n    path(s):\n",
         )
-        for i, path in enumerate(self.longest_paths):
-            buf.write(f"    path {i+1} = ")
-            write_course_names(buf, path, separator=" -> ")
-            buf.write("\n")
-        return buf
+        for i, path in enumerate(self.longest_paths, 1):
+            buffer.write(f"    path {i} = ")
+            write_course_names(buffer, path, separator=" -> ")
+            buffer.write("\n")
+        return buffer
 
     def similarity(self, basis: "Curriculum", *, strict: bool = True) -> float:
         """
@@ -891,3 +899,37 @@ class Curriculum:
 
     def __repr__(self) -> str:
         return f"Curriculum(id={self.id}, name={repr(self.name)}, institution={repr(self.institution)}, degree_type={repr(self.degree_type)}, system_type={self.system_type} cip={repr(self.cip)}, courses={self.courses}, num_courses={self.num_courses}, credit_hours={self.credit_hours}, graph={self.graph}, learning_outcomes={self.learning_outcomes}, learning_outcome_graph={self.learning_outcome_graph}, course_learning_outcome_graph={self.course_learning_outcome_graph}, metadata={self.metadata})"
+
+
+def basic_statistics(metric_name: str, metrics: List[float]) -> StringIO:
+    buffer = StringIO()
+    # set initial values used to find min and max metric values
+    total_metric = 0
+    STD_metric = 0
+    max_metric = -math.inf
+    min_metric = math.inf
+    max_metric = metrics[0]
+    min_metric = metrics[0]
+    # metric where total curricular metric as well as course-level metrics are stored in an array
+    for value in metrics:
+        # metric where total curricular metric as well as course-level metrics are stored in an array
+        total_metric += value
+        if value > max_metric:
+            max_metric = value
+        if value < min_metric:
+            min_metric = value
+    avg_metric = total_metric / len(metrics)
+    for value in metrics:
+        STD_metric = (value - avg_metric) ** 2
+    STD_metric = math.sqrt(STD_metric / len(metrics))
+    buffer.write(f"\n Metric -- {metric_name}")
+    buffer.write(f"\n  Number of curricula = {len(metrics)}")
+    buffer.write(f"\n  Mean = {avg_metric}")
+    buffer.write(f"\n  STD = {STD_metric}")
+    buffer.write(f"\n  Max. = {max_metric}")
+    buffer.write(f"\n  Min. = {min_metric}")
+    return buffer
+
+
+def homology(curricula: List[Curriculum], *, strict: bool = False) -> List[List[float]]:
+    return [[c1.similarity(c2, strict=strict) for c2 in curricula] for c1 in curricula]
