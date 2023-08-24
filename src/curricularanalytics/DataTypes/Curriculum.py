@@ -433,7 +433,7 @@ class Curriculum:
         for wcc in components:
             if len(wcc) > 1:  # only consider components with more than one vertex
                 for u in wcc:
-                    nb = g.neighbors(u)
+                    nb = list(g.neighbors(u))
                     for n in nb:
                         que.put(n)
                     while not que.empty():
@@ -543,7 +543,7 @@ class Curriculum:
         where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
         """
         g = self.graph
-        df: Dict[int, int] = {course.id: 0 for course in self.courses}
+        df: Dict[int, int] = {course.id: 1 for course in self.courses}
         for path in all_paths(g):
             for vtx in path:
                 path_length = len(
@@ -584,8 +584,8 @@ class Curriculum:
             if (
                 course.id in path
                 and len(path) > 2
-                and path[0] != course
-                and path[-1] != course
+                and path[0] != course.id
+                and path[-1] != course.id
             ):
                 cent += len(path)
         course.metrics["centrality"] = cent

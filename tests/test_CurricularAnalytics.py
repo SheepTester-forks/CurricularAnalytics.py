@@ -74,7 +74,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         c.add_requisite(a, pre)
         c.add_requisite(b, pre)
         c.add_requisite(d, co)
-        b.add_requisite(a, co)
+        b.add_requisite(a, pre)
 
         curric = Curriculum("Extraneous", [a, b, c, d], sortby_ID=False)
         # Test extraneous_requisites()
