@@ -1,5 +1,14 @@
-##############################################################
-# DegreeRequirement data types
+"""
+DegreeRequirement data types
+
+Data types for requirements::
+
+    AbstractRequirement
+    ├── CourseSet
+    └── RequirementSet
+
+A requirement may involve a set of courses (CourseSet), or a set of requirements (RequirementSet), but not both.
+"""
 
 __all__ = ["Grade"]
 
@@ -41,7 +50,7 @@ def grade(letter_grade: str) -> Grade:
     try:
         return _grade_strs.index(letter_grade)
     except ValueError:
-        raise Exception(f"letter grade {letter_grade} is not supported")
+        raise ValueError(f"letter grade {letter_grade} is not supported")
 
 
 def from_grade(int_grade: Grade) -> str:
@@ -49,16 +58,9 @@ def from_grade(int_grade: Grade) -> str:
     if int_grade == 0 or 2 <= int_grade <= 13:
         return _grade_strs[int_grade]
     else:
-        raise Exception("grade value {int_grade} is not supported")
+        raise ValueError("grade value {int_grade} is not supported")
 
 
-# Data types for requirements:
-#
-#                               AbstractRequirement
-#                                /               \
-#                          CourseSet         RequirementSet
-#
-# A requirement may involve a set of courses (CourseSet), or a set of requirements (RequirementSet), but not both.
 class AbstractRequirement(ABC):
     """
     The `AbstractRequirement` data type is used to represent the requirements associated with an academic program. A
@@ -84,36 +86,28 @@ class CourseSet(AbstractRequirement):
     - `course_set` : the set of courses that are used to satisfy the requirement are specifed in the `courses` array.
     - `requirement_set` : that set of requirements that must be satisfied are specified in the `requirements` array.
 
-    To instantiate a `CourseSet` use:
+    Args:
+        name: the name of the requirement.
+        credit_hours: the number of credit hours associated with the requirement.
+        course_reqs: the collection of courses that can be used to satisfy the requirement,
+          and the minimum grade required in each.
+        description (optional): A detailed description of the requirement. Default is the empty string.
+        course_catalog (optional): Course catalog to draw courses from using the `prefix_regex` and `num_regex` regular
+          expressions (positive matches are added to the course_reqs array). Note: both `prefix_regex` and `num_regex` must
+          match in order for a course to be added the `course_reqs` array.
+        prefix_regex (optional): regular expression for matching a course prefix in the course catalog. Default is `".*"`,
+          i.e., match any character any number of times.
+        num_regex (optional): regular expression for matching a course number in the course catalog. Default is `".*"`,
+          i.e., match any character any number of times.
+        min_grade (optional): The minimum letter grade that must be earned in courses satisfying the regular expressions.
+        double_count (optional): Specifies whether or not each course in the course set can be used to satisfy other requirements
+          that contain any of the courses in this `CourseSet`. Default = false
 
-        CourseSet(name, credit_hours, courses, description)
+    Examples:
+        >>> CourseSet("General Education - Mathematics", 9, courses)
 
-    # Arguments
-    Required:
-    - `name:str` : the name of the requirement.
-    - `credit_hours:Real` : the number of credit hours associated with the requirement.
-    - `course_reqs:Array{Pair{Course,Grade}} ` : the collection of courses that can be used to satisfy the requirement,
-        and the minimum grade required in each.
-
-    Keyword:
-    - `description:str` : A detailed description of the requirement. Default is the empty string.
-    - `course_catalog:CourseCatalog` : Course catalog to draw courses from using the `prefix_regex` and `num_regex` regular
-        expressions (positive matches are added to the course_reqs array). Note: both `prefix_regex` and `num_regex` must
-        match in order for a course to be added the `course_reqs` array.
-    - `prefix_regex:Regex` : regular expression for matching a course prefix in the course catalog. Default is `".*"`,
-        i.e., match any character any number of times.
-    - `num_regex:Regex` : regular expression for matching a course number in the course catalog. Default is `".*"`,
-        i.e., match any character any number of times.
-    - `min_grade:Grade` : The minimum letter grade that must be earned in courses satisfying the regular expressions.
-    - `double_count:Bool` : Specifies whether or not each course in the course set can be used to satisfy other requirements
-        that contain any of the courses in this `CourseSet`. Default = false
-
-    # Examples:
-    ```julia-repl
-    julia> CourseSet("General Education - Mathematics", 9, courses)
-    ```
-    where `courses` is an array of Course=>Grade `Pairs`, i.e., the set of courses/minimum grades that can satsfy this
-    degree requirement.
+        where `courses` is an array of Course-to-Grade `Pairs`, i.e., the set of courses/minimum grades that can satsfy this
+        degree requirement.
     """
 
     id: int
@@ -137,7 +131,6 @@ class CourseSet(AbstractRequirement):
     double_count: bool
     "Each course in the course set can satisfy any other requirement that has the same course. Default = false"
 
-    # r".^" is a regex that matches nothing
     def __init__(
         self,
         name: str,
@@ -146,15 +139,11 @@ class CourseSet(AbstractRequirement):
         *,
         description: str = "",
         course_catalog: CourseCatalog = CourseCatalog("", ""),
-        prefix_regex: Regex = r".^",
-        num_regex: Regex = r".^",
+        prefix_regex: Regex = r".*",
+        num_regex: Regex = r".*",
         min_grade: Grade = grade("D"),
         double_count: bool = False,
     ) -> None:
-        """
-        Constructor
-        A requirement may involve a set of courses, or a set of requirements, but not both
-        """
         self.name = name
         self.description = description
         self.credit_hours = credit_hours
@@ -221,7 +210,7 @@ class RequirementSet(AbstractRequirement):
         self.id = hash(self.name + self.description + str(self.credit_hours))
         self.requirements = requirements
         if satisfy < 0:
-            raise Exception("satisfy cannot be a negative number")
+            raise ValueError("satisfy cannot be a negative number")
         elif satisfy == 0:
             self.satisfy = len(requirements)  # satisfy all requirements
         else:
