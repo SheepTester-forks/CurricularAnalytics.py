@@ -130,8 +130,8 @@ class DegreePlanCreationTests(unittest.TestCase):
         if dp is None:
             self.fail()
 
-        self.assertEqual(dp.curriculum.graph.number_of_nodes, 4)
-        self.assertEqual(dp.curriculum.graph.number_of_edges, 2)
+        self.assertEqual(dp.curriculum.graph.number_of_nodes(), 4)
+        self.assertEqual(dp.curriculum.graph.number_of_edges(), 2)
         for term in dp.terms:
             credits = 0
             for c in term.courses:

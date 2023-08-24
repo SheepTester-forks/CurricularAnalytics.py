@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 from curricularanalytics.DataTypes.Course import Course, course_id
 
@@ -28,7 +28,7 @@ class CourseCatalog:
         *,
         courses: List[Course] = [],
         catalog: Dict[int, Course] = {},
-        date_range: Tuple[Any, ...] = (),
+        date_range: Tuple[date, date] = (date.min, date.max),
         id: int = 0,
     ) -> None:
         self.name = name
