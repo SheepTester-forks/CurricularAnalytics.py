@@ -9,21 +9,10 @@ A requirement may involve a set of courses (CourseSet), or a set of requirements
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Literal, Optional, TextIO, Tuple, TypedDict, TypeVar
+from typing import Any, Dict, List, Literal, Optional, TextIO, Tuple, TypeVar
 
 from curricularanalytics.DataTypes.DataTypes import Requisite
 from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
-
-CourseMetrics = TypedDict(
-    "CourseMetrics",
-    {
-        "blocking factor": int,
-        "delay factor": int,
-        "centrality": int,
-        "complexity": float,
-        "requisite distance": int,
-    },
-)
 
 Self = TypeVar("Self", bound="AbstractCourse")
 
@@ -63,8 +52,6 @@ class AbstractCourse(ABC):
     "List of requisites, in (requisite_course id, requisite_type) format"
     learning_outcomes: List[LearningOutcome]
     "A list of learning outcomes associated with the course"
-    metrics: CourseMetrics
-    "Course-related metrics"
     metadata: Dict[str, Any]
     "Course-related metadata"
 
@@ -228,13 +215,6 @@ class Course(AbstractCourse):
         self.cross_listed = cross_listed or []
         self.canonical_name = canonical_name
         self.requisites = {}
-        self.metrics = {
-            "blocking factor": -1,
-            "centrality": -1,
-            "complexity": -1,
-            "delay factor": -1,
-            "requisite distance": -1,
-        }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes or []
 
@@ -255,7 +235,7 @@ class Course(AbstractCourse):
         )
 
     def __repr__(self) -> str:
-        return f"Course(id={self.id}, name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata}, passrate={self.passrate})"
+        return f"Course(id={self.id}, name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metadata={self.metadata}, passrate={self.passrate})"
 
 
 class CourseCollection(AbstractCourse):
@@ -284,13 +264,6 @@ class CourseCollection(AbstractCourse):
         self.department = department
         self.canonical_name = canonical_name
         self.requisites = {}
-        self.metrics = {
-            "blocking factor": -1,
-            "centrality": -1,
-            "complexity": -1,
-            "delay factor": -1,
-            "requisite distance": -1,
-        }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes or []
 
@@ -308,7 +281,7 @@ class CourseCollection(AbstractCourse):
         )
 
     def __repr__(self) -> str:
-        return f"Course(id={self.id}, courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metrics={self.metrics}, metadata={self.metadata})"
+        return f"Course(id={self.id}, courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metadata={self.metadata})"
 
 
 def course_id(name: str, prefix: str, num: str, institution: str) -> int:
