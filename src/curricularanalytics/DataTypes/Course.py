@@ -1,6 +1,15 @@
+"""
+Course-related data types::
+
+    AbstractCourse
+    ├── Course
+    └── CourseCollection
+
+A requirement may involve a set of courses (CourseSet), or a set of requirements (RequirementSet), but not both.
+"""
+
 from abc import ABC, abstractmethod
-from io import StringIO
-from typing import Any, Dict, List, Literal, Optional, TypedDict, TypeVar
+from typing import Any, Dict, List, Literal, Optional, TextIO, Tuple, TypedDict, TypeVar
 
 from curricularanalytics.DataTypes.DataTypes import Requisite
 from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
@@ -21,13 +30,6 @@ Self = TypeVar("Self", bound="AbstractCourse")
 MatchCriterion = Literal["prefix", "num", "name", "canonical name", "credit hours"]
 
 
-# Course-related data types:
-#
-#                               AbstractCourse
-#                                /          \
-#                          Course       CourseCollection
-#
-# A requirement may involve a set of courses (CourseSet), or a set of requirements (RequirementSet), but not both.
 class AbstractCourse(ABC):
     """
     The `AbstractCourse` data type is used to represent the notion of an abstract course that may appear in a curriculum
@@ -79,118 +81,91 @@ class AbstractCourse(ABC):
         self, requisite_course: "AbstractCourse", requisite_type: Requisite
     ) -> None:
         """
-            add_requisite!(rc, tc, requisite_type)
-
         Add course rc as a requisite, of type requisite_type, for target course tc.
 
-        # Arguments
-        Required:
-        - `rc::AbstractCourse` : requisite course.
-        - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
-        - `requisite_type::Requisite` : requisite type.
+        Args:
+            requisite_course: requisite course
+            requisite_type: requisite type
 
-        # Requisite types
         One of the following requisite types must be specified for the `requisite_type`:
         - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
         - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
         - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
         """
-
         self.requisites[requisite_course.id] = requisite_type
 
     def add_requisites(
         self,
-        requisite_courses: List["AbstractCourse"],
-        requisite_types: List[Requisite],
+        requisites: List[Tuple["AbstractCourse", Requisite]],
     ) -> None:
         """
-            add_requisite!([rc1, rc2, ...], tc, [requisite_type1, requisite_type2, ...])
-
         Add a collection of requisites to target course tc.
 
-        # Arguments
-        Required:
-        - `rc::Array{AbstractCourse}` : and array of requisite courses.
-        - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
-        - `requisite_type::Array{Requisite}` : an array of requisite types.
+        Args:
+            requisites: An array of tuples of requisite courses and their respective types.
 
-        # Requisite types
         The following requisite types may be specified for the `requisite_type`:
         - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
         - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
         - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
         """
-
-        assert len(requisite_courses) == len(requisite_types)
-        for i in range(len(requisite_courses)):
-            self.requisites[requisite_courses[i].id] = requisite_types[i]
+        for requisite_course, requisite_type in requisites:
+            self.requisites[requisite_course.id] = requisite_type
 
     def delete_requisite(
         self,
         requisite_course: "AbstractCourse",
     ) -> None:
         """
-            delete_requisite!(rc, tc)
+        Remove course rc as a requisite for target course tc.
 
-        Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
-        error is thrown.
+        Args:
+            rc: Requisite course.
 
-        # Arguments
-        Required:
-        - `rc::AbstractCourse` : requisite course.
-        - `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
-
+        Raises:
+            KeyError: If `rc` is not an existing requisite for `tc`.
         """
-        # if !haskey(course.requisites, requisite_course.id)
-        #    error("The requisite you are trying to delete does not exist")
-        # end
-        del self.requisites[requisite_course.id]
+        try:
+            del self.requisites[requisite_course.id]
+        except KeyError:
+            raise KeyError("The requisite you are trying to delete does not exist.")
 
     def match(
         self,
         other: "AbstractCourse",
         match_criteria: List[MatchCriterion] = [],
     ) -> bool:
-        is_matched = False
         if len(match_criteria) == 0:
             return self == other
-        else:
-            for criterion in match_criteria:
-                if criterion not in [
-                    "prefix",
-                    "num",
-                    "name",
-                    "canonical name",
-                    "credit hours",
-                ]:
-                    raise Exception(f"invalid match criteria: {criterion}")
-                elif criterion == "prefix":
-                    is_matched = (
-                        self.prefix == other.prefix
-                        if isinstance(self, Course) and isinstance(other, Course)
-                        else True
-                    )
-                elif criterion == "num":
-                    is_matched = (
-                        self.num == other.num
-                        if isinstance(self, Course) and isinstance(other, Course)
-                        else True
-                    )
-                elif criterion == "name":
-                    is_matched = self.name == other.name
-                elif criterion == "canonical name":
-                    is_matched = self.canonical_name == other.canonical_name
-                elif criterion == "credit hours":
-                    is_matched = self.credit_hours == other.credit_hours
-        return is_matched
+        for criterion in match_criteria:
+            if criterion == "prefix":
+                if isinstance(self, Course) and isinstance(other, Course):
+                    if self.prefix != other.prefix:
+                        return False
+            elif criterion == "num":
+                if isinstance(self, Course) and isinstance(other, Course):
+                    if self.num != other.num:
+                        return False
+            elif criterion == "name":
+                if self.name != other.name:
+                    return False
+            elif criterion == "canonical name":
+                if self.canonical_name != other.canonical_name:
+                    return False
+            elif criterion == "credit hours":
+                if self.credit_hours != other.credit_hours:
+                    return False
+            else:
+                raise ValueError(f"invalid match criteria: {criterion}")
+        return True
 
     def find_match(
         self,
         course_set: List["AbstractCourse"],
         match_criteria: List[MatchCriterion] = [],
     ) -> Optional["AbstractCourse"]:
-        for c in course_set:
-            if self.match(c, match_criteria):
+        for course in course_set:
+            if self.match(course, match_criteria):
                 return self
         return None
 
@@ -200,24 +175,19 @@ class AbstractCourse(ABC):
 class Course(AbstractCourse):
     """
     The `Course` data type is used to represent a single course consisting of a given number
-    of credit hours.  To instantiate a `Course` use:
+    of credit hours.
 
-        Course(name, credit_hours; <keyword arguments>)
+    Args:
+        name: The name of the course.
+        credit_hours: The number of credit hours associated with the course.
+        prefix: The prefix associated with the course.
+        num: The number associated with the course.
+        institution: The name of the institution offering the course.
+        canonical_name: The common name used for the course.
 
-    # Arguments
-    Required:
-    - `name:AbstractString` : the name of the course.
-    - `credit_hours:int` : the number of credit hours associated with the course.
-    Keyword:
-    - `prefix:AbstractString` : the prefix associated with the course.
-    - `num:AbstractString` : the number associated with the course.
-    - `institution:AbstractString` : the name of the institution offering the course.
-    - `canonical_name:AbstractString` : the common name used for the course.
-
-    # Examples:
-    ```julia-repl
-    julia> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical_name="Calculus I")
-    ```
+    Examples:
+        >>> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical_name="Calculus I")
+        Course(...)
     """
 
     prefix: str
@@ -252,16 +222,12 @@ class Course(AbstractCourse):
         self.prefix = prefix
         self.num = num
         self.institution = institution
-        if id == 0:
-            self.id = self.default_id()
-        else:
-            self.id = id
+        self.id = id or self.default_id()
         self.college = college
         self.department = department
         self.cross_listed = cross_listed or []
         self.canonical_name = canonical_name
         self.requisites = {}
-        # self.requisite_formula
         self.metrics = {
             "blocking factor": -1,
             "centrality": -1,
@@ -271,8 +237,6 @@ class Course(AbstractCourse):
         }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes or []
-        # curriculum id -> vertex id, note: course may be in multiple curricula
-        self.vertex_id = {}
 
         self.passrate = passrate
 
@@ -311,20 +275,15 @@ class CourseCollection(AbstractCourse):
         canonical_name: str = "",
         id: int = 0,
     ) -> None:
-        "Constructor"
         self.name = name
         self.credit_hours = credit_hours
         self.courses = courses
         self.institution = institution
-        if id == 0:
-            self.id = self.default_id()
-        else:
-            self.id = id
+        self.id = id or self.default_id()
         self.college = college
         self.department = department
         self.canonical_name = canonical_name
         self.requisites = {}
-        # self.requisite_formula
         self.metrics = {
             "blocking factor": -1,
             "centrality": -1,
@@ -334,7 +293,6 @@ class CourseCollection(AbstractCourse):
         }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes or []
-        self.vertex_id = {}  # curriculum id -> vertex id
 
     def default_id(self) -> int:
         return hash(self.name + self.institution + str(len(self.courses)))
@@ -357,22 +315,20 @@ def course_id(name: str, prefix: str, num: str, institution: str) -> int:
     return hash(name + prefix + num + institution)
 
 
-def write_course_names(
-    buf: StringIO, courses: List[AbstractCourse], *, separator: str = ", "
-) -> None:
-    if len(courses) == 1:
-        _write_course_name(buf, courses[0])
-    elif courses:
-        for c in courses[:-1]:
-            _write_course_name(buf, c)
-            buf.write(separator)
-        _write_course_name(buf, courses[-1])
-
-
-def _write_course_name(buf: StringIO, c: AbstractCourse) -> None:
+def _write_course_name(file: TextIO, c: AbstractCourse) -> None:
     if isinstance(c, Course):
         if c.prefix:
-            buf.write(f"{c.prefix} ")
+            file.write(f"{c.prefix} ")
         if c.num:
-            buf.write(f"{c.num} - ")
-    buf.write(f"{c.name}")  # name is a required item
+            file.write(f"{c.num} - ")
+    file.write(c.name)
+
+
+def write_course_names(
+    file: TextIO, courses: List[AbstractCourse], *, separator: str = ", "
+) -> None:
+    if courses:
+        for c in courses[:-1]:
+            _write_course_name(file, c)
+            file.write(separator)
+        _write_course_name(file, courses[-1])

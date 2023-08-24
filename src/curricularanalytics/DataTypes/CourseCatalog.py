@@ -1,11 +1,12 @@
+"""
+Course Catalog data type:
+Stores the collection of courses available at an institution.
+"""
+
 from datetime import date
 from typing import Dict, List, Tuple
 
 from curricularanalytics.DataTypes.Course import Course, course_id
-
-##############################################################
-# Course Catalog data type
-# Stores the collection of courses available at an institution
 
 
 class CourseCatalog:
@@ -29,15 +30,13 @@ class CourseCatalog:
         courses: List[Course] = [],
         catalog: Dict[int, Course] = {},
         date_range: Tuple[date, date] = (date.min, date.max),
-        id: int = 0,
     ) -> None:
         self.name = name
         self.institution = institution
         self.catalog = catalog
         self.date_range = date_range
         self.id = hash(self.name + self.institution)
-        if len(courses) > 0:
-            self.add_courses(courses)
+        self.add_courses(courses)
 
     def add_course(self, course: Course) -> None:
         "add a course to a course catalog, if the course is already in the catalog, it is not added again"
@@ -57,6 +56,6 @@ class CourseCatalog:
         if hash_val in self.catalog:
             return self.catalog[hash_val]
         else:
-            raise Exception(
+            raise LookupError(
                 f"Course: {prefix} {num}: {name} at {self.institution} does not exist in catalog: {self.name}"
             )

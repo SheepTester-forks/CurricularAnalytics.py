@@ -1,15 +1,20 @@
-##############################################################
-# Curriculum data type
-# The required curriculum associated with a degree program
+"""
+Curriculum data type:
+The required curriculum associated with a degree program.
+"""
+
 from io import StringIO
 from queue import Queue
+import sys
 from typing import (
     Any,
     Dict,
     FrozenSet,
     List,
     Literal,
+    Optional,
     Set,
+    TextIO,
     Tuple,
     TypedDict,
     Union,
@@ -26,7 +31,6 @@ from curricularanalytics.DataTypes.Course import (
     write_course_names,
 )
 from curricularanalytics.DataTypes.DataTypes import (
-    Requisite,
     System,
     belong_to,
     c_to_c,
@@ -72,26 +76,21 @@ class Curriculum:
     """
     The `Curriculum` data type is used to represent the collection of courses that must be
     be completed in order to earn a particualr degree. Thus, we use the terms *curriculum* and
-    *degree program* synonymously. To instantiate a `Curriculum` use:
+    *degree program* synonymously.
 
-        Curriculum(name, courses; <keyword arguments>)
+    Args:
+        name: The name of the curriculum.
+        courses: The collection of required courses that comprise the curriculum.
+        degree_type: The type of degree, e.g. BA, BBA, BSc, BEng, etc.
+        institution: The name of the institution offering the curriculum.
+        system_type: The type of system the institution uses, allowable
+          types: `semester` (default), `quarter`.
+        cip: The Classification of Instructional Programs (CIP) code for the
+          curriculum. See: https://nces.ed.gov/ipeds/cipcode
 
-    # Arguments
-    Required:
-    - `name:str` : the name of the curriculum.
-    - `courses:Array{Course}` : the collection of required courses that comprise the curriculum.
-    Keyword:
-    - `degree_type:str` : the type of degree, e.g. BA, BBA, BSc, BEng, etc.
-    - `institution:str` : the name of the institution offering the curriculum.
-    - `system_type:System` : the type of system the institution uses, allowable
-        types: `semester` (default), `quarter`.
-    - `CIP:str` : the Classification of Instructional Programs (CIP) code for the
-        curriculum.  See: `https://nces.ed.gov/ipeds/cipcode`
-
-    # Examples:
-    ```julia-repl
-    julia> Curriculum("Biology", courses, institution="South Harmon Tech", degree_type=AS, cip="26.0101")
-    ```
+    Examples:
+        >>> Curriculum("Biology", courses, institution="South Harmon Tech", degree_type=AS, cip="26.0101")
+        Curriculum(...)
     """
 
     id: int
@@ -128,7 +127,7 @@ class Curriculum:
     metadata: Dict[str, Any]
     "Curriculum-related metadata"
 
-    metric_keys: Set[CurriculumMetricKey] = {
+    _metric_keys: Set[CurriculumMetricKey] = {
         "blocking factor",
         "delay factor",
         "centrality",
@@ -149,24 +148,16 @@ class Curriculum:
         sortby_ID: bool = True,
         warn: bool = False,
     ) -> None:
-        "Constructor"
         self.name = name
         self.degree_type = degree_type
         self.system_type = system_type
         self.institution = institution
-        if id == 0:
-            self.id = hash(self.name + self.institution + str(self.degree_type))
-        else:
-            self.id = id
+        self.id = id or hash(self.name + self.institution + str(self.degree_type))
         self.cip = cip
-        if sortby_ID:
-            self.courses = sorted(courses, key=lambda c: c.id)
-        else:
-            self.courses = courses
+        self.courses = sorted(courses, key=lambda c: c.id) if sortby_ID else courses
         self.num_courses = len(self.courses)
         self.credit_hours = self.total_credits
-        self.graph = nx.DiGraph()
-        self.create_graph()
+        self.graph = self._create_graph()
         self.metrics = {
             "blocking factor": (-1, []),
             "delay factor": (-1, []),
@@ -185,10 +176,10 @@ class Curriculum:
         }
         self.metadata = {}
         self.learning_outcomes = learning_outcomes
-        self.learning_outcome_graph = nx.DiGraph()
-        self.create_learning_outcome_graph()
-        self.course_learning_outcome_graph = nx.DiGraph()
-        self.create_course_learning_outcome_graph()
+        self.learning_outcome_graph = self._create_learning_outcome_graph()
+        self.course_learning_outcome_graph = (
+            self._create_course_learning_outcome_graph()
+        )
         errors = StringIO()
         if warn and not self.isvalid(errors):
             print(
@@ -196,21 +187,16 @@ class Curriculum:
             )  # TODO: yellow
             print(errors.getvalue())
 
-    # TODO: update a curriculum graph if requisites have been added/removed or courses have been added/removed
-    # def update_curriculum(curriculum:Curriculum, courses:Array{Course}=())
-    #    # if courses array is empty, no new courses were added
-    # end
-
     def convert_ids(self) -> "Curriculum":
         "Converts course ids, from those used in CSV file format, to the standard hashed id used by the data structures in the toolbox"
-        for c1 in self.courses:
-            old_id = c1.id
-            c1.id = c1.default_id()
-            if old_id != c1.id:
-                for c2 in self.courses:
-                    if old_id in c2.requisites:
-                        c2.add_requisite(c1, c2.requisites[old_id])
-                        del c2.requisites[old_id]
+        for course in self.courses:
+            old_id = course.id
+            course.id = course.default_id()
+            if old_id != course.id:
+                for other in self.courses:
+                    if old_id in other.requisites:
+                        other.add_requisite(course, other.requisites[old_id])
+                        del other.requisites[old_id]
         return self
 
     def course(
@@ -221,7 +207,7 @@ class Curriculum:
         try:
             return next(x for x in self.courses if x.id == hash_val)
         except StopIteration:
-            raise Exception(
+            raise LookupError(
                 f"Course: {prefix} {num}: {name} at {institution} does not exist in curriculum: {self.name}"
             )
 
@@ -230,140 +216,100 @@ class Curriculum:
         for c in self.courses:
             if c.id == id:
                 return c
-        raise ValueError(
-            f"The course associated with id {id} is not in the curriculum."
-        )
+        raise KeyError(f"The course associated with id {id} is not in the curriculum.")
 
     def lo_from_id(self, id: int) -> LearningOutcome:
         "Return the lo associated with a lo id in a curriculum"
         for lo in self.learning_outcomes:
             if lo.id == id:
                 return lo
-        raise ValueError(f"The lo associated with id {id} is not in the curriculum.")
+        raise KeyError(f"The lo associated with id {id} is not in the curriculum.")
 
     @property
     def total_credits(self) -> float:
         "The total number of credit hours in a curriculum"
-        total_credits = 0
-        for c in self.courses:
-            total_credits += c.credit_hours
-        return total_credits
+        return sum(course.credit_hours for course in self.courses)
 
-    def create_graph(self) -> None:
+    def _create_graph(self) -> "nx.DiGraph[int]":
         """
-            create_graph!(c:Curriculum)
-
-        Create a curriculum directed graph from a curriculum specification. The graph is stored as a
-        LightGraph.jl implemenation within the Curriculum data object.
+        Create a curriculum directed graph from a curriculum specification.
         """
-        for c in self.courses:
-            self.graph.add_node(c.id)
-            # Graphs.jl orders graph vertices sequentially
+        graph: "nx.DiGraph[int]" = nx.DiGraph()
+        for course in self.courses:
+            graph.add_node(course.id)
             # TODO: make sure course is not alerady in the curriculum
-        for c in self.courses:
-            for r in c.requisites.keys():
-                self.graph.add_edge(r, c.id)
+        for course in self.courses:
+            for requisite in course.requisites.keys():
+                graph.add_edge(requisite, course.id)
+        return graph
 
-    def create_course_learning_outcome_graph(self) -> None:
+    def _create_course_learning_outcome_graph(self) -> "nx.DiGraph[int]":
         """
-            create_course_learning_outcome_graph!(c:Curriculum)
-
         Create a curriculum directed graph from a curriculum specification. This graph graph contains courses and learning outcomes
-        of the curriculum. The graph is stored as a LightGraph.jl implemenation within the Curriculum data object.
-
-
+        of the curriculum.
         """
-        for c in self.courses:
-            self.course_learning_outcome_graph.add_node(c.id)
-            # Graphs.jl orders graph vertices sequentially
+        graph: "nx.DiGraph[int]" = nx.DiGraph()
+        for course in self.courses:
+            graph.add_node(course.id)
             # TODO: make sure course is not alerady in the curriculum
 
-        for lo in self.learning_outcomes:
-            self.course_learning_outcome_graph.add_node(lo.id)
-            # Graphs.jl orders graph vertices sequentially
+        for outcome in self.learning_outcomes:
+            graph.add_node(outcome.id)
             # TODO: make sure course is not alerady in the curriculum
 
         # Add edges among courses
-        for c in self.courses:
-            for r in c.requisites.keys():
-                self.course_learning_outcome_graph.add_edge(r, c.id)
+        for course in self.courses:
+            for requisite in course.requisites.keys():
+                graph.add_edge(requisite, course.id)
                 nx.set_edge_attributes(
-                    self.course_learning_outcome_graph,
-                    {(r, c.id): {c_to_c: c.requisites[r]}},
+                    graph,
+                    {(requisite, course.id): {c_to_c: course.requisites[requisite]}},
                 )
 
         # Add edges among learning_outcomes
-        for lo in self.learning_outcomes:
-            for r in lo.requisites:
-                self.course_learning_outcome_graph.add_edge(
-                    r,
-                    lo.vertex_id[self.id],
-                )
+        for outcome in self.learning_outcomes:
+            for requisite in outcome.requisites:
+                graph.add_edge(requisite, outcome.vertex_id[self.id])
                 nx.set_edge_attributes(
-                    self.course_learning_outcome_graph,
-                    {(r, lo.vertex_id[self.id]): {lo_to_lo: pre}},
+                    graph, {(requisite, outcome.vertex_id[self.id]): {lo_to_lo: pre}}
                 )
 
         # Add edges between each pair of a course and a learning outcome
-        for c in self.courses:
-            for lo in c.learning_outcomes:
-                self.course_learning_outcome_graph.add_edge(
-                    lo.id,
-                    c.id,
-                )
+        for course in self.courses:
+            for outcome in course.learning_outcomes:
+                graph.add_edge(outcome.id, course.id)
                 nx.set_edge_attributes(
-                    self.course_learning_outcome_graph,
-                    {(lo.id, c.id): {lo_to_c: belong_to}},
+                    graph, {(outcome.id, course.id): {lo_to_c: belong_to}}
                 )
+        return graph
 
-    def create_learning_outcome_graph(self) -> None:
+    def _create_learning_outcome_graph(self) -> "nx.DiGraph[int]":
         """
-            create_learning_outcome_graph!(c:Curriculum)
-
-        Create a curriculum directed graph from a curriculum specification. The graph is stored as a
-        LightGraph.jl implemenation within the Curriculum data object.
+        Create a curriculum directed graph from a curriculum specification.
         """
-        for i, lo in enumerate(self.learning_outcomes):
-            self.learning_outcome_graph.add_node(i)
-            lo.vertex_id[self.id] = i  # The vertex id of a course w/in the curriculum
-            # Graphs.jl orders graph vertices sequentially
-            # TODO: make sure course is not alerady in the curriculum
-        for lo in self.learning_outcomes:
-            for r in lo.requisites.keys():
-                self.learning_outcome_graph.add_edge(r, lo.vertex_id[self.id])
-
-    # find requisite type from vertex ids in a curriculum graph
-    def requisite_type(self, src_course_id: int, dst_course_id: int) -> Requisite:
-        src = 0
-        dst = 0
-        for c in self.courses:
-            if c.id == src_course_id:
-                src = c
-            elif c.id == dst_course_id:
-                dst = c
-        if (src == 0 or dst == 0) or src.id not in dst.requisites:
-            raise Exception(
-                f"edge ({src_course_id}, {dst_course_id}) does not exist in curriculum graph"
-            )
-        else:
-            return dst.requisites[src.id]
+        graph: "nx.DiGraph[int]" = nx.DiGraph()
+        for i, outcome in enumerate(self.learning_outcomes):
+            graph.add_node(i)
+            outcome.vertex_id[self.id] = i
+        for outcome in self.learning_outcomes:
+            for requisite in outcome.requisites.keys():
+                graph.add_edge(requisite, outcome.vertex_id[self.id])
+        return graph
 
     # Check if a curriculum graph has requisite cycles.
-    def isvalid(self, error_msg: StringIO = StringIO()) -> bool:
+    def isvalid(self, error_file: Optional[TextIO] = None) -> bool:
         """
-            isvalid_curriculum(c:Curriculum, errors:IOBuffer)
+        Tests whether or not the curriculum graph associated with the curriculum is valid, i.e.,
+        whether or not it contains a requisite cycle, or requisites that cannot be satisfied.
 
-        Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
-        whether or not it contains a requisite cycle, or requisites that cannot be satisfied.  Returns
-        a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it is not.
+        Returns:
+            A boolean value, with `True` indicating the curriculum is valid, and `False` indicating it is not.
 
-        If ``G_c`` is not valid, the `errors` buffer. To view these errors, use:
+        If the graph is not valid, the `error_file` buffer. To view these errors, use::
 
-        ```julia-repl
-        julia> errors = IOBuffer()
-        julia> isvalid_curriculum(c, errors)
-        julia> println(String(take!(errors)))
-        ```
+            >>> errors = StringIO()
+            >>> c.isvalid(errors)
+            >>> print(errors.getvalue())
 
         A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this
         case it is not possible to complete the curriculum. For the case of unsatisfiable requistes, consider
@@ -371,123 +317,114 @@ class Curriculum:
         is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course
         on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
         """
-        g = self.graph.copy()
-        validity = True
+        graph = self.graph.copy()
         # First check for simple cycles
-        cycles = nx.simple_cycles(g)
+        cycles = list(nx.simple_cycles(graph))
         # Next check for cycles that could be created by strict co-requisites.
         # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in
         # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
         # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
         for course in self.courses:
-            for k, r in course.requisites.items():
-                if r == strict_co:
-                    v_d = self.course_from_id(course.id).id  # destination vertex
-                    v_s = self.course_from_id(k).id  # source vertex
-                    g.add_edge(v_d, v_s)
-        new_cycles = nx.simple_cycles(g)
-        new_cycles = [
-            cyc for cyc in new_cycles if len(cyc) != 2
-        ]  # remove length-2 cycles
+            for req_course, req_type in course.requisites.items():
+                if req_type == strict_co:
+                    graph.add_edge(
+                        self.course_from_id(course.id).id,  # destination vertex
+                        self.course_from_id(req_course).id,  # source vertex
+                    )
+        new_cycles = (
+            cyc for cyc in nx.simple_cycles(graph) if len(cyc) != 2
+        )  # remove length-2 cycles
         cycles = set(
             tuple(cyc) for cyc in [*new_cycles, *cycles]
         )  # remove redundant cycles
-        if len(cycles) != 0:
-            validity = False
+        if len(cycles) != 0 and error_file:
             if self.institution != "":
-                error_msg.write(f"\n{self.institution}: ")
-            error_msg.write(f" curriculum '{self.name}' has requisite cycles:\n")
+                error_file.write(f"\n{self.institution}: ")
+            error_file.write(f" curriculum '{self.name}' has requisite cycles:\n")
             for cyc in cycles:
-                error_msg.write("(")
+                error_file.write("(")
                 for i, v in enumerate(cyc):
                     name: str = self.course_from_id(v).name
                     if i != len(cyc) - 1:
-                        error_msg.write(f"{name}, ")
+                        error_file.write(f"{name}, ")
                     else:
-                        error_msg.write(f"{name})\n")
-        return validity
+                        error_file.write(f"{name})\n")
+        return len(cycles) == 0
 
     def extraneous_requisites(self, *, debug: bool = False) -> Set[Tuple[int, int]]:
         """
-            extraneous_requisites(c:Curriculum; print=false)
-
-        Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
+        Determines whether or not the curriculum contains extraneous requisites, and returns them.  Extraneous requisites
         are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite
-        relationships $c_1 \\rightarrow c_2 \\rightarrow c_3$ and $c_1 \\rightarrow c_3$, and $c_1$ and $c_2$ are
-        *not* co-requisites, then $c_1 \\rightarrow c_3$ is redundant and therefore extraneous.
+        relationships ``c_1 → c_2 → c_3`` and ``c_1 → c_3``, and ``c_1`` and ``c_2`` are
+        *not* co-requisites, then ``c_1 → c_3`` is redundant and therefore extraneous.
         """
         try:
             nx.find_cycle(self.graph)
-            raise Exception(
-                "\nCurriculm graph has cycles, extraneous requisities cannot be determined."
+            raise ValueError(
+                "Curriculum graph has cycles, extraneous requisities cannot be determined."
             )
         except nx.NetworkXNoCycle:
             pass
-        msg = StringIO()
         redundant_reqs: Set[Tuple[int, int]] = set()
-        g = self.graph
-        que: Queue[int] = Queue()
-        components = nx.weakly_connected_components(g)
         extraneous = False
         string = ""  # create an empty string to hold messages
-        for wcc in components:
-            if len(wcc) > 1:  # only consider components with more than one vertex
-                for u in wcc:
-                    nb = list(g.neighbors(u))
-                    for n in nb:
-                        que.put(n)
-                    while not que.empty():
-                        x = que.get()
-                        nnb = g.neighbors(x)
-                        for n in nnb:
-                            que.put(n)
-                        for v in g.neighbors(x):
-                            if g.has_edge(u, v):  # possible redundant requsisite
-                                # TODO: If this edge is a co-requisite it is an error, as it would be impossible to satsify.
-                                # This needs to be checked here.
-                                remove: bool = True
-                                for n in nb:  # check for co- or strict_co requisites
-                                    neighbor = self.course_from_id(n)
-                                    if nx.has_path(
-                                        self.graph, n, v
-                                    ):  # is there a path from n to v?
-                                        req_type = neighbor.requisites[
-                                            u
-                                        ]  # the requisite relationship between u and n
-                                        if (
-                                            req_type == co or req_type == strict_co
-                                        ):  # is u a co or strict_co requisite for n?
-                                            remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
-                                if remove:
-                                    if (
-                                        u,
-                                        v,
-                                    ) not in redundant_reqs:  # make sure redundant requisite wasn't previously found
-                                        redundant_reqs.add((u, v))
-                                        if debug:
-                                            string += f"-{self.courses[v].name} has redundant requisite {self.courses[u].name}\n"
-                                    extraneous = True
+        for component in nx.weakly_connected_components(self.graph):
+            # only consider components with more than one vertex
+            if len(component) <= 1:
+                continue
+            for u in component:
+                u_neighbors = list(self.graph.neighbors(u))
+                queue: Queue[int] = Queue()
+                for neighbor in u_neighbors:
+                    queue.put(neighbor)
+                while not queue.empty():
+                    x = queue.get()
+                    x_neighbors = self.graph.neighbors(x)
+                    for neighbor in x_neighbors:
+                        queue.put(neighbor)
+                    for v in self.graph.neighbors(x):
+                        if not self.graph.has_edge(u, v):
+                            # definitely not redundant requsisite
+                            continue
+                        # TODO: If this edge is a co-requisite it is an error, as it would be impossible to satsify.
+                        # This needs to be checked here.
+                        remove: bool = True
+                        # check for co- or strict_co requisites
+                        for neighbor in u_neighbors:
+                            neighbor = self.course_from_id(neighbor)
+                            # is there a path from n to v?
+                            if nx.has_path(self.graph, neighbor, v):
+                                # the requisite relationship between u and n
+                                req_type = neighbor.requisites[u]
+                                # is u a co or strict_co requisite for n?
+                                if req_type == co or req_type == strict_co:
+                                    remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
+                        if remove:
+                            # make sure redundant requisite wasn't previously found
+                            if (u, v) not in redundant_reqs:
+                                redundant_reqs.add((u, v))
+                                if debug:
+                                    string += f"-{self.courses[v].name} has redundant requisite {self.courses[u].name}\n"
+                            extraneous = True
         if extraneous and debug:
             if self.institution:
-                msg.write(f"\n{self.institution}: ")
-            msg.write(f"curriculum {self.name} has extraneous requisites:\n")
-            msg.write(string)
-        if debug == True:
-            print(msg.getvalue())
+                sys.stdout.write(f"\n{self.institution}: ")
+            sys.stdout.write(f"curriculum {self.name} has extraneous requisites:\n")
+            sys.stdout.write(string)
         return redundant_reqs
 
     # Compute the blocking factor of a course
     def blocking_factor_course(self, course: AbstractCourse) -> int:
         """
-            blocking_factor(c:Curriculum, course:Int)
-
-        The **blocking factor** associated with course ``c_i`` in curriculum ``c`` with
+        The **blocking factor** associated with course ``c_i`` in the curriculum with
         curriculum graph ``G_c = (V,E)`` is defined as:
-        ```math
-        b_c(v_i) = \\sum_{v_j \\in V} I(v_i,v_j)
-        ```
-        where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leadsto v_j``,
-        and ``0`` otherwise. Here ``v_i \\leadsto v_j`` denotes that a directed path from vertex
+
+        .. math::
+
+            b_c(v_i) = \\sum_{v_j \\in V} I(v_i,v_j)
+
+        where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i ⤳ v_j``,
+        and ``0`` otherwise. Here ``v_i ⤳ v_j`` denotes that a directed path from vertex
         ``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course
         ``c_i`` to ``c_j`` in curriculum ``c``.
         """
@@ -498,13 +435,13 @@ class Curriculum:
     # Compute the blocking factor of a curriculum
     def blocking_factor(self) -> Tuple[int, List[int]]:
         """
-            blocking_factor(c:Curriculum)
+        The **blocking factor** associated with the curriculum is defined as:
 
-        The **blocking factor** associated with curriculum ``c`` is defined as:
-        ```math
-        b(G_c) = \\sum_{v_i \\in V} b_c(v_i).
-        ```
-        where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
+        .. math::
+
+            b(G_c) = \\sum_{v_i \\in V} b_c(v_i).
+
+        where ``G_c = (V,E)`` is the curriculum graph associated with the curriculum.
         """
         bf: List[int] = [self.blocking_factor_course(course) for course in self.courses]
         b: int = sum(bf)
@@ -694,7 +631,7 @@ class Curriculum:
                 "cannot compare curricula, they do not have the same metrics"
             )
         report.write(f"Comparing: C1 = {self.name} and C2 = {other.name}\n")
-        for k in Curriculum.metric_keys:
+        for k in Curriculum._metric_keys:
             report.write(f" Curricular {k}: ")
             metric1 = self.metrics[k][0]
             metric2 = self.metrics[k][0]
