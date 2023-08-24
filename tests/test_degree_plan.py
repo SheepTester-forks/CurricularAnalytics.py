@@ -67,7 +67,7 @@ H = Course(
 
 E.add_requisite(C, pre)
 F.add_requisite(D, pre)
-C.add_requisites([A, B, D], [pre, pre, co])
+C.add_requisites([(A, pre), (B, pre), (D, co)])
 
 # add some learning outcomes for each of the courses
 # Yiming add code here

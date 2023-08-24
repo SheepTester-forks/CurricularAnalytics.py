@@ -50,10 +50,10 @@ from curricularanalytics.GraphAlgs import all_paths, longest_paths, reachable_fr
 class BasicMetrics(NamedTuple):
     max_blocking_factor: int
     max_blocking_factor_courses: List[AbstractCourse]
-    max_centrality: int
-    max_centrality_courses: List[AbstractCourse]
     max_delay_factor: int
     max_delay_factor_courses: List[AbstractCourse]
+    max_centrality: int
+    max_centrality_courses: List[AbstractCourse]
     max_complexity: float
     max_complexity_courses: List[AbstractCourse]
 
@@ -354,11 +354,10 @@ class Curriculum:
                         remove: bool = True
                         # check for co- or strict_co requisites
                         for neighbor in u_neighbors:
-                            neighbor = self.course_from_id(neighbor)
                             # is there a path from n to v?
                             if nx.has_path(self.graph, neighbor, v):
                                 # the requisite relationship between u and n
-                                req_type = neighbor.requisites[u]
+                                req_type = self.course_from_id(neighbor).requisites[u]
                                 # is u a co or strict_co requisite for n?
                                 if req_type == co or req_type == strict_co:
                                     remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
@@ -409,7 +408,7 @@ class Curriculum:
             course.id: len(reachable_from(self.graph, course.id))
             for course in self.courses
         }
-        return sum(blocking_factors), blocking_factors
+        return sum(blocking_factors.values()), blocking_factors
 
     # Compute the delay factor of a course
     def course_delay_factor(self, course: AbstractCourse) -> int:
@@ -434,12 +433,12 @@ class Curriculum:
     # Compute the delay factor of a curriculum
     @cached_property
     def delay_factor(self) -> Tuple[int, Dict[int, int]]:
-        """
+        r"""
         The **delay factor** associated with the curriculum is defined as:
 
         .. math::
 
-            d(G_c) = \\sum_{v_k \\in V} d_c(v_k).
+            d(G_c) = \sum_{v_k \in V} d_c(v_k).
 
         where ``G_c = (V,E)`` is the curriculum graph associated with the curriculum.
         """
@@ -475,13 +474,13 @@ class Curriculum:
     # Compute the total centrality of all courses in a curriculum
     @cached_property
     def centrality(self) -> Tuple[int, Dict[int, int]]:
-        """
+        r"""
         Computes the total **centrality** associated with all of the courses in the curriculum,
         with curriculum graph :math:`G_c = (V,E)`.
 
         .. math::
 
-            q(c) = \\sum_{v \\in V} q(v).
+            q(c) = \sum_{v \in V} q(v).
         """
         centralities: Dict[int, int] = {
             course.id: sum(
@@ -517,14 +516,14 @@ class Curriculum:
     # Compute the complexity of a curriculum
     @cached_property
     def complexity(self) -> Tuple[float, Dict[int, float]]:
-        """
+        r"""
             complexity(c:Curriculum, course:Int)
 
         The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)``
         is defined as:
 
         ```math
-        h(G_c) = \\sum_{v \\in V} \\left(d_c(v) + b_c(v)\\right).
+        h(G_c) = \sum_{v \in V} \left(d_c(v) + b_c(v)\right).
         ```
 
         For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15,
@@ -667,25 +666,25 @@ class Curriculum:
             [
                 course
                 for course in self.courses
-                if self.blocking_factor[course.id] == max_blocking_factor
+                if self.blocking_factor[1][course.id] == max_blocking_factor
             ],
             max_delay_factor,
             [
                 course
                 for course in self.courses
-                if self.delay_factor[course.id] == max_delay_factor
+                if self.delay_factor[1][course.id] == max_delay_factor
             ],
             max_centrality,
             [
                 course
                 for course in self.courses
-                if self.centrality[course.id] == max_centrality
+                if self.centrality[1][course.id] == max_centrality
             ],
             max_complexity,
             [
                 course
                 for course in self.courses
-                if self.complexity[course.id] == max_complexity
+                if self.complexity[1][course.id] == max_complexity
             ],
         )
 

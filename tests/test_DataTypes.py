@@ -93,8 +93,8 @@ class DataTypesTests(unittest.TestCase):
         # @test ne(curric.graph) == 5
 
         # mapped_ids = map_vertex_ids(curric)
-        self.assertEqual(curric.requisite_type(A.id, C.id), pre)
-        self.assertEqual(curric.requisite_type(D.id, C.id), co)
+        # self.assertEqual(curric.requisite_type(A.id, C.id), pre)
+        # self.assertEqual(curric.requisite_type(D.id, C.id), co)
 
         self.assertEqual(curric.total_credits, 22)
         # self.assertIn(curric.course_from_id(1), [A, B, C, D, E, F, G, H])

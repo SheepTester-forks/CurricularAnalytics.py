@@ -11,50 +11,31 @@ import math
 from io import StringIO
 from typing import List
 
-from curricularanalytics.DataTypes.Curriculum import Curriculum, CurriculumMetricKey
+from curricularanalytics.DataTypes.Curriculum import Curriculum
 
 
-def basic_statistics(
-    curricula: List["Curriculum"], metric_name: CurriculumMetricKey
-) -> StringIO:
+def basic_statistics(metrics: List[float]) -> StringIO:
     buf = StringIO()
     # set initial values used to find min and max metric values
     total_metric = 0
     STD_metric = 0
     max_metric = -math.inf
     min_metric = math.inf
-    metric = curricula[0].metrics[metric_name]
-    max_metric = metric[0]
-    min_metric = metric[0]
+    max_metric = metrics[0]
+    min_metric = metrics[0]
     # metric where total curricular metric as well as course-level metrics are stored in an array
-    for c in curricula:
-        if c.metrics[metric_name][0] == -1:
-            raise Exception(
-                f"metric {metric_name} does not exist in curriculum {c.name}"
-            )
-        c.basic_metrics()
-        metric = c.metrics[metric_name]
-        value = metric[
-            0
-        ]  # metric where total curricular metric as well as course-level metrics are stored in an array
+    for value in metrics:
+        # metric where total curricular metric as well as course-level metrics are stored in an array
         total_metric += value
         if value > max_metric:
             max_metric = value
         if value < min_metric:
             min_metric = value
-    avg_metric = total_metric / len(curricula)
-    for c in curricula:
-        metric = c.metrics[metric_name]
-        if isinstance(metric, float):
-            value = metric
-        else:
-            value = metric[
-                0
-            ]  # metric where total curricular metric as well as course-level metrics are stored in an array
+    avg_metric = total_metric / len(metrics)
+    for value in metrics:
         STD_metric = (value - avg_metric) ** 2
-    STD_metric = math.sqrt(STD_metric / len(curricula))
-    buf.write(f"\n Metric -- {metric_name}")
-    buf.write(f"\n  Number of curricula = {len(curricula)}")
+    STD_metric = math.sqrt(STD_metric / len(metrics))
+    buf.write(f"\n  Number of curricula = {len(metrics)}")
     buf.write(f"\n  Mean = {avg_metric}")
     buf.write(f"\n  STD = {STD_metric}")
     buf.write(f"\n  Max. = {max_metric}")

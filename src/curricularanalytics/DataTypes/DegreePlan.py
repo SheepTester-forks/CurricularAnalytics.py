@@ -1,3 +1,7 @@
+"""
+Term data type
+"""
+
 from io import StringIO
 from typing import Any, Dict, List, Set, TypedDict
 
@@ -6,20 +10,13 @@ from curricularanalytics.DataTypes.Curriculum import Curriculum
 from curricularanalytics.DataTypes.DataTypes import pre
 from curricularanalytics.GraphAlgs import edge_crossings
 
-##############################################################
-# Term data type
-
-TermMetrics = TypedDict("TermMetrics", {})
-
 
 class Term:
     """
-    The `Term` data type is used to represent a single term within a `DegreePlan`. To
-    instantiate a `Term` use:
+    The `Term` data type is used to represent a single term within a `DegreePlan`.
 
-        Term([c1, c2, ...])
-
-    where c1, c2, ... are `Course` data objects
+    Args:
+        courses: `Course` data objects.
     """
 
     courses: List[AbstractCourse]
@@ -28,21 +25,17 @@ class Term:
     "The number of courses in the Term"
     credit_hours: float
     "The number of credit hours associated with the term"
-    metrics: TermMetrics
-    "Term-related metrics"
     metadata: Dict[str, Any]
     "Term-related metadata"
 
     def __init__(self, courses: List[AbstractCourse]) -> None:
-        "Constructor"
         self.num_courses = len(courses)
         self.courses = courses.copy()
         self.credit_hours = sum(course.credit_hours for course in courses)
-        self.metrics = {}
         self.metadata = {}
 
     def __repr__(self) -> str:
-        return f"Term(courses={self.courses}, num_courses={self.num_courses}, credit_hours={self.credit_hours}, metrics={self.metrics}, metadata={self.metadata})"
+        return f"Term(courses={self.courses}, num_courses={self.num_courses}, credit_hours={self.credit_hours}, metadata={self.metadata})"
 
 
 DegreePlanMetrics = TypedDict(
