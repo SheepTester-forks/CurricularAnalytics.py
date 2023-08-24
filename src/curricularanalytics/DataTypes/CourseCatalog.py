@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, Dict, List, Tuple
 
 from curricularanalytics.DataTypes.Course import Course, course_id
@@ -14,7 +15,7 @@ class CourseCatalog:
     "Name of the course catalog"
     institution: str
     "Institution offering the courses in the catalog"
-    date_range: Tuple[Any, ...]  # TODO
+    date_range: Tuple[date, date]
     "range of dates the catalog is applicable over"
     catalog: Dict[int, Course]
     "dictionary of courses in (course_id, course) format"
