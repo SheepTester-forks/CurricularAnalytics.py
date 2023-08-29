@@ -1,0 +1,135 @@
+
+ Aerospace Engineering, 2019-20 Degree Plan
+ Passrate for course MATH 125 is set to 0.5.
+
+------------ Simulation Report ------------
+Aerospace Engineering, BS -- 2019-20 Degree Plan
+
+-------- Simulation Statistics --------
+Number of terms: 12
+Max Credits per Term: 19
+Max Course Attempts: 2
+Number of Students: 10000
+Preset Course Pass Rates: 90.0%
+
+-------- Graduation Statistics --------
+Number of Students Graduated: 2277
+Graduation Rate: 22.770000000000003%
+Term Graduation Rates: 
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0358, 0.1632, 0.2227, 0.2275, 0.2277]
+Average time to degree: 9.148880105401844 terms
+
+-------- Stop out Statistics --------
+Number of Students Stopped Out (Stopout Model Prediction + Reached Max Attempts): 7723
+Number of Students Reaching Max Attempts: 6327
+Stop-out Rate: 77.23%
+Cumulative Term Stop-out Rates (including reached max course attempts students): 
+[0.0772, 0.4969, 0.5975, 0.6742, 0.7156, 0.7367, 0.7481, 0.7572, 0.7662, 0.7723, 0.7723, 0.7723]
+
+Cumulative Term Stop-out Rates (excluding reaching max course attempts students): 
+[0.077, 0.104, 0.115, 0.13, 0.138, 0.14, 0.14, 0.14, 0.14, 0.139, 0.139, 0.139]
+
+Cumulative Term Reached Max Course Attempts Rates: 
+[0.0, 0.393, 0.483, 0.544, 0.578, 0.597, 0.608, 0.617, 0.626, 0.633, 0.633, 0.633]
+
+
+-------- Pass Rate of Each Course (computed from Student Grades CSV file) --------
+
+│ Row │ Courses                                         │ Pass_Rates │ Num_Students_Passes │ Num_Students_Taken │
+├─────┼─────────────────────────────────────────────────┼────────────┼─────────────────────┼────────────────────┤
+│ 1   │ MATH 125 Calculus I w/ Applications             │ 50.0%      │ 724                 │ 896                │
+│ 2   │ CHEM 151 Gen Chemistry I                        │ 76.1%      │ 3671                │ 4823               │
+│ 3   │ ENGL 101 First-year Comp.                       │ 88.9%      │ 8949                │ 10064              │
+│ 4   │ ENGR 102 Intro to Engineering                   │ 90.0%      │ N/A                 │ N/A                │
+│ 5   │ Tier I General Ed.                              │ 82.1%      │ 41165               │ 50147              │
+│ 6   │ MATH 129 Calculus II                            │ 74.7%      │ 2160                │ 2893               │
+│ 7   │ AME 105 Intro. to MATLAB I                      │ 88.9%      │ 547                 │ 615                │
+│ 8   │ PHYS 141 Intro Mechanics                        │ 74.4%      │ 1301                │ 1748               │
+│ 9   │ ENGL 102 First-year Comp.                       │ 86.3%      │ 6615                │ 7666               │
+│ 10  │ ECE 175 Programming for Eng. Apps.              │ 74.9%      │ 791                 │ 1056               │
+│ 11  │ Tier I General Ed.                              │ 82.1%      │ 41165               │ 50147              │
+│ 12  │ CE 214 Statics                                  │ 86.5%      │ 652                 │ 754                │
+│ 13  │ MATH  223 Vector Calculus                       │ 74.7%      │ 1621                │ 2169               │
+│ 14  │ PHYS 241 Electricity & Magnetism                │ 81.0%      │ 705                 │ 870                │
+│ 15  │ AME  205 Intro. To MATLAB II                    │ 90.2%      │ 634                 │ 703                │
+│ 16  │ AME 211 Comp. Aided Drafting & Manufacturing    │ 79.5%      │ 31                  │ 39                 │
+│ 17  │ Tier I General Ed.                              │ 82.1%      │ 41165               │ 50147              │
+│ 18  │ AME 230 Thermodynamics                          │ 88.4%      │ 382                 │ 432                │
+│ 19  │ AME 250 Dynamics                                │ 86.8%      │ 348                 │ 401                │
+│ 20  │ MATH 254 Intro. to ODEs                         │ 81.1%      │ 843                 │ 1040               │
+│ 21  │ AME 220 Intro. to Aerospace Eng.                │ 88.0%      │ 103                 │ 117                │
+│ 22  │ Tier I General Ed.                              │ 82.1%      │ 41165               │ 50147              │
+│ 23  │ AME 320 Aerodynamics                            │ 94.4%      │ 134                 │ 142                │
+│ 24  │ AME  324A Mech. Behavior of Eng. Materials.     │ 92.1%      │ 304                 │ 330                │
+│ 25  │ AME 301 Engineering Analysis                    │ 89.5%      │ 392                 │ 438                │
+│ 26  │ AME 300 Instrumentation Lab.                    │ 98.4%      │ 302                 │ 307                │
+│ 27  │ MSE 331R Fund. of Materials for Engineers       │ 97.3%      │ 253                 │ 260                │
+│ 28  │ AME 324L Mech. of Materials Lab.                │ 92.2%      │ 317                 │ 344                │
+│ 29  │ AME 324B Eng. Component Design                  │ 93.1%      │ 244                 │ 262                │
+│ 30  │ AME 321 Aircraft Performance                    │ 90.0%      │ 54                  │ 60                 │
+│ 31  │ AME 323 Gasdynamics                             │ 92.0%      │ 69                  │ 75                 │
+│ 32  │ AME 302 Numerical Methods                       │ 94.9%      │ 242                 │ 255                │
+│ 33  │ AME 313 Aero./Mech. Eng. Lab                    │ 99.1%      │ 552                 │ 557                │
+│ 34  │ Tier II General Ed.                             │ 82.1%      │ 41165               │ 50147              │
+│ 35  │ AME 401 Senior Aerospace Lab.                   │ 100.0%     │ 103                 │ 103                │
+│ 36  │ AME 420 Aerospace Conceptual Design             │ 98.3%      │ 57                  │ 58                 │
+│ 37  │ AME 425 Aerospace Propulsion                    │ 97.0%      │ 64                  │ 66                 │
+│ 38  │ AME 427 Stability and Control of Aero. Vehicles │ 94.0%      │ 47                  │ 50                 │
+│ 39  │ AME 457 Orbital Mechanicans and Space Flt.      │ 98.6%      │ 69                  │ 70                 │
+│ 40  │ AME 495S Senior Colloquium                      │ 100.0%     │ 128                 │ 128                │
+│ 41  │ AME 422 Aerospace Eng.Design                    │ 100.0%     │ 34                  │ 34                 │
+│ 42  │ AME 431 Num. Meth. in Fluid Mech. & Heat Xfer   │ 90.9%      │ 10                  │ 11                 │
+│ 43  │ Technical Elective                              │ 90.0%      │ N/A                 │ N/A                │
+│ 44  │ Technical Elective                              │ 90.0%      │ N/A                 │ N/A                │
+│ 45  │ Tier II General Ed.                             │ 82.1%      │ 41165               │ 50147              │
+
+-------- Course Pass Rates by Term --------
+
+│ Row │ COUSE                                   │ TERM1  │ TERM2  │ TERM3  │ TERM4  │ TERM5  │ TERM6  │ TERM7  │ TERM8  │ TERM9  │ TERM10 │ TERM11 │ TERM12 │
+├─────┼─────────────────────────────────────────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┼────────┤
+│ 1   │ Calculus I w/ Applications              │ 49.63% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │ 72.93% │
+│ 2   │ Gen Chemistry I                         │ 76.68% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │ 93.51% │
+│ 3   │ First-year Comp.                        │ 88.79% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │ 97.58% │
+│ 4   │ Intro to Engineering                    │ 89.88% │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │ 98.4%  │
+│ 5   │ Tier I General Ed.                      │ 81.77% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │ 95.42% │
+│ 6   │ Calculus II                             │ 0.0%   │ 33.99% │ 53.44% │ 56.1%  │ 56.1%  │ 56.1%  │ 56.1%  │ 56.1%  │ 56.1%  │ 56.1%  │ 56.1%  │ 56.1%  │
+│ 7   │ Intro. to MATLAB I                      │ 0.0%   │ 40.9%  │ 59.3%  │ 60.59% │ 60.59% │ 60.59% │ 60.59% │ 60.59% │ 60.59% │ 60.59% │ 60.59% │ 60.59% │
+│ 8   │ Intro Mechanics                         │ 0.0%   │ 34.03% │ 53.46% │ 56.05% │ 56.05% │ 56.05% │ 56.05% │ 56.05% │ 56.05% │ 56.05% │ 56.05% │ 56.05% │
+│ 9   │ First-year Comp.                        │ 0.0%   │ 71.07% │ 80.79% │ 81.26% │ 81.26% │ 81.26% │ 81.26% │ 81.26% │ 81.26% │ 81.26% │ 81.26% │ 81.26% │
+│ 10  │ Programming for Eng. Apps.              │ 74.99% │ 91.61% │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │ 92.0%  │
+│ 11  │ Tier I General Ed.                      │ 0.0%   │ 69.65% │ 79.76% │ 80.28% │ 80.28% │ 80.28% │ 80.28% │ 80.28% │ 80.28% │ 80.28% │ 80.28% │ 80.28% │
+│ 12  │ Statics                                 │ 0.0%   │ 0.0%   │ 15.85% │ 33.02% │ 38.73% │ 39.16% │ 39.16% │ 39.16% │ 39.16% │ 39.16% │ 39.16% │ 39.16% │
+│ 13  │ Vector Calculus                         │ 0.0%   │ 0.0%   │ 18.6%  │ 34.76% │ 38.89% │ 39.28% │ 39.28% │ 39.28% │ 39.28% │ 39.28% │ 39.28% │ 39.28% │
+│ 14  │ Electricity & Magnetism                 │ 0.0%   │ 0.0%   │ 14.7%  │ 31.62% │ 37.39% │ 37.95% │ 37.95% │ 37.95% │ 37.95% │ 37.95% │ 37.95% │ 37.95% │
+│ 15  │ Intro. To MATLAB II                     │ 0.0%   │ 0.0%   │ 26.77% │ 42.49% │ 44.51% │ 44.58% │ 44.58% │ 44.58% │ 44.58% │ 44.58% │ 44.58% │ 44.58% │
+│ 16  │ Comp. Aided Drafting & Manufacturing    │ 0.0%   │ 51.02% │ 68.98% │ 71.83% │ 71.89% │ 71.89% │ 71.89% │ 71.89% │ 71.89% │ 71.89% │ 71.89% │ 71.89% │
+│ 17  │ Tier I General Ed.                      │ 0.0%   │ 31.87% │ 58.54% │ 65.76% │ 66.35% │ 66.35% │ 66.35% │ 66.35% │ 66.35% │ 66.35% │ 66.35% │ 66.35% │
+│ 18  │ Thermodynamics                          │ 0.0%   │ 0.0%   │ 9.61%  │ 35.44% │ 39.4%  │ 39.67% │ 39.67% │ 39.67% │ 39.67% │ 39.67% │ 39.67% │ 39.67% │
+│ 19  │ Dynamics                                │ 0.0%   │ 0.0%   │ 0.0%   │ 12.17% │ 26.64% │ 32.24% │ 33.15% │ 33.17% │ 33.17% │ 33.17% │ 33.17% │ 33.17% │
+│ 20  │ Intro. to ODEs                          │ 0.0%   │ 0.0%   │ 0.0%   │ 11.5%  │ 25.57% │ 30.6%  │ 31.47% │ 31.49% │ 31.49% │ 31.49% │ 31.49% │ 31.49% │
+│ 21  │ Intro. to Aerospace Eng.                │ 0.0%   │ 0.0%   │ 0.0%   │ 10.39% │ 25.94% │ 31.06% │ 31.79% │ 31.86% │ 31.86% │ 31.86% │ 31.86% │ 31.86% │
+│ 22  │ Tier I General Ed.                      │ 0.0%   │ 16.39% │ 34.17% │ 44.66% │ 51.24% │ 52.04% │ 52.04% │ 52.04% │ 52.04% │ 52.04% │ 52.04% │ 52.04% │
+│ 23  │ Aerodynamics                            │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 8.42%  │ 22.09% │ 27.34% │ 28.25% │ 28.36% │ 28.36% │ 28.36% │ 28.36% │
+│ 24  │ Mech. Behavior of Eng. Materials.       │ 0.0%   │ 0.0%   │ 0.0%   │ 1.4%   │ 22.17% │ 30.21% │ 31.05% │ 31.05% │ 31.05% │ 31.05% │ 31.05% │ 31.05% │
+│ 25  │ Engineering Analysis                    │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 8.3%   │ 20.91% │ 26.4%  │ 27.62% │ 27.71% │ 27.71% │ 27.71% │ 27.71% │
+│ 26  │ Instrumentation Lab.                    │ 0.0%   │ 0.0%   │ 10.35% │ 15.18% │ 26.79% │ 34.85% │ 35.08% │ 35.08% │ 35.08% │ 35.08% │ 35.08% │ 35.08% │
+│ 27  │ Fund. of Materials for Engineers        │ 0.0%   │ 0.0%   │ 2.67%  │ 10.97% │ 17.71% │ 31.29% │ 32.28% │ 32.29% │ 32.29% │ 32.29% │ 32.29% │ 32.29% │
+│ 28  │ Mech. of Materials Lab.                 │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 6.88%  │ 18.29% │ 24.14% │ 25.68% │ 25.82% │ 25.82% │ 25.82% │
+│ 29  │ Eng. Component Design                   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 6.98%  │ 18.58% │ 24.27% │ 25.74% │ 25.87% │ 25.87% │ 25.87% │
+│ 30  │ Aircraft Performance                    │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 15.29% │ 24.37% │ 26.31% │ 26.53% │ 26.54% │ 26.54% │ 26.54% │
+│ 31  │ Gasdynamics                             │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 12.26% │ 24.21% │ 26.11% │ 26.31% │ 26.32% │ 26.32% │ 26.32% │
+│ 32  │ Numerical Methods                       │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 8.61%  │ 23.44% │ 26.0%  │ 26.17% │ 26.17% │ 26.17% │ 26.17% │
+│ 33  │ Aero./Mech. Eng. Lab                    │ 0.0%   │ 80.4%  │ 84.13% │ 84.23% │ 84.23% │ 84.23% │ 84.23% │ 84.23% │ 84.23% │ 84.23% │ 84.23% │ 84.23% │
+│ 34  │ Tier II General Ed.                     │ 0.0%   │ 0.0%   │ 0.0%   │ 5.22%  │ 8.94%  │ 13.22% │ 24.94% │ 28.43% │ 28.54% │ 28.54% │ 28.54% │ 28.54% │
+│ 35  │ Senior Aerospace Lab.                   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 11.26% │ 23.17% │ 25.24% │ 25.47% │ 25.48% │ 25.48% │
+│ 36  │ Aerospace Conceptual Design             │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 8.74%  │ 21.53% │ 24.76% │ 25.17% │ 25.19% │ 25.19% │
+│ 37  │ Aerospace Propulsion                    │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 9.81%  │ 22.93% │ 25.17% │ 25.39% │ 25.41% │ 25.41% │
+│ 38  │ Stability and Control of Aero. Vehicles │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 11.44% │ 22.15% │ 24.84% │ 25.21% │ 25.25% │ 25.25% │
+│ 39  │ Orbital Mechanicans and Space Flt.      │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.28%  │ 2.79%  │ 11.61% │ 24.57% │ 25.84% │ 25.87% │ 25.87% │ 25.87% │
+│ 40  │ Senior Colloquium                       │ 0.0%   │ 35.24% │ 57.51% │ 58.36% │ 58.38% │ 58.38% │ 58.39% │ 58.39% │ 58.39% │ 58.39% │ 58.39% │ 58.39% │
+│ 41  │ Aerospace Eng.Design                    │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 8.48%  │ 20.74% │ 23.91% │ 24.3%  │ 24.32% │
+│ 42  │ Num. Meth. in Fluid Mech. & Heat Xfer   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 2.23%  │ 18.1%  │ 24.05% │ 24.69% │ 24.69% │ 24.69% │
+│ 43  │ Technical Elective                      │ 0.0%   │ 0.0%   │ 0.0%   │ 2.92%  │ 5.86%  │ 8.3%   │ 9.42%  │ 21.54% │ 27.14% │ 27.58% │ 27.59% │ 27.59% │
+│ 44  │ Technical Elective                      │ 0.0%   │ 0.0%   │ 0.0%   │ 1.91%  │ 3.48%  │ 5.53%  │ 6.46%  │ 16.29% │ 25.18% │ 26.17% │ 26.18% │ 26.18% │
+│ 45  │ Tier II General Ed.                     │ 0.0%   │ 0.0%   │ 0.0%   │ 0.38%  │ 1.48%  │ 3.16%  │ 3.93%  │ 10.83% │ 22.29% │ 24.55% │ 24.62% │ 24.62% │
+│ 46  │ GRAD RATE                               │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 0.0%   │ 3.58%  │ 16.32% │ 22.27% │ 22.75% │ 22.77% │

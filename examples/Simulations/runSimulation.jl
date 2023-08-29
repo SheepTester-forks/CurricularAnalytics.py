@@ -1,7 +1,7 @@
 using Pkg
-Pkg.activate("../..")
-Pkg.resolve()
-Pkg.instantiate()
+# Pkg.activate("../..")
+# Pkg.resolve()
+# Pkg.instantiate()
 using CurricularAnalytics
 
 include("CurriculumPool.jl")
