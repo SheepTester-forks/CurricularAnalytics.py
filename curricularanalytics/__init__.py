@@ -1,16 +1,16 @@
 __version__ = "1.4.0"
 
 from curricularanalytics.CurricularAnalytics import basic_statistics, homology
-from curricularanalytics.DataHandler import read_csv, write_csv
-from curricularanalytics.DataTypes.Course import (
+from curricularanalytics.data_handler import read_csv, write_csv
+from curricularanalytics.types.course import (
     AbstractCourse,
     Course,
     CourseCollection,
     course_id,
 )
-from curricularanalytics.DataTypes.CourseCatalog import CourseCatalog
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import (
+from curricularanalytics.types.course_catalog import CourseCatalog
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import (
     EdgeClass,
     Requisite,
     System,
@@ -24,22 +24,22 @@ from curricularanalytics.DataTypes.DataTypes import (
     strict_co,
     tree_edge,
 )
-from curricularanalytics.DataTypes.DegreePlan import DegreePlan, Term
-from curricularanalytics.DataTypes.DegreeRequirements import (
+from curricularanalytics.types.degree_plan import DegreePlan, Term
+from curricularanalytics.types.degree_requirements import (
     AbstractRequirement,
     CourseSet,
     Grade,
     RequirementSet,
     grade,
 )
-from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
-from curricularanalytics.DataTypes.Simulation import Simulation
-from curricularanalytics.DataTypes.Student import Student, simple_students
-from curricularanalytics.DataTypes.StudentRecord import CourseRecord, StudentRecord
-from curricularanalytics.DataTypes.TransferArticulation import TransferArticulation
+from curricularanalytics.types.learning_outcome import LearningOutcome
+from curricularanalytics.types.simulation import Simulation
+from curricularanalytics.types.student import Student, simple_students
+from curricularanalytics.types.student_record import CourseRecord, StudentRecord
+from curricularanalytics.types.transfer_articulation import TransferArticulation
 from curricularanalytics.DegreePlanAnalytics import basic_metrics, requisite_distance
-from curricularanalytics.DegreePlanCreation import bin_filling, create_degree_plan
-from curricularanalytics.GraphAlgs import (
+from curricularanalytics.degree_plan_creation import bin_filling, create_degree_plan
+from curricularanalytics.graph_algs import (
     all_paths,
     dfs,
     gad,

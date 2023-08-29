@@ -4,7 +4,7 @@ LearningOutcome data type
 
 from typing import Any, Dict, List, Tuple
 
-from curricularanalytics.DataTypes.DataTypes import Requisite
+from curricularanalytics.types.data_types import Requisite
 
 
 class LearningOutcome:

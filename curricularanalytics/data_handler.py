@@ -9,7 +9,7 @@ from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 import pandas as pd
 
-from curricularanalytics.CSVUtilities import (
+from curricularanalytics.csv_utilities import (
     course_line,
     csv_line_reader,
     find_courses,
@@ -21,11 +21,11 @@ from curricularanalytics.CSVUtilities import (
     remove_empty_lines,
     write_learning_outcomes,
 )
-from curricularanalytics.DataTypes.Course import Course
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import quarter, semester
-from curricularanalytics.DataTypes.DegreePlan import DegreePlan, Term
-from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
+from curricularanalytics.types.course import Course
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import quarter, semester
+from curricularanalytics.types.degree_plan import DegreePlan, Term
+from curricularanalytics.types.learning_outcome import LearningOutcome
 
 HeaderKey = Literal[
     "Curriculum",

@@ -2,10 +2,10 @@ from contextlib import redirect_stdout
 from io import StringIO
 import unittest
 
-from curricularanalytics.DataTypes.Course import Course
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import co, pre, strict_co
-from curricularanalytics.DataTypes.DegreePlan import DegreePlan, Term
+from curricularanalytics.types.course import Course
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import co, pre, strict_co
+from curricularanalytics.types.degree_plan import DegreePlan, Term
 from curricularanalytics.DegreePlanAnalytics import (
     basic_metrics,
     plan_requisite_distance,

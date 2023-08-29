@@ -4,11 +4,11 @@ from typing import Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import pandas as pd
 
-from curricularanalytics.DataTypes.Course import AbstractCourse, Course
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import Requisite, co, pre, strict_co
-from curricularanalytics.DataTypes.DegreePlan import Term
-from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
+from curricularanalytics.types.course import AbstractCourse, Course
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import Requisite, co, pre, strict_co
+from curricularanalytics.types.degree_plan import Term
+from curricularanalytics.types.learning_outcome import LearningOutcome
 
 
 def remove_empty_lines(file_path: str) -> str:

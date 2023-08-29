@@ -32,14 +32,14 @@ from typing import (
 
 import networkx as nx
 
-from curricularanalytics.DataTypes.Course import (
+from curricularanalytics.types.course import (
     AbstractCourse,
     Course,
     MatchCriterion,
     course_id,
     write_course_names,
 )
-from curricularanalytics.DataTypes.DataTypes import (
+from curricularanalytics.types.data_types import (
     System,
     belong_to,
     c_to_c,
@@ -51,8 +51,8 @@ from curricularanalytics.DataTypes.DataTypes import (
     semester,
     strict_co,
 )
-from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
-from curricularanalytics.GraphAlgs import all_paths, longest_paths, reachable_from
+from curricularanalytics.types.learning_outcome import LearningOutcome
+from curricularanalytics.graph_algs import all_paths, longest_paths, reachable_from
 
 
 class BasicMetrics(NamedTuple):

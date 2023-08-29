@@ -1,23 +1,23 @@
 from datetime import date, timedelta
 from typing import List
 import unittest
-from curricularanalytics.DataHandler import read_csv
-from curricularanalytics.DataTypes.Course import Course, CourseCollection, course_id
-from curricularanalytics.DataTypes.CourseCatalog import CourseCatalog
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import co, pre, semester
-from curricularanalytics.DataTypes.DegreeRequirements import (
+from curricularanalytics.data_handler import read_csv
+from curricularanalytics.types.course import Course, CourseCollection, course_id
+from curricularanalytics.types.course_catalog import CourseCatalog
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import co, pre, semester
+from curricularanalytics.types.degree_requirements import (
     AbstractRequirement,
     CourseSet,
     RequirementSet,
     from_grade,
     grade,
 )
-from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
-from curricularanalytics.DataTypes.Simulation import Simulation
-from curricularanalytics.DataTypes.Student import Student, simple_students
-from curricularanalytics.DataTypes.StudentRecord import CourseRecord, StudentRecord
-from curricularanalytics.DataTypes.TransferArticulation import TransferArticulation
+from curricularanalytics.types.learning_outcome import LearningOutcome
+from curricularanalytics.types.simulation import Simulation
+from curricularanalytics.types.student import Student, simple_students
+from curricularanalytics.types.student_record import CourseRecord, StudentRecord
+from curricularanalytics.types.transfer_articulation import TransferArticulation
 
 from tests.test_degree_plan import A, B, C, D, E, F, G, H, curric, dp
 

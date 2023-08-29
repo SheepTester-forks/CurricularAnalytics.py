@@ -4,10 +4,10 @@ from typing import List, Literal, Optional, Protocol, Union
 
 from networkx import has_path
 
-from curricularanalytics.DataTypes.Course import AbstractCourse, Course
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import pre, strict_co
-from curricularanalytics.DataTypes.DegreePlan import DegreePlan, Term
+from curricularanalytics.types.course import AbstractCourse, Course
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import pre, strict_co
+from curricularanalytics.types.degree_plan import DegreePlan, Term
 
 
 class CreateTerms(Protocol):

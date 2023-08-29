@@ -1,9 +1,9 @@
 import unittest
 
-from curricularanalytics.DataTypes.Course import Course
-from curricularanalytics.DataTypes.Curriculum import Curriculum
-from curricularanalytics.DataTypes.DataTypes import pre, strict_co
-from curricularanalytics.DegreePlanCreation import bin_filling, create_degree_plan
+from curricularanalytics.types.course import Course
+from curricularanalytics.types.curriculum import Curriculum
+from curricularanalytics.types.data_types import pre, strict_co
+from curricularanalytics.degree_plan_creation import bin_filling, create_degree_plan
 
 
 class DegreePlanCreationTests(unittest.TestCase):

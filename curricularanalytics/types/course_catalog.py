@@ -6,7 +6,7 @@ Stores the collection of courses available at an institution.
 from datetime import date
 from typing import Dict, List, Tuple
 
-from curricularanalytics.DataTypes.Course import Course, course_id
+from curricularanalytics.types.course import Course, course_id
 
 
 class CourseCatalog:
