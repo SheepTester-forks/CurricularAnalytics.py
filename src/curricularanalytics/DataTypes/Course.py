@@ -97,7 +97,7 @@ class AbstractCourse(ABC):
         - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
         """
         for requisite_course, requisite_type in requisites:
-            self.requisites[requisite_course.id] = requisite_type
+            self.add_requisite(requisite_course, requisite_type)
 
     def delete_requisite(
         self,
@@ -203,7 +203,6 @@ class Course(AbstractCourse):
         id: int = 0,
         passrate: float = 0.5,
     ) -> None:
-        "Constructor"
         self.name = name
         self.credit_hours = credit_hours
         self.prefix = prefix

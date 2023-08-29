@@ -12,9 +12,6 @@ class Simulation:
     course_attempt_limit: int
     "The number of times that a course is allowed to take"
 
-    # prediction_model: Module
-    # "Module that implements the model for predicting student's performance in courses"
-
     num_students: int
     "The number of students in the simulation"
     enrolled_students: List[Student]

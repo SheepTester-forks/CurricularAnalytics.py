@@ -81,8 +81,8 @@ class DataTypesTests(unittest.TestCase):
         lo4 = LearningOutcome(
             "Test learning outcome #1", "students will demonstrate ability to do #3", 7
         )
-        lo2.add_lo_requisite(lo1, pre)
-        lo4.add_lo_requisites([lo2, lo3], [pre, co])
+        lo2.add_requisite(lo1, pre)
+        lo4.add_requisites([lo2, lo3], [pre, co])
         self.assertEqual(len(lo1.requisites), 0)
         self.assertEqual(len(lo2.requisites), 1)
         self.assertEqual(len(lo3.requisites), 0)

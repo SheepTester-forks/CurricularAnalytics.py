@@ -161,24 +161,19 @@ class CourseSet(AbstractRequirement):
 
 class RequirementSet(AbstractRequirement):
     """
-    The `RequirementSet` data type is used to represent a collection of requirements. To instantiate a `RequirementSet` use:
+    The `RequirementSet` data type is used to represent a collection of requirements.
 
-        RequirementSet(name, credit_hours, requirements, description)
+    Args:
+        name: The name of the degree requirement set.
+        credit_hours: The number of credit hours required in order to satisfy the requirement set.
+        requirements: The course sets or requirement sets that comprise the requirement set.
+        description: The description of the requirement set.
+        satisfy: The number of requirements in the set that must be satisfied. Default is 0, meaning all.
 
-    # Arguments
-    Required:
-    - `name:str` : the name of the degree requirement set.
-    - `credit_hours:Real` : the number of credit hours required in order to satisfy the requirement set.
-    - `requirements:Array{AbstractRequirement}` : the course sets or requirement sets that comprise the requirement set.
-    Keyword:
-    - `description:str` : the description of the requirement set.
-    - `satisfy:int` : the number of requirements in the set that must be satisfied.  Default is all.
+    Examples
+        >>> RequirementSet("General Education Core", 30, requirements)
 
-    # Examples:
-    ```julia-repl
-    julia> RequirementSet("General Education Core", 30, requirements)
-    ```
-    where `requirements` is an array of `CourseSet` and/or `RequirementSet` objects.
+        where `requirements` is an array of `CourseSet` and/or `RequirementSet` objects.
     """
 
     id: int
@@ -203,7 +198,6 @@ class RequirementSet(AbstractRequirement):
         description: str = "",
         satisfy: int = 0,
     ) -> None:
-        "Constructor"
         self.name = name
         self.description = description
         self.credit_hours = credit_hours

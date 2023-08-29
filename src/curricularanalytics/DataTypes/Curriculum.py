@@ -525,8 +525,6 @@ class Curriculum:
     @cached_property
     def complexity(self) -> Tuple[float, Dict[int, float]]:
         r"""
-            complexity(c:Curriculum, course:Int)
-
         The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)``
         is defined as:
 

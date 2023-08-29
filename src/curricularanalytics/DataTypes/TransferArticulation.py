@@ -1,10 +1,11 @@
+from datetime import date
 from typing import Any, Dict, List, Optional, Tuple
 
 from curricularanalytics.DataTypes.CourseCatalog import CourseCatalog
 
 
 class TransferArticulation:
-    "Transfer articulation map for a home (recieving xfer) institution"
+    "Transfer articulation map for a home (recieving transfer) institution"
     name: str
     "Name of the transfer articulation data structure"
     institution: str
@@ -16,7 +17,7 @@ class TransferArticulation:
     home_catalog: CourseCatalog
     "Course catalog of recieving institution"
     transfer_map: Dict[Tuple[int, int], List[int]]
-    "Dictionary in ((xfer_catalog_id, xfer_course_id), array of home_course_ids) format"
+    "Dictionary in ((transfer_catalog_id, transfer_course_id), array of home_course_ids) format"
 
     def __init__(
         self,
@@ -25,9 +26,8 @@ class TransferArticulation:
         home_catalog: CourseCatalog,
         transfer_catalogs: Optional[Dict[int, CourseCatalog]] = None,
         transfer_map: Optional[Dict[Tuple[int, int], List[int]]] = None,
-        date_range: Tuple[Any, ...] = (),
+        date_range: Tuple[date, date] = (date.min, date.max),
     ) -> None:
-        "Constructor"
         self.name = name
         self.institution = institution
         self.date_range = date_range
@@ -46,9 +46,7 @@ class TransferArticulation:
         transfer_course_id: int,
     ) -> None:
         "A single transfer course may articulate to more than one course at the home institution"
-        self.transfer_map[transfer_catalog_id, transfer_course_id] = []
-        for id in home_course_ids:
-            self.transfer_map[transfer_catalog_id, transfer_course_id].append(id)
+        self.transfer_map[transfer_catalog_id, transfer_course_id] = [*home_course_ids]
 
     def transfer_equiv(
         self, transfer_catalog_id: int, transfer_course_id: int
@@ -57,5 +55,4 @@ class TransferArticulation:
         Find the course equivalency at a home institution of a course being transfered from another institution
         returns transfer equivalent course, or nothing if there is no transfer equivalency
         """
-        if (transfer_catalog_id, transfer_course_id) in self.transfer_map:
-            return self.transfer_map[transfer_catalog_id, transfer_course_id]
+        return self.transfer_map.get((transfer_catalog_id, transfer_course_id))

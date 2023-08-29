@@ -1,23 +1,7 @@
-# ==============================
-# CSV Read / Write Functionality
-# ==============================
-
 """
-    read_csv(file_path:AbstractString)
-
-Read (i.e., deserialize) a CSV file containing either a curriculum or a degree plan, and returns a corresponding
-`Curriculum` or `DegreePlan` data object.  The required format for curriculum or degree plan CSV files is
-described in [File Format](@ref).
-
-# Arguments
-- `file_path:AbstractString` : the relative or absolute path to the CSV file.
-
-# Examples:
-```julia-repl
-julia> c = read_csv("./mydata/UBW_curric.csv")
-julia> dp = read_csv("./mydata/UBW_plan.csv")
-```
+CSV Read / Write Functionality
 """
+
 import os
 from collections import defaultdict
 from io import StringIO, TextIOWrapper
@@ -84,6 +68,18 @@ def read_csv(
     DegreePlan,
     Tuple[List[Term], List[Course], List[Course], Curriculum, str, List[Course]],
 ]:
+    """
+    Read (i.e., deserialize) a CSV file containing either a curriculum or a degree plan, and returns a corresponding
+    `Curriculum` or `DegreePlan` data object.  The required format for curriculum or degree plan CSV files is
+    described in [File Format](@ref).
+
+    Args:
+        file_path: The relative or absolute path to the CSV file.
+
+    Examples:
+        >>> c = read_csv("./mydata/UBW_curric.csv")
+        >>> dp = read_csv("./mydata/UBW_plan.csv")
+    """
     file_path = remove_empty_lines(raw_file_path)
     header_fields: Dict[HeaderKey, str] = {}
     rows_read: int = 0
@@ -354,20 +350,15 @@ def write_csv_content(
     # Define dict to store all course learning outcomes
     all_course_lo: Dict[int, List[LearningOutcome]] = {}
 
-    # if metrics is true ensure that all values are present before writing courses
-    if metrics:
-        curric.complexity()
-        curric.blocking_factor()
-        curric.delay_factor()
-        curric.centrality()
-
     # write courses (and additional courses for degree plan)
     if isinstance(program, DegreePlan):
         # Iterate through each term and each course in the term and write them to the degree plan
         for term_id, term in enumerate(program.terms, 1):
             for course in term.courses:
                 if not find_courses(program.additional_courses, course.id):
-                    csv_file.write(course_line(course, term_id, metrics=metrics))
+                    csv_file.write(
+                        course_line(curric, course, term_id, metrics=metrics)
+                    )
         # Write the additional courses section of the CSV
         csv_file.write("\nAdditional Courses,,,,,,,,,,")
         csv_file.write(course_header)
@@ -377,7 +368,9 @@ def write_csv_content(
             for course in term.courses:
                 # Check if the current course is an additional course, if so, write it here
                 if find_courses(program.additional_courses, course.id):
-                    csv_file.write(course_line(course, term_id, metrics=metrics))
+                    csv_file.write(
+                        course_line(curric, course, term_id, metrics=metrics)
+                    )
                 # Check if the current course has learning outcomes, if so store them
                 if course.learning_outcomes:
                     all_course_lo[course.id] = course.learning_outcomes
@@ -385,7 +378,7 @@ def write_csv_content(
         # Iterate through each course in the curriculum
         for course in curric.courses:
             # Write the current course to the CSV
-            csv_file.write(course_line(course, metrics=metrics))
+            csv_file.write(course_line(curric, course, metrics=metrics))
             # Check if the course has learning outcomes, if it does store them
             if course.learning_outcomes:
                 all_course_lo[course.id] = course.learning_outcomes

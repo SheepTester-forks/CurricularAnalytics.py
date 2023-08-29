@@ -11,19 +11,13 @@ from curricularanalytics.DataTypes.DegreePlan import Term
 from curricularanalytics.DataTypes.LearningOutcome import LearningOutcome
 
 
-def readfile(file_path: str) -> List[str]:
-    with open(file_path) as f:
-        return f.read().splitlines()
-
-
 def remove_empty_lines(file_path: str) -> str:
     if not file_path.endswith(".csv"):
         raise ValueError("Input is not a csv file")
     temp_file: str = file_path[:-4] + "_temp.csv"
-    file: List[str] = readfile(file_path)
-    with open(temp_file, "w") as f:
+    with open(temp_file, "w") as f, open(file_path) as file:
         new_file: str = ""
-        for line in file:
+        for line in file.read().splitlines():
             if line and not line.replace('"', "").startswith("#"):
                 new_file = new_file + line + "\n"
         if new_file:
@@ -46,41 +40,35 @@ def _course_reqs(course: AbstractCourse, requisite: Requisite) -> str:
 
 
 def course_line(
-    course: AbstractCourse, term_id: Optional[int] = None, *, metrics: bool = False
+    curriculum: Curriculum,
+    course: AbstractCourse,
+    term_id: Optional[int] = None,
+    *,
+    metrics: bool = False,
 ) -> str:
     prefix_num: str = (
         f'"{course.prefix}","{course.num}"' if isinstance(course, Course) else ","
     )
-    c_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{course.credit_hours},"{course.institution}","{course.canonical_name}"'
+    course_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{course.credit_hours},"{course.institution}","{course.canonical_name}"'
     if term_id is not None:
-        c_line += f",{term_id}"
+        course_line += f",{term_id}"
     if metrics:
-        # protect against missing metrics values in course
-        if (
-            course.metrics["complexity"] == -1
-            or course.metrics["blocking factor"] == -1
-            or course.metrics["delay factor"] == -1
-            or course.metrics["centrality"] == -1
-        ):
-            raise KeyError(
-                "Cannot call course_line(metrics=True) if the curriculum's courses do not have complexity, blocking factor, delay factor, and centrality values stored in their metrics dictionary."
-            )
-        c_line += f'{course.metrics["complexity"]},{course.metrics["blocking factor"]},{course.metrics["delay factor"]},{course.metrics["centrality"]}'
-    return c_line
+        course_line += f"{curriculum.course_complexity(course)},{curriculum.course_blocking_factor(course)},{curriculum.course_delay_factor(course)},{curriculum.course_centrality(course)}"
+    return course_line
 
 
 def csv_line_reader(line: str, delimeter: str = ",") -> List[str]:
     quotes: bool = False
     result: List[str] = []
     item: str = ""
-    for ch in line:
-        if ch == '"':
+    for char in line:
+        if char == '"':
             quotes = not quotes
-        elif ch == delimeter and not quotes:
+        elif char == delimeter and not quotes:
             result.append(item)
             item = ""
         else:
-            item += ch
+            item += char
     if item:
         result.append(item)
     return result
@@ -195,7 +183,7 @@ def generate_course_lo(
         if reqs:
             for req in reqs.split(";"):
                 # adds all requisite courses for the learning outcome as prerequisites
-                lo_dict[lo_ID].add_lo_requisite(lo_dict[int(req)], pre)
+                lo_dict[lo_ID].add_requisite(lo_dict[int(req)], pre)
     lo_Course: Dict[int, List[LearningOutcome]] = {}
     for _, row in df_learning_outcomes.iterrows():
         c_ID: int = int(row["Course ID"])

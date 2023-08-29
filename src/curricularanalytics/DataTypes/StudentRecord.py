@@ -14,7 +14,6 @@ class CourseRecord:
     "term course was attempted"
 
     def __init__(self, course: Course, grade: Grade, term: str = "") -> None:
-        "Constructor"
         self.course = course
         self.grade = grade
         self.term = term
@@ -43,7 +42,6 @@ class StudentRecord:
         middle_initial: str,
         transcript: List[CourseRecord],
     ) -> None:
-        "Constructor"
         self.id = id
         self.first_name = first_name
         self.last_name = last_name

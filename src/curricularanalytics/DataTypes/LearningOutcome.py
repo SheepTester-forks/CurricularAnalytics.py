@@ -1,6 +1,8 @@
-##############################################################
-# LearningOutcome data type
-from typing import Any, Dict, List
+"""
+LearningOutcome data type
+"""
+
+from typing import Any, Dict, List, Tuple
 
 from curricularanalytics.DataTypes.DataTypes import Requisite
 
@@ -8,19 +10,15 @@ from curricularanalytics.DataTypes.DataTypes import Requisite
 class LearningOutcome:
     """
     The `LearningOutcome` data type is used to associate a set of learning outcomes with
-    a course or a curriculum (i.e., degree program). To instantiate a `LearningOutcome` use:
+    a course or a curriculum (i.e., degree program).
 
-        LearningOutcome(name, description, hours)
+    Args:
+        name: The name of the learning outcome.
+        description: Detailed description of the learning outcome.
+        hours: Number of class (contact) hours needed to attain the learning outcome.
 
-    # Arguments
-    - `name:str` : the name of the learning outcome.
-    - `description:str` : detailed description of the learning outcome.
-    - `hours:int` : number of class (contact) hours needed to attain the learning outcome.
-
-    # Examples:
-    ```julia-repl
-    julia> LearningOutcome("M1", "Learner will demonstrate the ability to ...", 12)
-    ```
+    Examples:
+        >>> LearningOutcome("M1", "Learner will demonstrate the ability to ...", 12)
     """
 
     id: int
@@ -53,21 +51,17 @@ class LearningOutcome:
         self.metadata = {}
         self.vertex_id = {}  # curriculum id -> vertex id
 
-    def add_lo_requisite(
+    def add_requisite(
         self, requisite_lo: "LearningOutcome", requisite_type: Requisite
     ) -> None:
         """
-        add_lo_requisite!(rlo, tlo, requisite_type)
-        Add learning outcome rlo as a requisite, of type requisite_type, for target learning outcome tlo
-        outcome tlo.
+        Add learning outcome `requisite_lo` as a requisite, of type `requisite_type`, for this learning outcome.
         """
         self.requisites[requisite_lo.id] = requisite_type
 
-    def add_lo_requisites(
+    def add_requisites(
         self,
-        requisite_lo: List["LearningOutcome"],
-        requisite_type: List[Requisite],
+        requisites: List[Tuple["LearningOutcome", Requisite]],
     ) -> None:
-        assert len(requisite_lo) == len(requisite_type)
-        for i in range(len(requisite_lo)):
-            self.requisites[requisite_lo[i].id] = requisite_type[i]
+        for requisite_lo, requisite_type in requisites:
+            self.add_requisite(requisite_lo, requisite_type)
