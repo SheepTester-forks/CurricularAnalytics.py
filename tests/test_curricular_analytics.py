@@ -21,7 +21,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         # Test isvalid_curriculum()
         errors = StringIO()
-        self.assertFalse(curric.isvalid(errors))
+        self.assertFalse(curric.is_valid(errors))
         # @test String(take!(errors)) == "\nCurriculum Cycle contains the following requisite cycles:\n(A)\n"
 
     def test_create_unsatisfiable_requisites(self) -> None:
@@ -46,13 +46,13 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         curric = Curriculum("Unsatisfiable", [a, b, c], sortby_ID=False)
         errors = StringIO()
-        self.assertFalse(curric.isvalid(errors))
+        self.assertFalse(curric.is_valid(errors))
 
     def test_big_unsatisfiable_curric(self):
         curric = read_csv("tests/big_unsatisfiable_curric.csv")
         self.assertIsInstance(curric, Curriculum)
         assert isinstance(curric, Curriculum)
-        self.assertFalse(curric.isvalid())
+        self.assertFalse(curric.is_valid())
 
     def test_extraneous_prerequisite(self) -> None:
         """
@@ -173,7 +173,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         # Test isvalid_curriculum() and extraneous_requisites()
         errors = StringIO()
-        self.assertTrue(curric.isvalid(errors))
+        self.assertTrue(curric.is_valid(errors))
         self.assertEqual(len(curric.extraneous_requisites()), 0)
 
         self.assertEqual(curric.delay_factor[0], 19.0)
@@ -232,7 +232,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         # Test isvalid_curriculum() and extraneous_requisites()
         errors = StringIO()
-        self.assertTrue(curric.isvalid(errors))
+        self.assertTrue(curric.is_valid(errors))
         self.assertEqual(len(curric.extraneous_requisites()), 0)
 
         # Test analytics
@@ -370,7 +370,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
 
     def test_isvalid_curriculum(self) -> None:
         errors = StringIO()
-        self.assertTrue(self.curric.isvalid(errors))
+        self.assertTrue(self.curric.is_valid(errors))
 
     def test_extraneous_requisites(self) -> None:
         self.assertEqual(len(self.curric.extraneous_requisites()), 0)

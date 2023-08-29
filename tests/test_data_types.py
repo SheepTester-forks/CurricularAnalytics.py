@@ -1,24 +1,30 @@
+import unittest
 from datetime import date, timedelta
 from typing import List
-import unittest
-from curricularanalytics.data_handler import read_csv
-from curricularanalytics.types.course import Course, CourseCollection, course_id
-from curricularanalytics.types.course_catalog import CourseCatalog
-from curricularanalytics.types.curriculum import Curriculum
-from curricularanalytics.types.data_types import co, pre, semester
-from curricularanalytics.types.degree_requirements import (
+
+from curricularanalytics import (
     AbstractRequirement,
+    Course,
+    CourseCatalog,
+    CourseCollection,
+    CourseRecord,
     CourseSet,
+    Curriculum,
+    LearningOutcome,
     RequirementSet,
+    Simulation,
+    Student,
+    StudentRecord,
+    TransferArticulation,
+    co,
+    course_id,
     from_grade,
     grade,
+    pre,
+    read_csv,
+    semester,
+    simple_students,
 )
-from curricularanalytics.types.learning_outcome import LearningOutcome
-from curricularanalytics.types.simulation import Simulation
-from curricularanalytics.types.student import Student, simple_students
-from curricularanalytics.types.student_record import CourseRecord, StudentRecord
-from curricularanalytics.types.transfer_articulation import TransferArticulation
-
 from tests.test_degree_plan import A, B, C, D, E, F, G, H, curric, dp
 
 
@@ -82,7 +88,7 @@ class DataTypesTests(unittest.TestCase):
             "Test learning outcome #1", "students will demonstrate ability to do #3", 7
         )
         lo2.add_requisite(lo1, pre)
-        lo4.add_requisites([lo2, lo3], [pre, co])
+        lo4.add_requisites([(lo2, pre), (lo3, co)])
         self.assertEqual(len(lo1.requisites), 0)
         self.assertEqual(len(lo2.requisites), 1)
         self.assertEqual(len(lo3.requisites), 0)

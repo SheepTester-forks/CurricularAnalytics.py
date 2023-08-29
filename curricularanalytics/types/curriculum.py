@@ -151,7 +151,7 @@ class Curriculum:
         )
         if warn:
             errors = StringIO()
-            if not self.isvalid(errors):
+            if not self.is_valid(errors):
                 # TODO: yellow text
                 print(
                     "WARNING: Curriculum was created, but is invalid due to requisite cycle(s):"
@@ -268,7 +268,7 @@ class Curriculum:
         return graph
 
     # Check if a curriculum graph has requisite cycles.
-    def isvalid(self, error_file: Optional[TextIO] = None) -> bool:
+    def is_valid(self, error_file: Optional[TextIO] = None) -> bool:
         """
         Tests whether or not the curriculum graph associated with the curriculum is valid, i.e.,
         whether or not it contains a requisite cycle, or requisites that cannot be satisfied.

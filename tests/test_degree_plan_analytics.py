@@ -1,16 +1,8 @@
+import unittest
 from contextlib import redirect_stdout
 from io import StringIO
-import unittest
 
-from curricularanalytics.types.course import Course
-from curricularanalytics.types.curriculum import Curriculum
-from curricularanalytics.types.data_types import co, pre, strict_co
-from curricularanalytics.types.degree_plan import DegreePlan, Term
-from curricularanalytics.DegreePlanAnalytics import (
-    basic_metrics,
-    plan_requisite_distance,
-    requisite_distance,
-)
+from curricularanalytics import Course, Curriculum, DegreePlan, Term, co, pre, strict_co
 
 r"""
 6-vertex test curriculum - valid
@@ -46,15 +38,15 @@ dp = DegreePlan("Test Plan", curric, terms)
 
 class DegreePlanAnalyticsTests(unittest.TestCase):
     def test_isvalid(self) -> None:
-        self.assertTrue(dp.isvalid_degree_plan())
+        self.assertTrue(dp.is_valid())
         dp_bad1 = DegreePlan(
             "Bad Plan 1", curric, [terms[0], terms[1]]
         )  # missing some courses
-        self.assertFalse(dp_bad1.isvalid_degree_plan())
+        self.assertFalse(dp_bad1.is_valid())
         dp_bad2 = DegreePlan(
             "Bad Plan 2", curric, [terms[1], terms[0], terms[2]]
         )  # out of order requisites
-        self.assertFalse(dp_bad2.isvalid_degree_plan())
+        self.assertFalse(dp_bad2.is_valid())
 
         self.assertEqual(dp.find_term(F), 2)
 
@@ -62,7 +54,7 @@ class DegreePlanAnalyticsTests(unittest.TestCase):
         "Test the output of print_plan()"
         read_pipe = StringIO()
         with redirect_stdout(read_pipe):
-            dp.print_plan()
+            dp.print()
         read_pipe.seek(0)
         self.assertEqual(
             read_pipe.read().splitlines()[0:17],
@@ -89,29 +81,21 @@ class DegreePlanAnalyticsTests(unittest.TestCase):
 
     def test_requisite_distance(self) -> None:
         "Test requisite_distance(plan, course) and requisite_distance(plan)"
-        self.assertEqual(requisite_distance(dp, A), 0)
-        self.assertEqual(requisite_distance(dp, B), 0)
-        self.assertEqual(requisite_distance(dp, C), 1)
-        self.assertEqual(requisite_distance(dp, D), 0)
-        self.assertEqual(requisite_distance(dp, E), 5)
-        self.assertEqual(requisite_distance(dp, F), 2)
-        self.assertEqual(
-            plan_requisite_distance(
-                dp,
-            ),
-            8,
-        )
+        self.assertEqual(dp.course_requisite_distance(A), 0)
+        self.assertEqual(dp.course_requisite_distance(B), 0)
+        self.assertEqual(dp.course_requisite_distance(C), 1)
+        self.assertEqual(dp.course_requisite_distance(D), 0)
+        self.assertEqual(dp.course_requisite_distance(E), 5)
+        self.assertEqual(dp.course_requisite_distance(F), 2)
+        self.assertEqual(dp.requisite_distance[0], 8)
 
     def test_basic_metrics(self) -> None:
         "Test basic basic_metrics(plan)"
-        basic_metrics(dp)
-        self.assertEqual(dp.metrics.get("total credit hours"), 12)
-        self.assertEqual(dp.metrics.get("avg. credits per term"), 4.0)
-        self.assertEqual(dp.metrics.get("min. credits in a term"), 3)
-        self.assertEqual(dp.metrics.get("max. credits in a term"), 5)
-        self.assertAlmostEqual(
-            dp.metrics.get("term credit hour std. dev.", -1), 0.816497, places=5
-        )
-        self.assertEqual(dp.metrics.get("number of terms"), 3)
-        self.assertEqual(dp.metrics.get("min. credit term"), 2)
-        self.assertEqual(dp.metrics.get("max. credit term"), 3)
+        self.assertEqual(dp.credit_hours, 12)
+        self.assertEqual(dp.basic_metrics.average, 4.0)
+        self.assertEqual(dp.basic_metrics.min, 3)
+        self.assertEqual(dp.basic_metrics.max, 5)
+        self.assertAlmostEqual(dp.basic_metrics.stddev, 0.816497, places=5)
+        self.assertEqual(dp.num_terms, 3)
+        self.assertEqual(dp.basic_metrics.min_term, 2)
+        self.assertEqual(dp.basic_metrics.max_term, 3)

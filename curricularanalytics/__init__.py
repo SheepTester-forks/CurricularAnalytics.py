@@ -1,12 +1,22 @@
 __version__ = "1.4.0"
 
 from .data_handler import read_csv, write_csv
-from .types.course import (
-    AbstractCourse,
-    Course,
-    CourseCollection,
-    course_id,
+from .degree_plan_creation import bin_filling, create_degree_plan
+from .graph_algs import (
+    all_paths,
+    dfs,
+    gad,
+    longest_path,
+    longest_paths,
+    reach,
+    reach_subgraph,
+    reachable_from,
+    reachable_from_subgraph,
+    reachable_to,
+    reachable_to_subgraph,
+    topological_sort,
 )
+from .types.course import AbstractCourse, Course, CourseCollection, course_id
 from .types.course_catalog import CourseCatalog
 from .types.curriculum import Curriculum
 from .types.data_types import (
@@ -29,6 +39,7 @@ from .types.degree_requirements import (
     CourseSet,
     Grade,
     RequirementSet,
+    from_grade,
     grade,
 )
 from .types.learning_outcome import LearningOutcome
@@ -36,21 +47,6 @@ from .types.simulation import Simulation
 from .types.student import Student, simple_students
 from .types.student_record import CourseRecord, StudentRecord
 from .types.transfer_articulation import TransferArticulation
-from .degree_plan_creation import bin_filling, create_degree_plan
-from .graph_algs import (
-    all_paths,
-    dfs,
-    gad,
-    longest_path,
-    longest_paths,
-    reach,
-    reach_subgraph,
-    reachable_from,
-    reachable_from_subgraph,
-    reachable_to,
-    reachable_to_subgraph,
-    topological_sort,
-)
 
 _ = (
     # AA,
@@ -119,4 +115,5 @@ _ = (
     tree_edge,
     write_csv,
     csv_stream,
+    from_grade,
 )
