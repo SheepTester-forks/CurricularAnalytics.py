@@ -1,16 +1,15 @@
 __version__ = "1.4.0"
 
-from curricularanalytics.CurricularAnalytics import basic_statistics, homology
-from curricularanalytics.data_handler import read_csv, write_csv
-from curricularanalytics.types.course import (
+from .data_handler import read_csv, write_csv
+from .types.course import (
     AbstractCourse,
     Course,
     CourseCollection,
     course_id,
 )
-from curricularanalytics.types.course_catalog import CourseCatalog
-from curricularanalytics.types.curriculum import Curriculum
-from curricularanalytics.types.data_types import (
+from .types.course_catalog import CourseCatalog
+from .types.curriculum import Curriculum
+from .types.data_types import (
     EdgeClass,
     Requisite,
     System,
@@ -24,22 +23,21 @@ from curricularanalytics.types.data_types import (
     strict_co,
     tree_edge,
 )
-from curricularanalytics.types.degree_plan import DegreePlan, Term
-from curricularanalytics.types.degree_requirements import (
+from .types.degree_plan import DegreePlan, Term
+from .types.degree_requirements import (
     AbstractRequirement,
     CourseSet,
     Grade,
     RequirementSet,
     grade,
 )
-from curricularanalytics.types.learning_outcome import LearningOutcome
-from curricularanalytics.types.simulation import Simulation
-from curricularanalytics.types.student import Student, simple_students
-from curricularanalytics.types.student_record import CourseRecord, StudentRecord
-from curricularanalytics.types.transfer_articulation import TransferArticulation
-from curricularanalytics.DegreePlanAnalytics import basic_metrics, requisite_distance
-from curricularanalytics.degree_plan_creation import bin_filling, create_degree_plan
-from curricularanalytics.graph_algs import (
+from .types.learning_outcome import LearningOutcome
+from .types.simulation import Simulation
+from .types.student import Student, simple_students
+from .types.student_record import CourseRecord, StudentRecord
+from .types.transfer_articulation import TransferArticulation
+from .degree_plan_creation import bin_filling, create_degree_plan
+from .graph_algs import (
     all_paths,
     dfs,
     gad,
@@ -54,101 +52,71 @@ from curricularanalytics.graph_algs import (
     topological_sort,
 )
 
-# print(
-#     AA,
-#     AAS,
-#     AS,
-#     AbstractCourse,
-#     AbstractRequirement,
-#     BA,
-#     BS,
-#     Course,
-#     CourseCollection,
-#     CourseCatalog,
-#     CourseRecord,
-#     CourseSet,
-#     Curriculum,
-#     DegreePlan,
-#     EdgeClass,
-#     Enrollment,
-#     Grade,
-#     LearningOutcome,
-#     PassRate,
-#     RequirementSet,
-#     Requisite,
-#     Student,
-#     StudentRecord,
-#     Simulation,
-#     System,
-#     Term,
-#     TransferArticulation,
-#     add_course,
-#     add_lo_requisite,
-#     add_requisite,
-#     add_transfer_catalog,
-#     add_transfer_course,
-#     all_paths,
-#     back_edge,
-#     basic_metrics,
-#     basic_statistics,
-#     bin_filling,
-#     blocking_factor,
-#     centrality,
-#     co,
-#     compare_curricula,
-#     convert_ids,
-#     complexity,
-#     course,
-#     course_from_id,
-#     course_from_vertex,
-#     course_id,
-#     courses_from_vertices,
-#     create_degree_plan,
-#     cross_edge,
-#     dead_ends,
-#     delay_factor,
-#     delete_requisite,
-#     dfs,
-#     extraneous_requisites,
-#     find_term,
-#     forward_edge,
-#     gad,
-#     grade,
-#     homology,
-#     is_duplicate,
-#     isvalid_curriculum,
-#     isvalid_degree_plan,
-#     longest_path,
-#     longest_paths,
-#     merge_curricula,
-#     pass_table,
-#     passrate_table,
-#     pre,
-#     print_plan,
-#     quarter,
-#     reach,
-#     reach_subgraph,
-#     reachable_from,
-#     reachable_from_subgraph,
-#     reachable_to,
-#     reachable_to_subgraph,
-#     read_csv,
-#     requisite_distance,
-#     requisite_type,
-#     semester,
-#     set_passrates,
-#     set_passrate_for_course,
-#     set_passrates_from_csv,
-#     similarity,
-#     simple_students,
-#     simulate,
-#     simulation_report,
-#     strict_co,
-#     topological_sort,
-#     total_credits,
-#     transfer_equiv,
-#     tree_edge,
-#     write_csv,
-#     knowledge_transfer,
-#     csv_stream,
-# )
+_ = (
+    # AA,
+    # AAS,
+    # AS,
+    AbstractCourse,
+    AbstractRequirement,
+    # BA,
+    # BS,
+    Course,
+    CourseCollection,
+    CourseCatalog,
+    CourseRecord,
+    CourseSet,
+    Curriculum,
+    DegreePlan,
+    EdgeClass,
+    Enrollment,
+    Grade,
+    LearningOutcome,
+    PassRate,
+    RequirementSet,
+    Requisite,
+    Student,
+    StudentRecord,
+    Simulation,
+    System,
+    Term,
+    TransferArticulation,
+    all_paths,
+    back_edge,
+    basic_metrics,
+    basic_statistics,
+    bin_filling,
+    co,
+    course_id,
+    create_degree_plan,
+    cross_edge,
+    dfs,
+    forward_edge,
+    gad,
+    grade,
+    homology,
+    longest_path,
+    longest_paths,
+    pass_table,
+    passrate_table,
+    pre,
+    quarter,
+    reach,
+    reach_subgraph,
+    reachable_from,
+    reachable_from_subgraph,
+    reachable_to,
+    reachable_to_subgraph,
+    read_csv,
+    requisite_distance,
+    semester,
+    set_passrates,
+    set_passrate_for_course,
+    set_passrates_from_csv,
+    simple_students,
+    simulation_report,
+    strict_co,
+    topological_sort,
+    tree_edge,
+    write_csv,
+    csv_stream,
+)

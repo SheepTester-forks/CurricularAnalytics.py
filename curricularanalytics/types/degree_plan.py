@@ -2,15 +2,15 @@
 Term data type
 """
 
+import math
 from functools import cached_property
 from io import StringIO
-import math
 from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
 
-from curricularanalytics.types.course import AbstractCourse
-from curricularanalytics.types.curriculum import Curriculum
-from curricularanalytics.types.data_types import pre
-from curricularanalytics.graph_algs import edge_crossings
+from ..graph_algs import edge_crossings
+from .course import AbstractCourse
+from .curriculum import Curriculum
+from .data_types import pre
 
 
 class Term:
@@ -225,7 +225,7 @@ class DegreePlan:
         raise ValueError(f"Course {course.name} is not in the degree plan")
 
     # ugly print of degree plan
-    def print_plan(self) -> None:
+    def print(self) -> None:
         """
         Ugly print out of a degree plan to the console.
         """

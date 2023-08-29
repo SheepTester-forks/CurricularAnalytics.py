@@ -10,11 +10,11 @@ A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v
 directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 
+import math
+import sys
 from functools import cached_property
 from io import StringIO
-import math
 from queue import Queue
-import sys
 from typing import (
     Any,
     Dict,
@@ -32,14 +32,15 @@ from typing import (
 
 import networkx as nx
 
-from curricularanalytics.types.course import (
+from ..graph_algs import all_paths, longest_paths, reachable_from
+from .course import (
     AbstractCourse,
     Course,
     MatchCriterion,
     course_id,
     write_course_names,
 )
-from curricularanalytics.types.data_types import (
+from .data_types import (
     System,
     belong_to,
     c_to_c,
@@ -51,8 +52,7 @@ from curricularanalytics.types.data_types import (
     semester,
     strict_co,
 )
-from curricularanalytics.types.learning_outcome import LearningOutcome
-from curricularanalytics.graph_algs import all_paths, longest_paths, reachable_from
+from .learning_outcome import LearningOutcome
 
 
 class BasicMetrics(NamedTuple):

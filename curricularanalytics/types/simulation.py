@@ -1,7 +1,7 @@
 from typing import List
 
-from curricularanalytics.types.degree_plan import DegreePlan
-from curricularanalytics.types.student import Student
+from .degree_plan import DegreePlan
+from .student import Student
 
 
 class Simulation:

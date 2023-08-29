@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any, Dict, List, Optional, Tuple
 
-from curricularanalytics.types.course_catalog import CourseCatalog
+from .course_catalog import CourseCatalog
 
 
 class TransferArticulation:

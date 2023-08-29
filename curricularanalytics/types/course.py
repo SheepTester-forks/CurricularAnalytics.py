@@ -11,8 +11,8 @@ A requirement may involve a set of courses (CourseSet), or a set of requirements
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Literal, Optional, TextIO, Tuple, TypeVar
 
-from curricularanalytics.types.data_types import Requisite
-from curricularanalytics.types.learning_outcome import LearningOutcome
+from .data_types import Requisite
+from .learning_outcome import LearningOutcome
 
 Self = TypeVar("Self", bound="AbstractCourse")
 

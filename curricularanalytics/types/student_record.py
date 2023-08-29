@@ -1,7 +1,7 @@
 from typing import List
 
-from curricularanalytics.types.course import Course
-from curricularanalytics.types.degree_requirements import Grade
+from .course import Course
+from .degree_requirements import Grade
 
 
 class CourseRecord:

@@ -5,13 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, Protocol, Tuple, TypeVar
 
 import networkx as nx
 
-from curricularanalytics.types.data_types import (
-    EdgeClass,
-    back_edge,
-    cross_edge,
-    forward_edge,
-    tree_edge,
-)
+from .types.data_types import EdgeClass, back_edge, cross_edge, forward_edge, tree_edge
 
 
 class HashComparable(Protocol):

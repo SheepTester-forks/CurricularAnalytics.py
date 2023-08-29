@@ -9,7 +9,7 @@ from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 import pandas as pd
 
-from curricularanalytics.csv_utilities import (
+from .csv_utilities import (
     course_line,
     csv_line_reader,
     find_courses,
@@ -21,11 +21,11 @@ from curricularanalytics.csv_utilities import (
     remove_empty_lines,
     write_learning_outcomes,
 )
-from curricularanalytics.types.course import Course
-from curricularanalytics.types.curriculum import Curriculum
-from curricularanalytics.types.data_types import quarter, semester
-from curricularanalytics.types.degree_plan import DegreePlan, Term
-from curricularanalytics.types.learning_outcome import LearningOutcome
+from .types.course import Course
+from .types.curriculum import Curriculum
+from .types.data_types import quarter, semester
+from .types.degree_plan import DegreePlan, Term
+from .types.learning_outcome import LearningOutcome
 
 HeaderKey = Literal[
     "Curriculum",
@@ -78,7 +78,9 @@ def read_csv(
 
     Examples:
         >>> c = read_csv("./mydata/UBW_curric.csv")
+        >>> assert isinstance(c, Curriculum)
         >>> dp = read_csv("./mydata/UBW_plan.csv")
+        >>> assert isinstance(dp, DegreePlan)
     """
     file_path = remove_empty_lines(raw_file_path)
     header_fields: Dict[HeaderKey, str] = {}
