@@ -1,0 +1,19 @@
+Curriculum University of Houston EE Program is valid
+  delay factor = (301.0, [10.0, 1.0, 1.0, 1.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 10.0, 12.0, 12.0, 12.0, 7.0, 12.0, 2.0, 1.0, 1.0, 10.0, 11.0, 12.0, 12.0, 2.0, 11.0, 12.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.0, 12.0, 6.0, 12.0, 4.0, 7.0, 3.0, 10.0, 12.0, 1.0, 12.0, 12.0, 12.0, 11.0])
+  blocking factor = (208, [4, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 14, 5, 0, 20, 6, 1, 1, 0, 0, 15, 4, 3, 12, 0, 2, 15, 0, 0, 0, 0, 0, 0, 4, 16, 2, 13, 0, 5, 2, 2, 14, 0, 8, 2, 23, 2])
+  centrality factor = (5717, [152, 0, 0, 0, 93, 0, 0, 0, 0, 0, 0, 0, 0, 160, 295, 0, 607, 0, 779, 0, 0, 0, 85, 159, 359, 677, 0, 77, 292, 0, 0, 0, 0, 0, 0, 154, 217, 16, 250, 0, 13, 0, 76, 426, 0, 393, 266, 0, 171])
+  curricular complexity = (509.0, Number[14.0, 1.0, 1.0, 1.0, 23.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 24.0, 17.0, 12.0, 32.0, 13.0, 13.0, 3.0, 1.0, 1.0, 25.0, 15.0, 15.0, 24.0, 2.0, 13.0, 27.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 15.0, 28.0, 8.0, 25.0, 4.0, 12.0, 5.0, 12.0, 26.0, 1.0, 20.0, 14.0, 35.0, 13.0])
+Degree plan University of Houston EE Program 4-year Plan is not valid:
+
+-Course Concentration Elective is listed multiple times in degree plan
+-Course ECE Elective is listed multiple times in degree plan
+-Course Elective Lab is listed multiple times in degree plan
+-Course Concentration Elective is listed multiple times in degree plan
+-Course Concentration Elective is listed multiple times in degree plan
+-Course Elective Lab is listed multiple times in degree plan
+-Course Concentration Elective is listed multiple times in degree plan
+-Course Concentration Elective is listed multiple times in degree plan
+-Course Concentration Elective is listed multiple times in degree plan
+-Course Elective Lab is listed multiple times in degree plan
+Diplaying degree plan for debugging purposes...
+Dict{String, Any}("total credit hours" => 129, "avg. credits per term" => 16.125, "min. credits in a term" => 15, "term credit hour std. dev." => 0.5994789404140899, "number of terms" => 8, "max. credits in a term" => 17, "min. credit term" => 1, "max. credit term" => 2)

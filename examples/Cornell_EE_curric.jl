@@ -100,4 +100,4 @@ terms[8] = Term([c[35],c[36],c[37],c[38]])
 dp = DegreePlan("Cornell University EE Program 4-year Plan", curric, terms)
 
 basic_metrics(dp)
-dp.metrics
+print(dp.metrics)

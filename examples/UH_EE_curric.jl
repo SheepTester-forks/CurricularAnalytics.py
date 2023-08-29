@@ -147,7 +147,7 @@ if isvalid_curriculum(curric, errors)
     end
 
     basic_metrics(dp)
-    dp.metrics
+    print(dp.metrics)
 
 else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")

@@ -47,4 +47,4 @@ terms[3] = Term([c[4]])
 dp = DegreePlan("Example Curricula c2", curric, terms)
 
 basic_metrics(dp)
-dp.metrics
+print(dp.metrics)

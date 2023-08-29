@@ -1,5 +1,5 @@
-## Curriculum assoicated with curricula c1, page 9, Heileman, G. L., Slim, A., Hickman, M.,  and Abdallah, C. T. (2018). 
-##Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical Innovations 
+## Curriculum assoicated with curricula c1, page 9, Heileman, G. L., Slim, A., Hickman, M.,  and Abdallah, C. T. (2018).
+##Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical Innovations
 ##https://arxiv.org/pdf/1811.09676.pdf
 
 using CurricularAnalytics
@@ -47,4 +47,4 @@ terms[3] = Term([c[4]])
 dp = DegreePlan("Example Curricula c1", curric, terms)
 
 basic_metrics(dp)
-dp.metrics
+print(dp.metrics)
