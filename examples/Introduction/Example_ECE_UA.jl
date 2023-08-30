@@ -570,16 +570,16 @@ add_requisite!(c[16],c[33],pre)
 add_requisite!(c[33],c[34],pre)
 
 # Create curriculum based on previous courses and learning_outcomes
-curric = Curriculum("Example ECE Department at UA ", c, learning_outcomes = l)
+curric = Curriculum("Example ECE Department at UA ", c, learning_outcomes = l, sortby_ID=false)
 
 mg = curric.course_learning_outcome_graph
 g = curric.graph
 g = curric.learning_outcome_graph
 
-print(curric.courses)
-print(curric.learning_outcomes)
-print(curric.graph)
-# print(curric.lo_graph)
+println(curric.courses)
+println(curric.learning_outcomes)
+println(curric.graph)
+# println(curric.lo_graph)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -599,4 +599,4 @@ terms[2] = Term([c[2],c[3]])
 terms[3] = Term([c[4]])
 dp = DegreePlan("Example ECE Department at UA", curric, terms)
 basic_metrics(dp)
-print(dp.metrics)
+println(dp.metrics)

@@ -1,6 +1,6 @@
 Curriculum Example Curricula C2 is valid
   delay factor = (12.0, [3.0, 3.0, 3.0, 3.0])
-  blocking factor = (5, [2, 1, 0, 2])
-  centrality factor = (6, [0, 6, 0, 0])
-  curricular complexity = (17.0, Number[5.0, 4.0, 3.0, 5.0])
+  blocking factor = (5, [2, 2, 1, 0])
+  centrality factor = (6, [0, 0, 6, 0])
+  curricular complexity = (17.0, Number[5.0, 5.0, 4.0, 3.0])
 Dict{String, Any}("total credit hours" => 12, "avg. credits per term" => 4.0, "min. credits in a term" => 3, "term credit hour std. dev." => 1.4142135623730951, "number of terms" => 3, "max. credits in a term" => 6, "min. credit term" => 2, "max. credit term" => 1)

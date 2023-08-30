@@ -19,7 +19,7 @@ function Example_C1()
     # term 2
     add_requisite!(c[2],c[4],pre)
 
-    curric = Curriculum("Example Curricula c1", c)
+    curric = Curriculum("Example Curricula c1", c, sortby_ID=false)
 
     errors = IOBuffer()
     if isvalid_curriculum(curric, errors)
@@ -72,7 +72,7 @@ function Example_C2()
     # term 3
     add_requisite!(c[3],c[4],pre)
 
-    curric = Curriculum("Example Curricula C2", c)
+    curric = Curriculum("Example Curricula C2", c, sortby_ID=false)
 
     errors = IOBuffer()
     if isvalid_curriculum(curric, errors)
@@ -217,7 +217,7 @@ function UH_EE_curric()
     add_requisite!(c[37],c[38],co)
     add_requisite!(c[38],c[44],pre)
 
-    curric = Curriculum("University of Houston EE Program", c)
+    curric = Curriculum("University of Houston EE Program", c, sortby_ID=false)
 
     errors = IOBuffer()
     if isvalid_curriculum(curric, errors)
@@ -369,7 +369,7 @@ function UKY_EE_curric()
     # term 7
     add_requisite!(c[33],c[38],pre)
 
-    curric = Curriculum("University of Kentucky EE Program", c)
+    curric = Curriculum("University of Kentucky EE Program", c, sortby_ID=false)
 
     errors = IOBuffer()
     if isvalid_curriculum(curric, errors)

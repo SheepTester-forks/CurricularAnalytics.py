@@ -114,7 +114,7 @@ c[43] = Course("UK Core - Statistical Inferential Reasoning", 3)
 # term 7
 add_requisite!(c[33],c[38],pre)
 
-curric = Curriculum("University of Kentucky EE Program", c)
+curric = Curriculum("University of Kentucky EE Program", c, sortby_ID=false)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -146,7 +146,7 @@ if isvalid_curriculum(curric, errors)
     end
 
     basic_metrics(dp)
-    print(dp.metrics)
+    println(dp.metrics)
 
 else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")

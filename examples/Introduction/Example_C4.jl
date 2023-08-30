@@ -143,9 +143,9 @@ add_requisite!(c[6],c[7],pre)
 
 # Create a curriculum based on previous courses and learning_outcomes
 # curric = Curriculum("Example Curricula c4", c)
-curric = Curriculum("Example Curricula c4", c, learning_outcomes = l)
-print(curric.courses)
-print(curric.learning_outcomes)
-print(curric.graph)
-# print(curric.lo_graph)
+curric = Curriculum("Example Curricula c4", c, learning_outcomes = l, sortby_ID=false)
+println(curric.courses)
+println(curric.learning_outcomes)
+println(curric.graph)
+# println(curric.lo_graph)
 

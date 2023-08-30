@@ -73,7 +73,7 @@ add_requisite!(c[14],c[24],pre)
 add_requisite!(c[17],c[19],co)
 add_requisite!(c[19],c[24],pre)
 
-curric = Curriculum("Cornell University EE Program", c)
+curric = Curriculum("Cornell University EE Program", c, sortby_ID=false)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -100,4 +100,4 @@ terms[8] = Term([c[35],c[36],c[37],c[38]])
 dp = DegreePlan("Cornell University EE Program 4-year Plan", curric, terms)
 
 basic_metrics(dp)
-print(dp.metrics)
+println(dp.metrics)

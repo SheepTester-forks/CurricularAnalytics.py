@@ -24,7 +24,7 @@ add_requisite!(c[2],c[3],pre)
 # term 3
 add_requisite!(c[3],c[4],pre)
 
-curric = Curriculum("Example Curricula C2", c)
+curric = Curriculum("Example Curricula C2", c, sortby_ID=false)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -47,4 +47,4 @@ terms[3] = Term([c[4]])
 dp = DegreePlan("Example Curricula c2", curric, terms)
 
 basic_metrics(dp)
-print(dp.metrics)
+println(dp.metrics)
