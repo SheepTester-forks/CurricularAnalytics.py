@@ -145,9 +145,10 @@ if isvalid_curriculum(curric, errors)
         println("\nDiplaying degree plan for debugging purposes...")
     end
 
+    basic_metrics(dp)
+    print(dp.metrics)
+
 else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")
     print(String(take!(errors)))
 end
-
-
