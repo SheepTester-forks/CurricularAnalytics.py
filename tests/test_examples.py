@@ -9,6 +9,7 @@ from curricularanalytics import (
     Term,
     pre,
 )
+from curricularanalytics.data_handler import read_csv
 from curricularanalytics.types.data_types import co, strict_co
 
 
@@ -713,6 +714,17 @@ class ExampleTests(unittest.TestCase):
         self.assertEqual(dp.basic_metrics.min_term, 7)
         self.assertEqual(dp.basic_metrics.max_term, 1)
 
+    def _assert_uh_ee_dp(self, dp: DegreePlan):
+        self.assertTrue(dp.is_valid())
+        self.assertEqual(dp.credit_hours, 129)
+        self.assertEqual(dp.basic_metrics.average, 16.125)
+        self.assertEqual(dp.basic_metrics.min, 15)
+        self.assertAlmostEqual(dp.basic_metrics.stddev, 0.5994789404140899, places=5)
+        self.assertEqual(dp.num_terms, 8)
+        self.assertEqual(dp.basic_metrics.max, 17)
+        self.assertEqual(dp.basic_metrics.min_term, 1)
+        self.assertEqual(dp.basic_metrics.max_term, 2)
+
     def test_uh_ee(self):
         """
         Curriculum assoicated with the University of Houston EE program in 2018
@@ -1070,139 +1082,14 @@ class ExampleTests(unittest.TestCase):
         ]
 
         dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+        self._assert_uh_ee_dp(dp)
 
-        self.assertTrue(dp.is_valid())
-        self.assertEqual(dp.credit_hours, 129)
-        self.assertEqual(dp.basic_metrics.average, 16.125)
-        self.assertEqual(dp.basic_metrics.min, 15)
-        self.assertAlmostEqual(dp.basic_metrics.stddev, 0.5994789404140899, places=5)
-        self.assertEqual(dp.num_terms, 8)
-        self.assertEqual(dp.basic_metrics.max, 17)
-        self.assertEqual(dp.basic_metrics.min_term, 1)
-        self.assertEqual(dp.basic_metrics.max_term, 2)
+    def test_uh_ee_csv(self):
+        dp = read_csv("./examples/UH_EE_plan.csv")
+        assert isinstance(dp, DegreePlan)
+        self._assert_uh_ee_dp( dp)
 
-    def uky_ee_curric(self):
-        """
-        Curriculum assoicated with the University of Univ. of Kentucky EE program in 2018
-        Revised OCT272018
-        course requisties can be found at: http://www.uky.edu/registrar/2018-2019-courses
-        """
-        # create the courses
-        c: List[AbstractCourse] = [
-            Course("Index 0 course (ignored)", 0),
-            # term 1
-            Course("Engineering Exploration I", 1, prefix="EGR", num="101"),
-            Course("Fundamentals of Engineering Computing", 2, prefix="EGR", num="102"),
-            Course("General University Physics", 4, prefix="PHY", num="231"),
-            Course("General University Physics Lab", 1, prefix="PHY", num="241"),
-            Course("Composition and Communication I", 3, prefix="CIS/WRD", num="110"),
-            Course("Calculus I", 4, prefix="MA", num="113"),
-            # term 2
-            Course("Engineering Exploration II", 2, prefix="EGR", num="103"),
-            Course("Composition and Communication II", 3, prefix="CIS/WRD", num="111"),
-            Course("Calculus II", 4, prefix="MA", num="114"),
-            Course("General College Chemistry I", 4, prefix="CHE", num="105"),
-            Course("UK Core - Social Sciences", 3),
-            # term 3
-            Course("Calculus III", 4, prefix="MA", num="213"),
-            Course("General University Physics", 4, prefix="PHY", num="232"),
-            Course("General University Physics Lab", 1, prefix="PHY", num="242"),
-            Course("Circuits I", 4, prefix="EE", num="211"),
-            Course("Digital Logic Design", 4, prefix="EE", num="282"),
-            # term 4
-            Course("Calculus IV", 3, prefix="MA", num="214"),
-            Course("AC Circuits", 4, prefix="EE", num="223"),
-            Course("Intro. to Embedded Systems", 4, prefix="EE", num="287"),
-            Course(
-                "Intro. to Program Design Abstraction and Problem Solving",
-                4,
-                prefix="CS",
-                num="215",
-            ),
-            Course("UK Core - Humanities", 3),
-            # term 5
-            Course("Electromechanics", 3, prefix="EE", num="415G"),
-            Course("Signals & Systems", 3, prefix="EE", num="421G"),
-            Course("Elective EE Laboratory 1", 2),
-            Course("Intro. to Electronics", 3, prefix="EE", num="461G"),
-            Course("Introductory Probability", 3, prefix="MA", num="320"),
-            Course("Technical Elective 1", 3),
-            # term 6
-            Course(
-                "Intro. to Engineering Electromagnetics", 4, prefix="EE", num="468G"
-            ),
-            Course("Elective EE Laboratory 2", 2),
-            Course("Engineering/Science Elective 1", 3),
-            Course("Technical Elective 2", 3),
-            Course("UK Core - Citizenship - USA", 3),
-            # term 7
-            Course("EE Capstone Design", 3, prefix="EE", num="490"),
-            Course("EE Technical Elective 1", 3),
-            Course("EE Technical Elective 2", 3),
-            Course("Math/Statistics Elective", 3),
-            Course("UK Core - Global Dynamics", 3),
-            # term 8
-            Course("EE Capstone Design", 3, prefix="EE", num="491"),
-            Course("EE Technical Elective 3", 3),
-            Course("EE Technical Elective 4", 3),
-            Course("Supportive Elective", 3),
-            Course("Engineering/Science Elective 2", 3),
-            Course("UK Core - Statistical Inferential Reasoning", 3),
-        ]
-
-        # term 1
-        c[2].add_requisite(c[7], pre)
-        c[2].add_requisite(c[16], pre)
-        # c[2].add_requisite(c[6],co)  # not correct
-        # c[2].add_requisite(c[20],pre)  # redundant
-        # c[2].add_requisite(c[3],co)  # not correct
-        c[3].add_requisite(c[7], co)  # added
-        c[3].add_requisite(c[13], pre)
-        c[3].add_requisite(c[4], co)  # was wrong direction, flipped
-        c[5].add_requisite(c[8], pre)
-        c[6].add_requisite(c[3], co)  # was wrong direction, flipped
-        c[6].add_requisite(c[7], co)  # added, a required edge being removed by viz
-        c[6].add_requisite(c[9], pre)
-
-        # term 2
-        c[9].add_requisite(c[12], pre)
-        # c[9].add_requisite(c[15],pre)  # redundant
-        c[10].add_requisite(c[7], co)  # added
-
-        # term 3
-        # c[3].add_requisite(c[13],pre)  # already specified above
-        c[12].add_requisite(c[13], co)
-        c[12].add_requisite(c[17], pre)
-        c[12].add_requisite(c[26], pre)
-        c[12].add_requisite(
-            c[28], pre
-        )  # required edge correctly removed by viz, but not caught by isvalid_curric()
-        c[13].add_requisite(c[14], co)
-        c[13].add_requisite(c[15], co)
-        c[13].add_requisite(c[22], pre)  # required edge being removed by viz
-        c[14].add_requisite(c[15], co)
-        # c[14].add_requisite(c[18],pre)  # not correct
-        c[15].add_requisite(c[18], pre)  # added
-        c[16].add_requisite(c[19], pre)
-
-        # term 4
-        c[17].add_requisite(c[18], co)
-        c[17].add_requisite(c[23], pre)  # required edge being removed by viz
-        c[18].add_requisite(c[22], pre)
-        c[18].add_requisite(c[23], pre)
-        c[18].add_requisite(c[25], pre)
-        c[18].add_requisite(c[28], pre)
-        c[20].add_requisite(c[19], co)  # was wrong direction, flipped
-
-        # term 5
-
-        # term 6
-
-        # term 7
-        c[33].add_requisite(c[38], pre)
-
-        curric = Curriculum("University of Kentucky EE Program", c[1:])
-
+    def _assert_uky_ee(self, curric: Curriculum, dp: DegreePlan):
         self.assertTrue(curric.is_valid())
         self.assertEqual(curric.delay_factor[0], 150.0)
         self.assertEqual(
@@ -1401,6 +1288,138 @@ class ExampleTests(unittest.TestCase):
             ],
         )
 
+        self.assertTrue(dp.is_valid())
+        self.assertEqual(dp.credit_hours, 131)
+        self.assertEqual(dp.basic_metrics.average, 16.375)
+        self.assertEqual(dp.basic_metrics.min, 15)
+        self.assertAlmostEqual(dp.basic_metrics.stddev, 1.2183492931011204, places=5)
+        self.assertEqual(dp.num_terms, 8)
+        self.assertEqual(dp.basic_metrics.max, 18)
+        self.assertEqual(dp.basic_metrics.min_term, 1)
+        self.assertEqual(dp.basic_metrics.max_term, 4)
+
+    def test_uky_ee_curric(self):
+        """
+        Curriculum assoicated with the University of Univ. of Kentucky EE program in 2018
+        Revised OCT272018
+        course requisties can be found at: http://www.uky.edu/registrar/2018-2019-courses
+        """
+        # create the courses
+        c: List[AbstractCourse] = [
+            Course("Index 0 course (ignored)", 0),
+            # term 1
+            Course("Engineering Exploration I", 1, prefix="EGR", num="101"),
+            Course("Fundamentals of Engineering Computing", 2, prefix="EGR", num="102"),
+            Course("General University Physics", 4, prefix="PHY", num="231"),
+            Course("General University Physics Lab", 1, prefix="PHY", num="241"),
+            Course("Composition and Communication I", 3, prefix="CIS/WRD", num="110"),
+            Course("Calculus I", 4, prefix="MA", num="113"),
+            # term 2
+            Course("Engineering Exploration II", 2, prefix="EGR", num="103"),
+            Course("Composition and Communication II", 3, prefix="CIS/WRD", num="111"),
+            Course("Calculus II", 4, prefix="MA", num="114"),
+            Course("General College Chemistry I", 4, prefix="CHE", num="105"),
+            Course("UK Core - Social Sciences", 3),
+            # term 3
+            Course("Calculus III", 4, prefix="MA", num="213"),
+            Course("General University Physics", 4, prefix="PHY", num="232"),
+            Course("General University Physics Lab", 1, prefix="PHY", num="242"),
+            Course("Circuits I", 4, prefix="EE", num="211"),
+            Course("Digital Logic Design", 4, prefix="EE", num="282"),
+            # term 4
+            Course("Calculus IV", 3, prefix="MA", num="214"),
+            Course("AC Circuits", 4, prefix="EE", num="223"),
+            Course("Intro. to Embedded Systems", 4, prefix="EE", num="287"),
+            Course(
+                "Intro. to Program Design Abstraction and Problem Solving",
+                4,
+                prefix="CS",
+                num="215",
+            ),
+            Course("UK Core - Humanities", 3),
+            # term 5
+            Course("Electromechanics", 3, prefix="EE", num="415G"),
+            Course("Signals & Systems", 3, prefix="EE", num="421G"),
+            Course("Elective EE Laboratory 1", 2),
+            Course("Intro. to Electronics", 3, prefix="EE", num="461G"),
+            Course("Introductory Probability", 3, prefix="MA", num="320"),
+            Course("Technical Elective 1", 3),
+            # term 6
+            Course(
+                "Intro. to Engineering Electromagnetics", 4, prefix="EE", num="468G"
+            ),
+            Course("Elective EE Laboratory 2", 2),
+            Course("Engineering/Science Elective 1", 3),
+            Course("Technical Elective 2", 3),
+            Course("UK Core - Citizenship - USA", 3),
+            # term 7
+            Course("EE Capstone Design", 3, prefix="EE", num="490"),
+            Course("EE Technical Elective 1", 3),
+            Course("EE Technical Elective 2", 3),
+            Course("Math/Statistics Elective", 3),
+            Course("UK Core - Global Dynamics", 3),
+            # term 8
+            Course("EE Capstone Design", 3, prefix="EE", num="491"),
+            Course("EE Technical Elective 3", 3),
+            Course("EE Technical Elective 4", 3),
+            Course("Supportive Elective", 3),
+            Course("Engineering/Science Elective 2", 3),
+            Course("UK Core - Statistical Inferential Reasoning", 3),
+        ]
+
+        # term 1
+        c[2].add_requisite(c[7], pre)
+        c[2].add_requisite(c[16], pre)
+        # c[2].add_requisite(c[6],co)  # not correct
+        # c[2].add_requisite(c[20],pre)  # redundant
+        # c[2].add_requisite(c[3],co)  # not correct
+        c[3].add_requisite(c[7], co)  # added
+        c[3].add_requisite(c[13], pre)
+        c[3].add_requisite(c[4], co)  # was wrong direction, flipped
+        c[5].add_requisite(c[8], pre)
+        c[6].add_requisite(c[3], co)  # was wrong direction, flipped
+        c[6].add_requisite(c[7], co)  # added, a required edge being removed by viz
+        c[6].add_requisite(c[9], pre)
+
+        # term 2
+        c[9].add_requisite(c[12], pre)
+        # c[9].add_requisite(c[15],pre)  # redundant
+        c[10].add_requisite(c[7], co)  # added
+
+        # term 3
+        # c[3].add_requisite(c[13],pre)  # already specified above
+        c[12].add_requisite(c[13], co)
+        c[12].add_requisite(c[17], pre)
+        c[12].add_requisite(c[26], pre)
+        c[12].add_requisite(
+            c[28], pre
+        )  # required edge correctly removed by viz, but not caught by isvalid_curric()
+        c[13].add_requisite(c[14], co)
+        c[13].add_requisite(c[15], co)
+        c[13].add_requisite(c[22], pre)  # required edge being removed by viz
+        c[14].add_requisite(c[15], co)
+        # c[14].add_requisite(c[18],pre)  # not correct
+        c[15].add_requisite(c[18], pre)  # added
+        c[16].add_requisite(c[19], pre)
+
+        # term 4
+        c[17].add_requisite(c[18], co)
+        c[17].add_requisite(c[23], pre)  # required edge being removed by viz
+        c[18].add_requisite(c[22], pre)
+        c[18].add_requisite(c[23], pre)
+        c[18].add_requisite(c[25], pre)
+        c[18].add_requisite(c[28], pre)
+        c[20].add_requisite(c[19], co)  # was wrong direction, flipped
+
+        # term 5
+
+        # term 6
+
+        # term 7
+        c[33].add_requisite(c[38], pre)
+
+        curric = Curriculum("University of Kentucky EE Program", c[1:])
+
         terms = [
             Term([c[1], c[2], c[3], c[4], c[5], c[6]]),
             Term([c[7], c[8], c[9], c[10], c[11]]),
@@ -1414,12 +1433,11 @@ class ExampleTests(unittest.TestCase):
 
         dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
 
-        self.assertTrue(dp.is_valid())
-        self.assertEqual(dp.credit_hours, 131)
-        self.assertEqual(dp.basic_metrics.average, 16.375)
-        self.assertEqual(dp.basic_metrics.min, 15)
-        self.assertAlmostEqual(dp.basic_metrics.stddev, 1.2183492931011204, places=5)
-        self.assertEqual(dp.num_terms, 8)
-        self.assertEqual(dp.basic_metrics.max, 18)
-        self.assertEqual(dp.basic_metrics.min_term, 1)
-        self.assertEqual(dp.basic_metrics.max_term, 4)
+        self._assert_uky_ee(curric, dp)
+
+    def test_uky_ee_csv(self):
+        curric = read_csv("./examples/UKY_EE_curric.csv")
+        assert isinstance(curric, Curriculum)
+        dp = read_csv("./examples/UKY_EE_plan.csv")
+        assert isinstance(dp, DegreePlan)
+        self._assert_uky_ee(curric, dp)
