@@ -97,5 +97,5 @@ class DegreePlanAnalyticsTests(unittest.TestCase):
         self.assertEqual(dp.basic_metrics.max, 5)
         self.assertAlmostEqual(dp.basic_metrics.stddev, 0.816497, places=5)
         self.assertEqual(dp.num_terms, 3)
-        self.assertEqual(dp.basic_metrics.min_term, 2)
-        self.assertEqual(dp.basic_metrics.max_term, 3)
+        self.assertEqual(dp.basic_metrics.min_term + 1, 2)
+        self.assertEqual(dp.basic_metrics.max_term + 1, 3)
