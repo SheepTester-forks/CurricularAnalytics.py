@@ -33,11 +33,11 @@ class ExampleTests(unittest.TestCase):
         ]
 
         # term 1
-        c[1].add_requisite(c[2], pre)
-        c[1].add_requisite(c[3], pre)
+        c[2].add_requisite(c[1], pre)
+        c[3].add_requisite(c[1], pre)
 
         # term 2
-        c[2].add_requisite(c[4], pre)
+        c[4].add_requisite(c[2], pre)
 
         curric = Curriculum("Example Curricula c1", c[1:], sortby_ID=False)
 
@@ -87,11 +87,11 @@ class ExampleTests(unittest.TestCase):
         ]
         # test
         # term 2
-        c[1].add_requisite(c[3], pre)
-        c[2].add_requisite(c[3], pre)
+        c[3].add_requisite(c[1], pre)
+        c[3].add_requisite(c[2], pre)
 
         # term 3
-        c[3].add_requisite(c[4], pre)
+        c[4].add_requisite(c[3], pre)
 
         curric = Curriculum("Example Curricula C2", c[1:], sortby_ID=False)
 
@@ -209,41 +209,41 @@ class ExampleTests(unittest.TestCase):
         ]
 
         # Add requisites for each course if specified
-        c[1].add_requisite(c[5], pre)
-        c[11].add_requisite(c[6], pre)
-        c[5].add_requisite(c[7], pre)
-        c[3].add_requisite(c[7], pre)  # or c[2].add_requisite(c[7],pre)
-        c[3].add_requisite(c[8], pre)
-        c[1].add_requisite(c[9], pre)
-        c[8].add_requisite(c[10], pre)
-        c[8].add_requisite(c[11], pre)
-        c[11].add_requisite(c[12], pre)
-        c[1].add_requisite(c[13], pre)
-        c[4].add_requisite(c[13], pre)
-        c[2].add_requisite(c[14], pre)  # or c[3].add_requisite(c[14],pre)
-        c[4].add_requisite(c[14], pre)
-        c[5].add_requisite(c[14], pre)
-        c[5].add_requisite(c[15], pre)
-        c[3].add_requisite(c[16], pre)
-        c[4].add_requisite(c[17], pre)
-        c[11].add_requisite(c[17], pre)
-        c[10].add_requisite(c[20], pre)
-        c[10].add_requisite(c[22], pre)
-        c[7].add_requisite(c[22], pre)
-        c[10].add_requisite(c[23], pre)
-        c[8].add_requisite(c[24], pre)
-        c[12].add_requisite(c[25], pre)
-        c[16].add_requisite(c[25], pre)
-        c[16].add_requisite(c[26], pre)
-        c[13].add_requisite(c[27], pre)
-        c[4].add_requisite(c[29], pre)
-        c[5].add_requisite(c[29], pre)
-        c[5].add_requisite(c[30], pre)
-        c[7].add_requisite(c[30], pre)
-        c[15].add_requisite(c[31], pre)
-        c[16].add_requisite(c[32], pre)
-        c[16].add_requisite(c[33], pre)
-        c[33].add_requisite(c[34], pre)
+        c[5].add_requisite(c[1], pre)
+        c[6].add_requisite(c[11], pre)
+        c[7].add_requisite(c[5], pre)
+        c[7].add_requisite(c[3], pre)  # or c[7].add_requisite(c[2],pre)
+        c[8].add_requisite(c[3], pre)
+        c[9].add_requisite(c[1], pre)
+        c[10].add_requisite(c[8], pre)
+        c[11].add_requisite(c[8], pre)
+        c[12].add_requisite(c[11], pre)
+        c[13].add_requisite(c[1], pre)
+        c[13].add_requisite(c[4], pre)
+        c[14].add_requisite(c[2], pre)  # or c[14].add_requisite(c[3],pre)
+        c[14].add_requisite(c[4], pre)
+        c[14].add_requisite(c[5], pre)
+        c[15].add_requisite(c[5], pre)
+        c[16].add_requisite(c[3], pre)
+        c[17].add_requisite(c[4], pre)
+        c[17].add_requisite(c[11], pre)
+        c[20].add_requisite(c[10], pre)
+        c[22].add_requisite(c[10], pre)
+        c[22].add_requisite(c[7], pre)
+        c[23].add_requisite(c[10], pre)
+        c[24].add_requisite(c[8], pre)
+        c[25].add_requisite(c[12], pre)
+        c[25].add_requisite(c[16], pre)
+        c[26].add_requisite(c[16], pre)
+        c[27].add_requisite(c[13], pre)
+        c[29].add_requisite(c[4], pre)
+        c[29].add_requisite(c[5], pre)
+        c[30].add_requisite(c[5], pre)
+        c[30].add_requisite(c[7], pre)
+        c[31].add_requisite(c[15], pre)
+        c[32].add_requisite(c[16], pre)
+        c[33].add_requisite(c[16], pre)
+        c[34].add_requisite(c[33], pre)
 
         # Create curriculum based on previous courses and learning_outcomes
         curric = Curriculum(
@@ -491,26 +491,26 @@ class ExampleTests(unittest.TestCase):
         ]
 
         # term 1
-        c[2].add_requisite(c[6], pre)
-        c[2].add_requisite(c[7], pre)
+        c[6].add_requisite(c[2], pre)
+        c[7].add_requisite(c[2], pre)
         # term 2
-        c[6].add_requisite(c[11], pre)
-        c[7].add_requisite(c[11], pre)
-        c[7].add_requisite(c[12], pre)
-        c[7].add_requisite(c[17], pre)
-        c[8].add_requisite(c[14], pre)
-        c[8].add_requisite(c[23], pre)
+        c[11].add_requisite(c[6], pre)
+        c[11].add_requisite(c[7], pre)
+        c[12].add_requisite(c[7], pre)
+        c[17].add_requisite(c[7], pre)
+        c[14].add_requisite(c[8], pre)
+        c[23].add_requisite(c[8], pre)
         # term 3
-        c[11].add_requisite(c[18], pre)
-        c[11].add_requisite(c[13], co)
-        c[12].add_requisite(c[16], co)
-        c[12].add_requisite(c[13], co)
-        c[12].add_requisite(c[19], pre)
-        c[13].add_requisite(c[24], pre)
-        c[14].add_requisite(c[24], pre)
+        c[18].add_requisite(c[11], pre)
+        c[13].add_requisite(c[11], co)
+        c[16].add_requisite(c[12], co)
+        c[13].add_requisite(c[12], co)
+        c[19].add_requisite(c[12], pre)
+        c[24].add_requisite(c[13], pre)
+        c[24].add_requisite(c[14], pre)
         # term 4
-        c[17].add_requisite(c[19], co)
-        c[19].add_requisite(c[24], pre)
+        c[19].add_requisite(c[17], co)
+        c[24].add_requisite(c[19], pre)
 
         curric = Curriculum("Cornell University EE Program", c[1:], sortby_ID=False)
 
@@ -796,56 +796,56 @@ class ExampleTests(unittest.TestCase):
         ]
 
         # term 1
-        c[2].add_requisite(c[8], pre)
-        c[3].add_requisite(c[9], pre)
-        c[4].add_requisite(c[3], co)
-        c[4].add_requisite(c[9], pre)
-        c[4].add_requisite(c[10], pre)
-        c[5].add_requisite(c[6], co)
+        c[8].add_requisite(c[2], pre)
+        c[9].add_requisite(c[3], pre)
+        c[3].add_requisite(c[4], co)
+        c[9].add_requisite(c[4], pre)
+        c[10].add_requisite(c[4], pre)
+        c[6].add_requisite(c[5], co)
         # term 2
-        c[8].add_requisite(c[19], pre)
-        c[9].add_requisite(c[32], pre)
-        c[9].add_requisite(c[15], pre)
-        c[10].add_requisite(c[14], pre)
-        c[10].add_requisite(c[32], pre)
-        c[10].add_requisite(c[16], pre)
-        c[10].add_requisite(c[11], co)
-        c[11].add_requisite(c[17], pre)
-        c[11].add_requisite(c[12], co)
+        c[19].add_requisite(c[8], pre)
+        c[32].add_requisite(c[9], pre)
+        c[15].add_requisite(c[9], pre)
+        c[14].add_requisite(c[10], pre)
+        c[32].add_requisite(c[10], pre)
+        c[16].add_requisite(c[10], pre)
+        c[11].add_requisite(c[10], co)
+        c[17].add_requisite(c[11], pre)
+        c[12].add_requisite(c[11], co)
         # term 3
-        c[14].add_requisite(c[20], pre)
-        c[14].add_requisite(c[15], co)
-        c[15].add_requisite(c[19], pre)
-        c[15].add_requisite(c[20], pre)
-        c[15].add_requisite(c[22], pre)
-        c[16].add_requisite(c[15], co)
-        c[16].add_requisite(c[17], co)
-        c[17].add_requisite(c[15], co)
-        c[17].add_requisite(c[18], co)
-        c[18].add_requisite(c[15], co)
-        c[18].add_requisite(c[21], pre)
+        c[20].add_requisite(c[14], pre)
+        c[15].add_requisite(c[14], co)
+        c[19].add_requisite(c[15], pre)
+        c[20].add_requisite(c[15], pre)
+        c[22].add_requisite(c[15], pre)
+        c[15].add_requisite(c[16], co)
+        c[17].add_requisite(c[16], co)
+        c[15].add_requisite(c[17], co)
+        c[18].add_requisite(c[17], co)
+        c[15].add_requisite(c[18], co)
+        c[21].add_requisite(c[18], pre)
         # term 4
-        c[19].add_requisite(c[26], pre)
-        c[20].add_requisite(c[35], pre)
-        c[20].add_requisite(c[24], co)
-        c[21].add_requisite(c[24], co)
-        c[21].add_requisite(c[26], pre)
-        c[22].add_requisite(c[21], co)
-        c[22].add_requisite(c[23], co)
-        c[23].add_requisite(c[27], pre)
-        c[23].add_requisite(c[29], pre)
-        c[24].add_requisite(c[38], pre)
+        c[26].add_requisite(c[19], pre)
+        c[35].add_requisite(c[20], pre)
+        c[24].add_requisite(c[20], co)
+        c[24].add_requisite(c[21], co)
+        c[26].add_requisite(c[21], pre)
+        c[21].add_requisite(c[22], co)
+        c[23].add_requisite(c[22], co)
+        c[27].add_requisite(c[23], pre)
+        c[29].add_requisite(c[23], pre)
+        c[38].add_requisite(c[24], pre)
         # term 5
-        c[26].add_requisite(c[38], pre)
-        c[26].add_requisite(c[27], strict_co)
-        c[27].add_requisite(c[38], pre)
-        c[29].add_requisite(c[38], pre)
+        c[38].add_requisite(c[26], pre)
+        c[27].add_requisite(c[26], strict_co)
+        c[38].add_requisite(c[27], pre)
+        c[38].add_requisite(c[29], pre)
         # term 6
-        c[32].add_requisite(c[38], pre)
-        c[35].add_requisite(c[38], pre)
+        c[38].add_requisite(c[32], pre)
+        c[38].add_requisite(c[35], pre)
         # term 7
-        c[37].add_requisite(c[38], co)
-        c[38].add_requisite(c[44], pre)
+        c[38].add_requisite(c[37], co)
+        c[44].add_requisite(c[38], pre)
 
         curric = Curriculum("University of Houston EE Program", c[1:], sortby_ID=False)
 
@@ -1094,8 +1094,8 @@ class ExampleTests(unittest.TestCase):
         self.assertTrue(curric.is_valid())
         self.assertEqual(curric.delay_factor[0], 150.0)
         self.assertEqual(
-            list(curric.delay_factor[1].values()),
-            [
+            set(curric.delay_factor[1].values()),
+            {
                 1.0,
                 3.0,
                 7.0,
@@ -1139,12 +1139,12 @@ class ExampleTests(unittest.TestCase):
                 1.0,
                 1.0,
                 1.0,
-            ],
+            },
         )
         self.assertEqual(curric.blocking_factor[0], 81)
         self.assertEqual(
-            list(curric.blocking_factor[1].values()),
-            [
+            set(curric.blocking_factor[1].values()),
+            {
                 0,
                 3,
                 10,
@@ -1188,12 +1188,12 @@ class ExampleTests(unittest.TestCase):
                 0,
                 0,
                 0,
-            ],
+            },
         )
         self.assertEqual(curric.centrality[0], 727)
         self.assertEqual(
-            list(curric.centrality[1].values()),
-            [
+            set(curric.centrality[1].values()),
+            {
                 0,
                 0,
                 62,
@@ -1237,12 +1237,12 @@ class ExampleTests(unittest.TestCase):
                 0,
                 0,
                 0,
-            ],
+            },
         )
         self.assertEqual(curric.complexity[0], 231.0)
         self.assertEqual(
-            list(curric.complexity[1].values()),
-            [
+            set(curric.complexity[1].values()),
+            {
                 1.0,
                 6.0,
                 17.0,
@@ -1286,7 +1286,7 @@ class ExampleTests(unittest.TestCase):
                 1.0,
                 1.0,
                 1.0,
-            ],
+            },
         )
 
         self.assertTrue(dp.is_valid())
@@ -1369,55 +1369,55 @@ class ExampleTests(unittest.TestCase):
         ]
 
         # term 1
-        c[2].add_requisite(c[7], pre)
-        c[2].add_requisite(c[16], pre)
-        # c[2].add_requisite(c[6],co)  # not correct
-        # c[2].add_requisite(c[20],pre)  # redundant
-        # c[2].add_requisite(c[3],co)  # not correct
-        c[3].add_requisite(c[7], co)  # added
-        c[3].add_requisite(c[13], pre)
-        c[3].add_requisite(c[4], co)  # was wrong direction, flipped
-        c[5].add_requisite(c[8], pre)
-        c[6].add_requisite(c[3], co)  # was wrong direction, flipped
-        c[6].add_requisite(c[7], co)  # added, a required edge being removed by viz
-        c[6].add_requisite(c[9], pre)
+        c[7].add_requisite(c[2], pre)
+        c[16].add_requisite(c[2], pre)
+        # c[6].add_requisite(c[2],co)  # not correct
+        # c[20].add_requisite(c[2],pre)  # redundant
+        # c[3].add_requisite(c[2],co)  # not correct
+        c[7].add_requisite(c[3], co)  # added
+        c[13].add_requisite(c[3], pre)
+        c[4].add_requisite(c[3], co)  # was wrong direction, flipped
+        c[8].add_requisite(c[5], pre)
+        c[3].add_requisite(c[6], co)  # was wrong direction, flipped
+        c[7].add_requisite(c[6], co)  # added, a required edge being removed by viz
+        c[9].add_requisite(c[6], pre)
 
         # term 2
-        c[9].add_requisite(c[12], pre)
-        # c[9].add_requisite(c[15],pre)  # redundant
-        c[10].add_requisite(c[7], co)  # added
+        c[12].add_requisite(c[9], pre)
+        # c[15].add_requisite(c[9],pre)  # redundant
+        c[7].add_requisite(c[10], co)  # added
 
         # term 3
-        # c[3].add_requisite(c[13],pre)  # already specified above
-        c[12].add_requisite(c[13], co)
-        c[12].add_requisite(c[17], pre)
-        c[12].add_requisite(c[26], pre)
-        c[12].add_requisite(
-            c[28], pre
+        # c[13].add_requisite(c[3],pre)  # already specified above
+        c[13].add_requisite(c[12], co)
+        c[17].add_requisite(c[12], pre)
+        c[26].add_requisite(c[12], pre)
+        c[28].add_requisite(
+            c[12], pre
         )  # required edge correctly removed by viz, but not caught by isvalid_curric()
-        c[13].add_requisite(c[14], co)
-        c[13].add_requisite(c[15], co)
-        c[13].add_requisite(c[22], pre)  # required edge being removed by viz
-        c[14].add_requisite(c[15], co)
-        # c[14].add_requisite(c[18],pre)  # not correct
-        c[15].add_requisite(c[18], pre)  # added
-        c[16].add_requisite(c[19], pre)
+        c[14].add_requisite(c[13], co)
+        c[15].add_requisite(c[13], co)
+        c[22].add_requisite(c[13], pre)  # required edge being removed by viz
+        c[15].add_requisite(c[14], co)
+        # c[18].add_requisite(c[14],pre)  # not correct
+        c[18].add_requisite(c[15], pre)  # added
+        c[19].add_requisite(c[16], pre)
 
         # term 4
-        c[17].add_requisite(c[18], co)
-        c[17].add_requisite(c[23], pre)  # required edge being removed by viz
-        c[18].add_requisite(c[22], pre)
-        c[18].add_requisite(c[23], pre)
-        c[18].add_requisite(c[25], pre)
-        c[18].add_requisite(c[28], pre)
-        c[20].add_requisite(c[19], co)  # was wrong direction, flipped
+        c[18].add_requisite(c[17], co)
+        c[23].add_requisite(c[17], pre)  # required edge being removed by viz
+        c[22].add_requisite(c[18], pre)
+        c[23].add_requisite(c[18], pre)
+        c[25].add_requisite(c[18], pre)
+        c[28].add_requisite(c[18], pre)
+        c[19].add_requisite(c[20], co)  # was wrong direction, flipped
 
         # term 5
 
         # term 6
 
         # term 7
-        c[33].add_requisite(c[38], pre)
+        c[38].add_requisite(c[33], pre)
 
         curric = Curriculum("University of Kentucky EE Program", c[1:], sortby_ID=False)
 

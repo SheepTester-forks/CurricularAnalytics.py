@@ -146,7 +146,7 @@ def reachable_from(g: "nx.Graph[T]", s: T, vlist: Optional[List[T]] = None) -> L
     if vlist is None:
         vlist = []
     for v in g.neighbors(s):
-        if v not in vlist:  # v is not in vlist
+        if v not in vlist:
             vlist.append(v)
         reachable_from(g, v, vlist)
     return vlist
@@ -265,13 +265,11 @@ def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
             sinks.append(v)
     for v in sinks:
         que.put([v])
-        while (
-            not que.empty()
-        ):  # work backwards from sink v to all sources reachable to v in BFS fashion
+        # work backwards from sink v to all sources reachable to v in BFS fashion
+        while not que.empty():
             x = que.get()  # grab a path from the queue
-            for i, edge in enumerate(
-                g.in_edges(x[0])
-            ):  # consider the in-neighbors at the beginning of the current path
+            # consider the in-neighbors at the beginning of the current path
+            for i, edge in enumerate(g.in_edges(x[0])):
                 u, _ = edge
                 if i == 0:  # first neighbor, build onto exising path
                     x.insert(0, u)  # prepend vertex u to array x

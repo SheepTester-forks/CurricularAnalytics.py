@@ -421,8 +421,6 @@ class Curriculum:
     # Compute the delay factor of a course
     def course_delay_factor(self, course: AbstractCourse) -> int:
         r"""
-            delay_factor(c:Curriculum, course:Int)
-
         The **delay factor** associated with course :math:`c_k` in curriculum :math:`c` with
         curriculum graph :math:`G_c = (V,E)` is the number of vertices in the longest path
         in :math:`G_c` that passes through :math:`v_k`. If :math:`\#(p)` denotes the number of
