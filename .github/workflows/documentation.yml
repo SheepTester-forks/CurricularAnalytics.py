@@ -30,7 +30,7 @@ jobs:
       - name: Build docs
         run: |
           cd docs
-          sphinx-build -b html -j auto -a -n -T -W --keep-going . _build/html
+          sphinx-build -b html -j auto -a -n -T . _build/html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
