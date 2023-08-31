@@ -3,26 +3,36 @@ name: Documentation
 on:
   push:
     branches:
-      - master # update to match your development branch (master, main, dev, trunk, ...)
-    tags: '*'
-  pull_request:
+      - main # update to match your development branch (master, main, dev, trunk, ...)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
-    permissions:
-      contents: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v3
         with:
-          version: '1.6'
+          fetch-depth: 0
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v3
       - name: Install dependencies
-        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-      - name: Print current status
-        run: julia --project=docs/ -e 'using Pkg; Pkg.status()'
-      - name: Build and deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
-          # DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
-        run: julia --project=docs/ docs/make.jl
+        run: pip install -U -r requirements.txt
+      - name: Build docs
+        run: |
+          cd docs
+          sphinx-build -b html -j auto -a -n -T -W --keep-going . _build/html
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: _build/html
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
