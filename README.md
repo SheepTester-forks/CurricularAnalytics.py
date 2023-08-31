@@ -6,7 +6,7 @@ CurricularAnalytics.py is a Python port of the original Julia package [Curricula
 
 ## Documentation
 
-Full documentation is available at [GitHub Pages](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/).
+Full documentation is available at [GitHub Pages](https://sheeptester-forks.github.io/CurricularAnalytics.py/).
 Documentation for functions in this toolbox is also available via the Julia REPL help system.
 Additional tutorials can be found at the [Curricular Analytics Notebooks](https://github.com/CurricularAnalytics/CA-Notebooks) site.
 

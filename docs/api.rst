@@ -64,6 +64,7 @@ Degree Plan
   :members:
 .. autoclass:: DegreePlan
   :members:
+
 Degree Requirements
 -------------------
 .. autoclass:: Grade
@@ -114,18 +115,3 @@ Degree Plan Creation
 --------------------
 .. autofunction:: bin_filling
 .. autofunction:: create_degree_plan
-
-Graph Algorithms
-----------------
-.. autofunction:: all_paths
-.. autofunction:: dfs
-.. autofunction:: gad
-.. autofunction:: longest_path
-.. autofunction:: longest_paths
-.. autofunction:: reach
-.. autofunction:: reach_subgraph
-.. autofunction:: reachable_from
-.. autofunction:: reachable_from_subgraph
-.. autofunction:: reachable_to
-.. autofunction:: reachable_to_subgraph
-.. autofunction:: topological_sort
