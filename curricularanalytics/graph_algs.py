@@ -89,8 +89,7 @@ def topological_sort(
 
     Args:
         g: Input graph.
-        sort: Sort weakly connected components according to their size, allowable
-          strings: `ascending`, `descending`.
+        sort: Sort weakly connected components according to their size, allowable strings: `ascending`, `descending`.
 
     Returns:
         The weakly connected components of the graph, each in topological sort order.
@@ -247,7 +246,6 @@ def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
 
     Returns:
         An array of these paths, where each path consists of an array of vertex IDs.
-    ```
     """
     # check that g is acyclic
     try:

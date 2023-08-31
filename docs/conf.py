@@ -6,8 +6,11 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
 import re
+import sys
 
+sys.path.insert(0, os.path.abspath(".."))
 
 project = "CurricularAnalytics.py"
 copyright = "2023, Greg Heileman, Hayden Free, Orhan Abar, Will Thompson, Sean Yen"
@@ -21,8 +24,8 @@ with open("../pyproject.toml") as f:
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
-
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary", "sphinx.ext.mathjax"]
+autosummary_generate = True
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
