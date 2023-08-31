@@ -9,6 +9,7 @@
 import os
 import re
 import sys
+from typing import Any
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -31,8 +32,11 @@ extensions = [
     "sphinx.ext.mathjax",
 ]
 autosummary_generate = True
+autodoc_typehints = "description"
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+intersphinx_mapping: Any = {"py": ("https://docs.python.org/3", None)}
 
 
 # -- Options for HTML output -------------------------------------------------

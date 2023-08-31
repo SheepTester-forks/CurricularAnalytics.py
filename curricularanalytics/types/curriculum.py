@@ -563,7 +563,7 @@ class Curriculum:
         Compare the metrics associated with two curricula.
 
         Returns:
-            A `StringIO`. To print out the report, use: ``print(report.getvalue())``
+            A `StringIO`. To print out the report, use ``print(report.getvalue())``.
         """
         report = StringIO()
         report.write(f"Comparing: C1 = {self.name} and C2 = {other.name}\n")

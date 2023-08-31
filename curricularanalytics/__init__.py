@@ -21,6 +21,7 @@ from .types.course_catalog import CourseCatalog
 from .types.curriculum import BasicMetrics, Curriculum, basic_statistics, homology
 from .types.data_types import (
     EdgeClass,
+    EdgeType,
     Requisite,
     System,
     back_edge,
