@@ -41,9 +41,9 @@ To create a degree plan that satisfies the courses associated with a particular 
 .. autoclass:: DegreePlan
   :members:
 
-The ability to create degree plans that satsify very "goodness" criteria is described in more detail in :ref:`degreeplans`.
+The ability to create degree plans that satsify very "goodness" criteria is described in more detail in :doc:`/degreeplans`.
 
-A sophisticated visualization capability for viewing degree plans is described in :ref:`visualize`.
+A sophisticated visualization capability for viewing degree plans is described in :doc:`/visualize`.
 
 .. image:: src/BW-plan.png
   :alt: Basket Weaving degree plan

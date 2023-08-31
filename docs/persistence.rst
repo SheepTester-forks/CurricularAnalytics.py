@@ -14,6 +14,7 @@ Curricula Files
 ~~~~~~~~~~~~~~~
 
 The CSV file format used to store curricula is shown below:
+
 .. image:: src/curriculum-format.png
   :alt: file format for curricula
 
@@ -27,7 +28,7 @@ More specifically, the data that is expected to follow each keyword provided in 
   Allowable values are: AA, AS, AAS, BA, BS.
 * System Type: the type of system the institution's operations on.
   Allowable values are: semester quarter
-* CIP: the Classification of Instructional Programs (CIP) code for the curriculum. See: `https://nces.ed.gov/ipeds/cipcode`_
+* CIP: the Classification of Instructional Programs (CIP) code for the curriculum. See: `<https://nces.ed.gov/ipeds/cipcode>`_
 * Courses: a keyword that appears on a line by itself (i.e., with no following data). A single header row should appear below this keyword, followed by the row-by-row list of courses associated with the curriculum. The required keywords in the header row, and the data that should appear below each header are as follows:
   * Course ID: the unique integer ID of the course (required).
   * Course Name: the name of the course (required).
@@ -45,7 +46,7 @@ Below is an example curriculum file that uses the aforedescribed format:
 .. image:: src/curriculum-ex.png
   :alt: example file format for curricula
 
-:download:`Download this CSV file <curriculum-ex.csv>`. A visualization of this curriculum, created using the function described in :ref:`visualize`, is as follows:
+:download:`Download this CSV file <curriculum-ex.csv>`. A visualization of this curriculum, created using the function described in :doc:`/visualize`, is as follows:
 
 .. image:: src/curriculum-ex-viz.png
   :alt: visualization of example curriculum
@@ -70,7 +71,7 @@ Below is an example degree plan file that uses the aforedescribed format. This d
 .. image:: src/degree-plan-ex.png
   :alt: example file format for curricula
 
-:download:`Download this CSV file <degree-plan-ex.csv>`. A visualization of this degree plan, created using the function described in :ref:`visualize`, is as follows:
+:download:`Download this CSV file <degree-plan-ex.csv>`. A visualization of this degree plan, created using the function described in :doc:`/visualize`, is as follows:
 
 .. image:: src/degree-plan-ex-viz.png
   :alt: visualization of example degree plan
