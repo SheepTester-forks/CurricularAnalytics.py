@@ -21,14 +21,15 @@ MatchCriterion = Literal["prefix", "num", "name", "canonical name", "credit hour
 
 class AbstractCourse(ABC):
     """
-    The `AbstractCourse` data type is used to represent the notion of an abstract course that may appear in a curriculum
+    The :class:`AbstractCourse` data type is used to represent the notion of an abstract course that may appear in a curriculum
     or degree plan. That is, this abstract type serves as a placeholder for a course in a curriculum or degree plan,
     where the abstract course may correspond to a single course, or a set of courses, where only one of the courses in the
     set should be taken at that particular point in the curriculum or degree plan. This allows a user to specify a course
     or a collection of courses as a part part of a curriculum or degree plans. The two possible concrete subtypes of
-    an `AbstractCourse` are:
-    - `Course` : a specific course.
-    - `CourseCollection` : a set of courses, any of which can serve as the required course in a curriculum or degree plan.
+    an :class:`AbstractCourse` are:
+
+    * :class:`Course`: a specific course.
+    * :class:`CourseCollection`: a set of courses, any of which can serve as the required course in a curriculum or degree plan.
     """
 
     id: int
@@ -68,16 +69,17 @@ class AbstractCourse(ABC):
         self, requisite_course: "AbstractCourse", requisite_type: Requisite
     ) -> None:
         """
-        Add course rc as a requisite, of type requisite_type, for target course tc.
+        Add course ``requisite_course`` as a requisite, of type ``requisite_type``, for this course.
 
         Args:
-            requisite_course: requisite course
-            requisite_type: requisite type
+            requisite_course: Requisite course.
+            requisite_type: Requisite type.
 
-        One of the following requisite types must be specified for the `requisite_type`:
-        - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
-        - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
-        - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+        One of the following requisite types must be specified for the ``requisite_type``:
+
+        * :data:`pre`: a prerequisite course that must be passed before this course can be attempted.
+        * :data:`co`: a co-requisite course that may be taken before or at the same time as this course.
+        * :data:`strict_co`: a strict co-requisite course that must be taken at the same time as this course.
         """
         self.requisites[requisite_course.id] = requisite_type
 
@@ -86,15 +88,16 @@ class AbstractCourse(ABC):
         requisites: List[Tuple["AbstractCourse", Requisite]],
     ) -> None:
         """
-        Add a collection of requisites to target course tc.
+        Add a collection of requisites to this course.
 
         Args:
             requisites: An array of tuples of requisite courses and their respective types.
 
-        The following requisite types may be specified for the `requisite_type`:
-        - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
-        - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
-        - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+        The following requisite types may be specified for the ``requisite_type``:
+
+        * :data:`pre`: a prerequisite course that must be passed before this course can be attempted.
+        * :data:`co`: a co-requisite course that may be taken before or at the same time as this course.
+        * :data:`strict_co`: a strict co-requisite course that must be taken at the same time as this course.
         """
         for requisite_course, requisite_type in requisites:
             self.add_requisite(requisite_course, requisite_type)
@@ -104,13 +107,13 @@ class AbstractCourse(ABC):
         requisite_course: "AbstractCourse",
     ) -> None:
         """
-        Remove course rc as a requisite for target course tc.
+        Remove course ``requisite_course`` as a requisite for this course.
 
         Args:
-            rc: Requisite course.
+            requisite_course: Requisite course.
 
         Raises:
-            KeyError: If `rc` is not an existing requisite for `tc`.
+            KeyError: If ``requisite_course`` is not an existing requisite for this course.
         """
         try:
             del self.requisites[requisite_course.id]
@@ -161,7 +164,7 @@ class AbstractCourse(ABC):
 # Course data type
 class Course(AbstractCourse):
     """
-    The `Course` data type is used to represent a single course consisting of a given number
+    The :class:`Course` data type is used to represent a single course consisting of a given number
     of credit hours.
 
     Args:

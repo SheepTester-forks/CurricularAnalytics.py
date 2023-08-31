@@ -44,7 +44,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         b.add_requisite(c, strict_co)
         a.add_requisite(c, pre)  # can be any requisite
 
-        curric = Curriculum("Unsatisfiable", [a, b, c], sortby_ID=False)
+        curric = Curriculum("Unsatisfiable", [a, b, c], sort_by_id=False)
         errors = StringIO()
         self.assertFalse(curric.is_valid(errors))
 
@@ -76,7 +76,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         c.add_requisite(d, co)
         b.add_requisite(a, pre)
 
-        curric = Curriculum("Extraneous", [a, b, c, d], sortby_ID=False)
+        curric = Curriculum("Extraneous", [a, b, c, d], sort_by_id=False)
         # Test extraneous_requisites()
         self.assertEqual(len(curric.extraneous_requisites()), 1)
 
@@ -168,7 +168,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
             [A, B, C, D, E, F, G, H],
             institution="ACME State University",
             cip="445786",
-            sortby_ID=False,
+            sort_by_id=False,
         )
 
         # Test isvalid_curriculum() and extraneous_requisites()
@@ -227,7 +227,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         F.add_requisite(G, pre)
 
         curric = Curriculum(
-            "Postmodern Basket Weaving", [A, B, C, D, E, F, G], sortby_ID=False
+            "Postmodern Basket Weaving", [A, B, C, D, E, F, G], sort_by_id=False
         )
 
         # Test isvalid_curriculum() and extraneous_requisites()
@@ -267,7 +267,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
         D.add_requisite(B, pre)
         D.add_requisite(C, pre)
 
-        curric = Curriculum("Delay Factor Test", [A, B, C, D], sortby_ID=False)
+        curric = Curriculum("Delay Factor Test", [A, B, C, D], sort_by_id=False)
         self.assertEqual(curric.delay_factor[0], 12.0)
         self.assertEqual(list(curric.delay_factor[1].values()), [3.0, 3.0, 3.0, 3.0])
 
@@ -365,7 +365,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H],
             institution="ACME State University",
             cip="445786",
-            sortby_ID=False,
+            sort_by_id=False,
         )
 
     def test_isvalid_curriculum(self) -> None:
@@ -428,7 +428,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             [self.A, self.B, self.C, self.D, self.E, self.F, self.G],
             institution="ACME State University",
             cip="445786",
-            sortby_ID=False,
+            sort_by_id=False,
         )
         self.assertEqual(curric_mod.similarity(self.curric), 0.875)
         self.assertEqual(self.curric.similarity(curric_mod), 1.0)
@@ -458,7 +458,7 @@ class Test8VertexTestCurriculum(unittest.TestCase):
             [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H, I, J],
             institution="ACME State University",
             cip="445786",
-            sortby_ID=False,
+            sort_by_id=False,
         )
         de = curric_de.dead_ends(frozenset({"BW"}))
         self.assertEqual(len(de[1]), 1)

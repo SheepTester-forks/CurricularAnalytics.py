@@ -18,8 +18,7 @@ We define the blocking factor of a course :math:`v_i` as the number of courses i
 .. image:: src/blocking-ex.png
   :alt: blocking factor example
 
-.. automethod:: Curriculum.blocking_factor
-.. automethod:: Curriculum.course_blocking_factor
+The toolbox provides :attr:`.blocking_factor` and :meth:`.course_blocking_factor` for calculating the blocking factor.
 
 Delay Factor
 ~~~~~~~~~~~~
@@ -31,8 +30,7 @@ We define the delay factor of course vertex :math:`v_i` to be the length of the 
 .. image:: src/delay-ex.png
   :alt: delay factor example
 
-.. automethod:: Curriculum.delay_factor
-.. automethod:: Curriculum.course_delay_factor
+The toolbox provides :attr:`.delay_factor` and :meth:`.course_delay_factor` for calculating the delay factor.
 
 Centrality
 ~~~~~~~~~~
@@ -46,8 +44,7 @@ We define the centrality of source and sink vertices to be 0.  For all other cou
 
 In the case of the curriculum in part (a), there is one long path of length three that includes course :math:`v_2`, hence its centrality is 3, while in part (b), there are two long paths of length three that include course :math:`v_2`, hence its centrality is 6.
 
-.. automethod:: Curriculum.centrality
-.. automethod:: Curriculum.course_centrality
+The toolbox provides :attr:`.centrality` and :meth:`.course_centrality` for calculating the centrality factor.
 
 Structural Complexity
 ~~~~~~~~~~~~~~~~~~~~~
@@ -59,31 +56,19 @@ As an example of the structural complexity metric, consider the same four-course
 .. image:: src/complexity-ex.png
   :alt: complexity example
 
-.. automethod:: Curriculum.complexity
-.. automethod:: Curriculum.course_complexity
-
-Basic Metrics (Curriculum)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-All of the predefined metrics for a given curriculum described above will be computed and stored in the curriculum's `metric` dictionary by using the following function.
-
-.. automethod:: Curriculum.basic_metrics
+The toolbox provides :attr:`.complexity` and :meth:`.course_complexity` for calculating the complexity factor.
 
 Degree Plan Metrics
 -------------------
 
-The aforementioned curricular complexity metrics are independent of how a curriculum is layed out as a degree plan.  That is, the curricular metrics will not change as different degree plans are created.  Degree plan metrics are related to the manner in which courses in the curriculum are laid out across the terms in the degree plan.  These metrics are used in the creation of optimal degree plans as described in [Optimized Degree Plans](@ref).
+The aforementioned curricular complexity metrics are independent of how a curriculum is layed out as a degree plan. That is, the curricular metrics will not change as different degree plans are created. Degree plan metrics are related to the manner in which courses in the curriculum are laid out across the terms in the degree plan.
 
 Basic Metrics (Degree Plans)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A set of basic statistics associated with the distribution of credit hours in a degree plan can be obtained by using:
-
-.. automethod:: DegreePlan.basic_metrics
+A set of basic statistics associated with the distribution of credit hours in a degree plan can be obtained by using :meth:`DegreePlan.basic_metrics`.
 
 Requisite Distance
 ~~~~~~~~~~~~~~~~~~
 
-A degree plan metric that is based upon the separation of courses and their pre- and co-requisites in a degree plan is described next.
-
-.. automethod:: DegreePlan.requisite_distance
+A degree plan metric that is based upon the separation of courses and their pre- and co-requisites in a degree plan is described in :meth:`.requisite_distance`.

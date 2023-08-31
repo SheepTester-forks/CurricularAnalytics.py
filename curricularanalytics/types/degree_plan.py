@@ -15,10 +15,11 @@ from .data_types import pre
 
 class Term:
     """
-    The `Term` data type is used to represent a single term within a `DegreePlan`.
+    The `Term` data type is used to represent a single term within a :class:`DegreePlan`.
 
     Args:
         courses: `Course` data objects.
+
     """
 
     courses: List[AbstractCourse]
@@ -248,12 +249,12 @@ class DegreePlan:
 
         The basic metrics computed include:
 
-        - max. credits in a term: The maximum number of credit hours in any one term in the degree plan.
-        - min. credits in a term: The minimum number of credit hours in any one term in the degree plan.
-        - max. credit term: The earliest term in the degree plan that has the maximum number of credit hours (0-indexed).
-        - min. credit term: The earliest term in the degree plan that has the minimum number of credit hours (0-indexed).
-        - avg. credits per term: The average number of credit hours per term in the degree plan, :math:`\overline{ch}`.
-        - term credit hour std. dev.: The standard deviation of credit hours across all terms :math:`\sigma`.  If :math:`ch_i` denotes the number
+        * max. credits in a term: The maximum number of credit hours in any one term in the degree plan.
+        * min. credits in a term: The minimum number of credit hours in any one term in the degree plan.
+        * max. credit term: The earliest term in the degree plan that has the maximum number of credit hours (0-indexed).
+        * min. credit term: The earliest term in the degree plan that has the minimum number of credit hours (0-indexed).
+        * avg. credits per term: The average number of credit hours per term in the degree plan, :math:`\overline{ch}`.
+        * term credit hour std. dev.: The standard deviation of credit hours across all terms :math:`\sigma`.  If :math:`ch_i` denotes the number
         of credit hours in term :math:`i`, then
 
         .. math::
@@ -288,14 +289,14 @@ class DegreePlan:
 
         The basic metrics computed include:
 
-        - number of terms : The total number of terms (semesters or quarters) in the degree plan, ``m``.
-        - total credit hours : The total number of credit hours in the degree plan.
-        - max. credits in a term : The maximum number of credit hours in any one term in the degree plan.
-        - min. credits in a term : The minimum number of credit hours in any one term in the degree plan.
-        - max. credit term : The earliest term in the degree plan that has the maximum number of credit hours (1-indexed).
-        - min. credit term : The earliest term in the degree plan that has the minimum number of credit hours (1-indexed).
-        - avg. credits per term: The average number of credit hours per term in the degree plan, :math:`\overline{ch}`.
-        - term credit hour std. dev.: The standard deviation of credit hours across all terms :math:`\sigma`.  If :math:`ch_i` denotes the number
+        * number of terms : The total number of terms (semesters or quarters) in the degree plan, ``m``.
+        * total credit hours : The total number of credit hours in the degree plan.
+        * max. credits in a term : The maximum number of credit hours in any one term in the degree plan.
+        * min. credits in a term : The minimum number of credit hours in any one term in the degree plan.
+        * max. credit term : The earliest term in the degree plan that has the maximum number of credit hours (1-indexed).
+        * min. credit term : The earliest term in the degree plan that has the minimum number of credit hours (1-indexed).
+        * avg. credits per term: The average number of credit hours per term in the degree plan, :math:`\overline{ch}`.
+        * term credit hour std. dev.: The standard deviation of credit hours across all terms :math:`\sigma`.  If :math:`ch_i` denotes the number
         of credit hours in term :math:`i`, then
 
         .. math::

@@ -56,19 +56,32 @@ from .learning_outcome import LearningOutcome
 
 
 class BasicMetrics(NamedTuple):
+    """
+    A data class storing additional metrics data for the curriculum. See
+    :attr:`Curriculum.basic_metrics`.
+    """
+
     max_blocking_factor: int
+    "Maximum course blocking factor in the curriculum."
     max_blocking_factor_courses: List[AbstractCourse]
+    "A list of courses with the maximum course blocking factor."
     max_delay_factor: int
+    "Maximum course delay factor in the curriculum."
     max_delay_factor_courses: List[AbstractCourse]
+    "A list of courses with the maximum course delay factor."
     max_centrality: int
+    "Maximum course centrality in the curriculum."
     max_centrality_courses: List[AbstractCourse]
+    "A list of courses with the maximum course centrality."
     max_complexity: float
+    "Maximum course complexity in the curriculum."
     max_complexity_courses: List[AbstractCourse]
+    "A list of courses with the maximum course complexity."
 
 
 class Curriculum:
     """
-    The `Curriculum` data type is used to represent the collection of courses that must be
+    The :class:`Curriculum` data type is used to represent the collection of courses that must be
     be completed in order to earn a particualr degree. Thus, we use the terms *curriculum* and
     *degree program* synonymously.
 
@@ -78,9 +91,11 @@ class Curriculum:
         degree_type: The type of degree, e.g. BA, BBA, BSc, BEng, etc.
         institution: The name of the institution offering the curriculum.
         system_type: The type of system the institution uses, allowable
-          types: `semester` (default), `quarter`.
+          types: :data:`semester` (default), :data:`quarter`.
         cip: The Classification of Instructional Programs (CIP) code for the
-          curriculum. See: https://nces.ed.gov/ipeds/cipcode
+          curriculum. See: `<https://nces.ed.gov/ipeds/cipcode>`_
+        id: ID of curriculum. Leave as 0 (default) to auto-generate.
+        sort_by_id: Whether to sort ``courses`` by their ID. Default: True. For more reliable results, particularly if your courses have auto-generated IDs, it would be wise to set this to False.
 
     Examples:
         >>> Curriculum("Biology", courses, institution="South Harmon Tech", degree_type=AS, cip="26.0101")
@@ -113,7 +128,7 @@ class Curriculum:
     "Directed graph representatin of pre-/co-requisite structure of learning outcomes in the curriculum"
     course_learning_outcome_graph: "nx.DiGraph[int]"
     """
-    Directed Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
+    Directed Int64 metagraph with Float64 weights defined by weight (default weight 1.0)
     This is a course and learning outcome graph
     """
     metadata: Dict[str, Any]
@@ -130,7 +145,7 @@ class Curriculum:
         institution: str = "",
         cip: str = "",
         id: int = 0,
-        sortby_ID: bool = True,
+        sort_by_id: bool = True,
         warn: bool = False,
     ) -> None:
         self.name = name
@@ -139,7 +154,7 @@ class Curriculum:
         self.institution = institution
         self.id = id or hash(self.name + self.institution + str(self.degree_type))
         self.cip = cip
-        self.courses = sorted(courses, key=lambda c: c.id) if sortby_ID else courses
+        self.courses = sorted(courses, key=lambda c: c.id) if sort_by_id else courses
         self.num_courses = len(self.courses)
         self.credit_hours = self.total_credits
         self.graph = self._create_graph()
@@ -173,7 +188,11 @@ class Curriculum:
     def course(
         self, prefix: str, num: str, name: str, institution: str
     ) -> AbstractCourse:
-        "Compute the hash value used to create the id for a course, and return the course if it exists in the curriculum supplied as input"
+        """
+        Compute the hash value used to create the id for a course, and return the first course if it exists in the curriculum supplied as input.
+
+        Be advised that there may be multiple courses with the same ID in a curriculum, so this will return the first one in :attr:`courses`.
+        """
         hash_val = course_id(name, prefix, num, institution)
         try:
             return next(course for course in self.courses if course.id == hash_val)
@@ -183,7 +202,11 @@ class Curriculum:
             )
 
     def course_from_id(self, id: int) -> AbstractCourse:
-        "Return the course associated with a course id in a curriculum"
+        """
+        Return the course associated with a course id in a curriculum.
+
+        Be advised that there may be multiple courses with the same ID in a curriculum, so this will return the first one in :attr:`courses`.
+        """
         for course in self.courses:
             if course.id == id:
                 return course
@@ -216,7 +239,7 @@ class Curriculum:
 
     def _create_course_learning_outcome_graph(self) -> "nx.DiGraph[int]":
         """
-        Create a curriculum directed graph from a curriculum specification. This graph graph contains courses and learning outcomes
+        Create a curriculum directed graph from a curriculum specification. This graph contains courses and learning outcomes
         of the curriculum.
         """
         graph: "nx.DiGraph[int]" = nx.DiGraph()
@@ -274,9 +297,9 @@ class Curriculum:
         whether or not it contains a requisite cycle, or requisites that cannot be satisfied.
 
         Returns:
-            A boolean value, with `True` indicating the curriculum is valid, and `False` indicating it is not.
+            A boolean value, with ``True`` indicating the curriculum is valid, and ``False`` indicating it is not.
 
-        If the graph is not valid, the `error_file` buffer. To view these errors, use::
+        If the graph is not valid, messages are written to the ``error_file`` buffer. To view these errors, use::
 
             >>> errors = StringIO()
             >>> c.isvalid(errors)
@@ -461,10 +484,12 @@ class Curriculum:
         Consider a curriculum graph :math:`G_c = (V,E)`, and a vertex :math:`v_i \in V`. Furthermore,
         consider all paths between every pair of vertices :math:`v_j, v_k \in V` that satisfy the
         following conditions:
-        - :math:`v_i, v_j, v_k` are distinct, i.e., :math:`v_i \neq v_j, v_i \neq v_k` and :math:`v_j \neq v_k`;
-        - there is a path from :math:`v_j` to :math:`v_k` that includes :math:`v_i`, i.e., :math:`v_j \leadsto v_i \leadsto v_k`;
-        - :math:`v_j` has in-degree zero, i.e., :math:`v_j` is a "source"; and
-        - :math:`v_k` has out-degree zero, i.e., :math:`v_k` is a "sink".
+
+        * :math:`v_i, v_j, v_k` are distinct, i.e., :math:`v_i \neq v_j, v_i \neq v_k` and :math:`v_j \neq v_k`;
+        * there is a path from :math:`v_j` to :math:`v_k` that includes :math:`v_i`, i.e., :math:`v_j \leadsto v_i \leadsto v_k`;
+        * :math:`v_j` has in-degree zero, i.e., :math:`v_j` is a "source"; and
+        * :math:`v_k` has out-degree zero, i.e., :math:`v_k` is a "sink".
+
         Let :math:`P_{v_i} = \{p_1, p_2, \ldots\}` denote the set of all directed paths that satisfy these
         conditions.
         Then the **centrality** of :math:`v_i` is defined as
@@ -523,19 +548,18 @@ class Curriculum:
     @cached_property
     def complexity(self) -> Tuple[float, Dict[int, float]]:
         r"""
-        The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)``
+        The **complexity** associated with the curriculum :math:`c` with curriculum graph :math:`G_c = (V,E)`
         is defined as:
 
-        ```math
-        h(G_c) = \sum_{v \in V} \left(d_c(v) + b_c(v)\right).
-        ```
+        .. math::
+            h(G_c) = \sum_{v \in V} \left(d_c(v) + b_c(v)\right).
 
         For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15,
         while the curriculum in part (b) has an overall complexity of 17. This indicates that the curriculum
         in part (b) will be slightly more difficult to complete than the one in part (a). In particular, notice
-        that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of
-        courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
-        ``v_3`` in that curriculum, has a higher combined complexity.
+        that course :math:`v_1` in part (a) has the highest individual course complexity, but the combination of
+        courses :math:`v_1` and :math:`v_2` in part (b), which both must be passed before a student can attempt course
+        :math:`v_3` in that curriculum, has a higher combined complexity.
         """
         course_complexity: Dict[int, float] = {
             course.id: self.course_delay_factor(course)
@@ -553,7 +577,7 @@ class Curriculum:
     @cached_property
     def longest_paths(self) -> List[List[AbstractCourse]]:
         """
-        Finds longest paths in the curriculum, and returns an array of course arrays, where
+        Finds longest paths in the curriculum, and returns a list of course lists, where
         each course array contains the courses in a longest path.
         """
         return [self.courses_from_ids(path) for path in longest_paths(self.graph)]
@@ -563,7 +587,7 @@ class Curriculum:
         Compare the metrics associated with two curricula.
 
         Returns:
-            A `StringIO`. To print out the report, use ``print(report.getvalue())``.
+            A :class:`StringIO`. To print out the report, use ``print(report.getvalue())``.
         """
         report = StringIO()
         report.write(f"Comparing: C1 = {self.name} and C2 = {other.name}\n")
@@ -630,9 +654,9 @@ class Curriculum:
         Create a list of courses or course names from an array of course IDs.
 
         Returns:
-            - course data objects if ``type="object"``
-            - the names of courses if ``type="name"``
-            - the full names of courses ``{prefix} {num} - {name}`` if ``type="fullname"``
+            * course data objects if ``type="object"``
+            * the names of courses if ``type="name"``
+            * the full names of courses ``{prefix} {num} - {name}`` if ``type="fullname"``
         """
         if type == "object":
             return [self.course_from_id(id) for id in ids]
@@ -649,14 +673,14 @@ class Curriculum:
     @cached_property
     def basic_metrics(self) -> BasicMetrics:
         """
-        Compute the basic metrics associated with the curriculum `c`.
+        Compute the basic metrics associated with the curriculum.
 
         The basic metrics computed include:
 
-        - blocking factor: The blocking factor of the entire curriculum, and of each course in the curriculum.
-        - centrality: The centrality measure associated with the entire curriculum, and of each course in the curriculum.
-        - delay factor: The delay factor of the entire curriculum, and of each course in the curriculum.
-        - curricular complexity: The curricular complexity of the entire curriculum, and of each course in the curriculum.
+        * blocking factor: The blocking factor of the entire curriculum, and of each course in the curriculum.
+        * centrality: The centrality measure associated with the entire curriculum, and of each course in the curriculum.
+        * delay factor: The delay factor of the entire curriculum, and of each course in the curriculum.
+        * curricular complexity: The curricular complexity of the entire curriculum, and of each course in the curriculum.
 
         Complete descriptions of these metrics are provided above.
         """
@@ -698,19 +722,18 @@ class Curriculum:
 
         The basic metrics computed include:
 
-        - number of credit hours: The total number of credit hours in the curriculum.
-        - number of courses: The total courses in the curriculum.
-        - blocking factor: The blocking factor of the entire curriculum, and of each course in the curriculum.
-        - centrality: The centrality measure associated with the entire curriculum, and of each course in the curriculum.
-        - delay factor: The delay factor of the entire curriculum, and of each course in the curriculum.
-        - curricular complexity: The curricular complexity of the entire curriculum, and of each course in the curriculum.
+        * number of credit hours: The total number of credit hours in the curriculum.
+        * number of courses: The total courses in the curriculum.
+        * blocking factor: The blocking factor of the entire curriculum, and of each course in the curriculum.
+        * centrality: The centrality measure associated with the entire curriculum, and of each course in the curriculum.
+        * delay factor: The delay factor of the entire curriculum, and of each course in the curriculum.
+        * curricular complexity: The curricular complexity of the entire curriculum, and of each course in the curriculum.
 
         Complete descriptions of these metrics are provided above.
 
         Example:
             >>> metrics = curriculum.basic_metrics_to_buffer()
             >>> print(metrics.getvalue())
-        ```
         """
         buffer = StringIO()
         # write metrics to IO buffer
@@ -750,10 +773,10 @@ class Curriculum:
 
     def similarity(self, basis: "Curriculum", *, strict: bool = True) -> float:
         """
-        Compute how similar curriculum ``c1`` is to curriculum ``c2``.  The similarity metric is computed by comparing how many courses in
-        ``c1`` are also in ``c2``, divided by the total number of courses in ``c2``.  Thus, for two curricula, this metric is not symmetric. A
-        similarity value of ``1`` indicates that ``c1`` and ``c2`` are identical, whil a value of ``0`` means that none of the courses in ``c1``
-        are in ``c2``.
+        Compute how similar curriculum :math`c_1` is to curriculum :math`c_2`.  The similarity metric is computed by comparing how many courses in
+        :math`c_1` are also in :math`c_2`, divided by the total number of courses in :math`c_2`.  Thus, for two curricula, this metric is not symmetric. A
+        similarity value of :math`1` indicates that :math`c_1` and :math`c_2` are identical, whil a value of :math`0` means that none of the courses in :math`c_1`
+        are in :math`c_2`.
 
         Args:
             basis: The curriculum serving as the basis for comparison.
@@ -801,10 +824,10 @@ class Curriculum:
         CIP: str = "",
     ) -> "Curriculum":
         """
-        Merge the two curricula ``c1`` and ``c2`` supplied as input into a single curriculum based on the match criteria applied
-        to the courses in the two curricula.  All courses in curriculum ``c1`` will appear in the merged curriculum.  If a course in
-        curriculum ``c2`` matches a course in curriculum ``c1``, that course serves as a matched course in the merged curriculum.
-        If there is no match for a course in curriculum ``c2`` to the set of courses in curriculum ``c1``, course ``c2`` is added
+        Merge the two curricula :math:`c1` and :math:`c2` supplied as input into a single curriculum based on the match criteria applied
+        to the courses in the two curricula.  All courses in curriculum :math:`c1` will appear in the merged curriculum. If a course in
+        curriculum :math:`c2` matches a course in curriculum :math:`c1`, that course serves as a matched course in the merged curriculum.
+        If there is no match for a course in curriculum :math:`c2` to the set of courses in curriculum :math:`c1`, course :math:`c2` is added
         to the set of courses in the merged curriculum.
 
         Args:
@@ -813,11 +836,12 @@ class Curriculum:
               courses must be identical (at the level of memory allocation).
 
         Allowable match criteria include:
-        - `prefix`: the course prefixes must be identical.
-        - `num`: the course numbers must be indentical.
-        - `name`: the course names must be identical.
-        - `canonical name`: the course canonical names must be identical.
-        - `credit hours`: the course credit hours must be indentical.
+
+        * `prefix`: the course prefixes must be identical.
+        * `num`: the course numbers must be indentical.
+        * `name`: the course names must be identical.
+        * `canonical name`: the course canonical names must be identical.
+        * `credit hours`: the course credit hours must be indentical.
         """
         merged_courses = self.courses.copy()
         extra_courses: List[AbstractCourse] = []
@@ -866,19 +890,19 @@ class Curriculum:
         self, prefixes: FrozenSet[str]
     ) -> Tuple[FrozenSet[str], List[Course]]:
         """
-        Finds all courses in the curriculum that appear at the end of a path (i.e., sink vertices).  If a course does not have a prefix, it is excluded from
+        Finds all courses in the curriculum that appear at the end of a path (i.e., sink vertices). If a course does not have a prefix, it is excluded from
         the analysis.
 
         Args:
             prefixes: An array of course prefix strings.
 
         Returns:
-            Those courses that do not have one of the course prefixes listed in the `prefixes` array
+            Those courses that do not have one of the course prefixes listed in the ``prefixes`` array
 
         Examples:
-            For instance, the following will find all courses in `curric` that appear at the end of any course path in the curriculum,
-            and do *not* have `BIO` as a prefix.  One might consider these courses "dead ends," as their course outcomes are not used by any
-            major-specific course, i.e., by any course with the prefix `BIO`.
+            For instance, the following will find all courses in ``curric`` that appear at the end of any course path in the curriculum,
+            and do *not* have ``BIO`` as a prefix.  One might consider these courses "dead ends," as their course outcomes are not used by any
+            major-specific course, i.e., by any course with the prefix ``BIO``.
 
             >>> curric.dead_ends(frozenset({"BIO"}))
         """

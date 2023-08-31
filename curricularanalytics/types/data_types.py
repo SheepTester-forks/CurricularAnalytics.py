@@ -24,6 +24,10 @@ __all__ = [
 
 
 class System(Enum):
+    """
+    The number of terms during a typical year. Defaults to :data:`semester`.
+    """
+
     semester = auto()
     quarter = auto()
 
@@ -38,7 +42,9 @@ class System(Enum):
 
 
 semester = System.semester
+"Semester system."
 quarter = System.quarter
+"Quarter system. Complexity scores are scaled by 2/3 in quarter system curricula."
 
 
 class Requisite(Enum):

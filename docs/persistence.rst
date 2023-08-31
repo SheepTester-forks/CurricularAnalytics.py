@@ -1,17 +1,12 @@
 .. currentmodule:: curricularanalytics
 
-Reading/Writing Curricula & Degree Plans
-========================================
-
-The ability to read/write curricula and degree plans to disk is greatly facilitated by using the functions described here.
-
 File Format
------------
+===========
 
 The *CSV file format* stores data as comma-separated values in a text file, allowing data to be presented in tabular form. You can open CSV files with either a text editor or by using your favorite spreadsheet program. The sections below describe the CSV file formats used for curricula and degree plans, as well as functions that can be used to read/write these CSV files.
 
 Curricula Files
-~~~~~~~~~~~~~~~
+---------------
 
 The CSV file format used to store curricula is shown below:
 
@@ -52,7 +47,7 @@ Below is an example curriculum file that uses the aforedescribed format:
   :alt: visualization of example curriculum
 
 Degree Plan Files
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The CSV file format used to store degree plans is shown below:
 
@@ -76,12 +71,7 @@ Below is an example degree plan file that uses the aforedescribed format. This d
 .. image:: src/degree-plan-ex-viz.png
   :alt: visualization of example degree plan
 
-Writing Curricula and Degree Plans
-----------------------------------
+Reading/Writing
+---------------
 
-.. autofunction:: write_csv
-
-Reading Curricula and Degree Plans
-----------------------------------
-
-.. autofunction:: read_csv
+The toolbox provides :func:`read_csv` and :func:`write_csv` for reading and writing curricula and degree plans.

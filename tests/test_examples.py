@@ -39,7 +39,7 @@ class ExampleTests(unittest.TestCase):
         # term 2
         c[4].add_requisite(c[2], pre)
 
-        curric = Curriculum("Example Curricula c1", c[1:], sortby_ID=False)
+        curric = Curriculum("Example Curricula c1", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
         self.assertEqual(curric.delay_factor[0], 11.0)
@@ -93,7 +93,7 @@ class ExampleTests(unittest.TestCase):
         # term 3
         c[4].add_requisite(c[3], pre)
 
-        curric = Curriculum("Example Curricula C2", c[1:], sortby_ID=False)
+        curric = Curriculum("Example Curricula C2", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
         self.assertEqual(curric.delay_factor[0], 12.0)
@@ -249,7 +249,7 @@ class ExampleTests(unittest.TestCase):
         curric = Curriculum(
             "Example ECE Department at UA ",
             c[1:],
-            sortby_ID=False,
+            sort_by_id=False,
         )
 
         self.assertTrue(curric.is_valid())
@@ -512,7 +512,7 @@ class ExampleTests(unittest.TestCase):
         c[19].add_requisite(c[17], co)
         c[24].add_requisite(c[19], pre)
 
-        curric = Curriculum("Cornell University EE Program", c[1:], sortby_ID=False)
+        curric = Curriculum("Cornell University EE Program", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
         self.assertEqual(curric.delay_factor[0], 85.0)
@@ -847,7 +847,7 @@ class ExampleTests(unittest.TestCase):
         c[38].add_requisite(c[37], co)
         c[44].add_requisite(c[38], pre)
 
-        curric = Curriculum("University of Houston EE Program", c[1:], sortby_ID=False)
+        curric = Curriculum("University of Houston EE Program", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
         self.assertEqual(curric.delay_factor[0], 301.0)
@@ -1419,7 +1419,9 @@ class ExampleTests(unittest.TestCase):
         # term 7
         c[38].add_requisite(c[33], pre)
 
-        curric = Curriculum("University of Kentucky EE Program", c[1:], sortby_ID=False)
+        curric = Curriculum(
+            "University of Kentucky EE Program", c[1:], sort_by_id=False
+        )
 
         terms = [
             Term([c[1], c[2], c[3], c[4], c[5], c[6]]),

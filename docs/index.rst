@@ -71,7 +71,7 @@ Represent courses with :class:`Course`::
    bw111 = Course("Basic Basket Forms", 3, prefix="BW", num="111")
    bw201 = Course("Advanced Basketry", 3, prefix="BW", num="201")
 
-Add relationships between courses with the :meth:`add_requisite` method. See :class:`Requisite` for the types of requisites available::
+Add relationships between courses with the :meth:`AbstractCourse.add_requisite` method. See :class:`Requisite` for the types of requisites available::
 
    from curricularanalytics import co, pre, strict_co
    bw101l.add_requisite(bw101, strict_co)
@@ -106,8 +106,7 @@ Toolbox Overview
 
 The toolbox represents curricula as graphs, allowing various graph-theoretic measures to be applied in order to quantify the complexity of curricula. In addition to analyzing curricular complexity, the toolbox supports the ability to visualize curricula and degree plans, to compare and contrast curricula, to create optimal degree plans for completing curricula that satisfy particular constraints, and to simulate the impact of various events on student progression through a curriculum.
 
-The basic data types used in the CurricularAnalytics.jl libraries are described in :doc:`types`. This section also describes a number of convenient functions that can be used to create curricula and degree plans. Functions that can be used to read and write curricula and degree plans to/from permanent storage are described in :doc:`persistence`.
-
+Functions that can be used to read and write curricula and degree plans to/from permanent storage are described in :doc:`persistence`.
 Metrics that have been developed to quantify the complexity of curricula and degree plans are described in :doc:`metrics`. Functions that can be used to study degree plans, and to create degree plans according to various constraints and optimization criteria are described in :doc:`degreeplans`.
 
 Visualization-related functions are described in :doc:`visualize`.
@@ -123,16 +122,13 @@ Some substantial API changes were made from the `original Julia package <https:/
    :maxdepth: 3
    :caption: Contents:
 
-   install
-   types
+   api
    persistence
-   visualize
    metrics
+   visualize
    degreeplans
    simulating
-   graph-algs
    contributing
-   api
 
 Indices and tables
 ==================

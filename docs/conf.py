@@ -32,6 +32,7 @@ extensions = [
     "sphinx.ext.mathjax",
 ]
 autosummary_generate = True
+autodoc_member_order = "bysource"
 autodoc_typehints = "description"
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
