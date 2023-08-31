@@ -18,7 +18,7 @@ from .graph_algs import (
 )
 from .types.course import AbstractCourse, Course, CourseCollection, course_id
 from .types.course_catalog import CourseCatalog
-from .types.curriculum import Curriculum, basic_statistics
+from .types.curriculum import BasicMetrics, Curriculum, basic_statistics, homology
 from .types.data_types import (
     EdgeClass,
     Requisite,
@@ -33,7 +33,7 @@ from .types.data_types import (
     strict_co,
     tree_edge,
 )
-from .types.degree_plan import DegreePlan, Term
+from .types.degree_plan import DegreePlan, Term, TermMetrics
 from .types.degree_requirements import (
     AbstractRequirement,
     CourseSet,
@@ -88,7 +88,7 @@ _ = (
     forward_edge,
     gad,
     grade,
-    # homology,
+    homology,
     longest_path,
     longest_paths,
     # pass_table,
@@ -114,4 +114,6 @@ _ = (
     write_csv,
     # csv_stream,
     from_grade,
+    TermMetrics,
+    BasicMetrics,
 )
