@@ -70,8 +70,8 @@ def read_csv(
 ]:
     """
     Read (i.e., deserialize) a CSV file containing either a curriculum or a degree plan, and returns a corresponding
-    `Curriculum` or `DegreePlan` data object.  The required format for curriculum or degree plan CSV files is
-    described in [File Format](@ref).
+    :class:`Curriculum` or :class:`DegreePlan` data object. The required format for curriculum or degree plan CSV files is
+    described in :ref:`persistence`.
 
     Args:
         file_path: The relative or absolute path to the CSV file.
@@ -241,9 +241,7 @@ def read_csv(
 @overload
 def write_csv(
     program: Union[Curriculum, DegreePlan],
-    file_path: str,
     *,
-    iostream: Literal[True],
     metrics: bool = False,
 ) -> StringIO:
     ...
@@ -254,7 +252,6 @@ def write_csv(
     program: Union[Curriculum, DegreePlan],
     file_path: str,
     *,
-    iostream: Literal[False] = False,
     metrics: bool = False,
 ) -> None:
     ...
@@ -262,43 +259,25 @@ def write_csv(
 
 def write_csv(
     program: Union[Curriculum, DegreePlan],
-    file_path: str,
+    file_path: Optional[str] = None,
     *,
-    iostream: bool = False,
     metrics: bool = False,
 ) -> Optional[StringIO]:
     """
-        write_csv(c:Curriculum, file_path:AbstractString)
+    Write (i.e., serialize) a :class:`Curriculum` or :class:`DegreePlan` data object to disk as a CSV file. To read
+    (i.e., deserialize) a curriculum CSV file, use the corresponding :func:`read_csv` function.
+    The file format used to store curricula is described in :ref:`persistence`.
 
-    Write (i.e., serialize) a `Curriculum` data object to disk as a CSV file. To read
-    (i.e., deserialize) a curriculum CSV file, use the corresponding `read_csv` function.
-    The file format used to store curricula is described in [File Format](@ref).
+    Args:
+        c: The :class:`Curriculum` or :class:`DegreePlan` data object to be serialized.
+        file_path: The absolute or relative path where the CSV file will be stored. If omitted, the file will be written to a `StringIO` and returned.
+        metrics: Whether to include curriculum metrics for each course in Complexity, Blocking, Delay, Centrality columns.
 
-    # Arguments
-    - `c:Curriculum` : the `Curriculum` data object to be serialized.
-    - `file_path:AbstractString` : the absolute or relative path where the CSV file will be stored.
-
-    # Examples:
-    ```julia-repl
-    julia> write_csv(c, "./mydata/UBW_curric.csv")
-    ```
-
-        write_csv(dp:DegreePlan, file_path:AbstractString)
-
-    Write (i.e., serialize) a `DegreePlan` data object to disk as a CSV file. To read
-    (i.e., deserialize) a degree plan CSV file, use the corresponding `read_csv` function.
-    The file format used to store degree plans is described in [File Format](@ref).
-
-    # Arguments
-    - `dp:DegreePlan` : the `DegreePlan` data object to be serialized.
-    - `file_path:AbstractString` : the absolute or relative path where the CSV file will be stored.
-
-    # Examples:
-    ```julia-repl
-    julia> write_csv(dp, "./mydata/UBW_plan.csv")
-    ```
+    Examples:
+        >>> write_csv(c, "./mydata/UBW_curric.csv")
+        >>> write_csv(dp, "./mydata/UBW_plan.csv")
     """
-    if iostream:
+    if file_path is None:
         csv_file = StringIO()
         write_csv_content(csv_file, program, metrics=metrics)
         return csv_file

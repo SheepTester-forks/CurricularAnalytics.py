@@ -101,6 +101,20 @@ A visual representation of this degree plan is as follows:
 
 The solid arrow in this figure represents a prerequisite relationship, while the dashed arrows represent co-requisite relationships.
 
+To save the curriculum and degree plan to a file, use :func:`write_csv`::
+
+   from curricularanalytics import write_csv
+   write_csv(curriculum, "./basket_weaving_curriculum.csv")
+   write_csv(degree_plan, "./basket_weaving_plan.csv")
+
+To load from a file, use :func:`read_csv`::
+
+   from curricularanalytics import Curriculum, DegreePlan, read_csv
+   curriculum = read_csv("./basket_weaving_curriculum.csv")
+   assert isinstance(curriculum, Curriculum)
+   degree_plan = read_csv("./basket_weaving_plan.csv")
+   assert isinstance(degree_plan, DegreePlan)
+
 Toolbox Overview
 ----------------
 
