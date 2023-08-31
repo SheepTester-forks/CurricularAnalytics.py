@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "curricularanalytics"
-version = "1.4.0"
+version = "0.1.0a1"
 authors = [
   { name = "Greg Heileman", email = "gregheileman@gmail.com" },
   { name = "Hayden Free", email = "haydenwfree@gmail.com" },
@@ -12,11 +12,12 @@ authors = [
   { name = "Will Thompson", email = "wgthompson@uky.edu" },
   { name = "Sean Yen", email = "seyen@ucsd.edu" },
 ]
+description = "A toolbox for studying and analyzing academic program curricula."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: GNU AFFERO GENERAL PUBLIC LICENSE",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
   "Operating System :: OS Independent",
 ]
 dependencies = ["networkx >= 3.1", "pandas >= 2.0.1"]

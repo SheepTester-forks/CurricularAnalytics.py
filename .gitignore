@@ -8,6 +8,8 @@ node_modules/
 yarn.lock
 Dockerfile
 __pycache__
+*.egg-info
+dist/
 
 # Temp file created by remove_empty_lines
 *_temp.csv
