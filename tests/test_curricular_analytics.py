@@ -178,18 +178,16 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         self.assertEqual(curric.delay_factor[0], 19.0)
         self.assertEqual(
-            list(curric.delay_factor[1].values()),
+            list(curric.delay_factor[1]),
             [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0],
         )
         self.assertEqual(curric.blocking_factor[0], 8)
-        self.assertEqual(
-            list(curric.blocking_factor[1].values()), [2, 2, 1, 3, 0, 0, 0, 0]
-        )
+        self.assertEqual(list(curric.blocking_factor[1]), [2, 2, 1, 3, 0, 0, 0, 0])
         self.assertEqual(curric.centrality[0], 9)
-        self.assertEqual(list(curric.centrality[1].values()), [0, 0, 9, 0, 0, 0, 0, 0])
+        self.assertEqual(list(curric.centrality[1]), [0, 0, 9, 0, 0, 0, 0, 0])
         self.assertEqual(curric.complexity[0], 27.0)
         self.assertEqual(
-            list(curric.complexity[1].values()),
+            list(curric.complexity[1]),
             [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0],
         )
 
@@ -238,18 +236,16 @@ class CurricularAnalyticsTests(unittest.TestCase):
         # Test analytics
         self.assertEqual(curric.delay_factor[0], 33.0)
         self.assertEqual(
-            list(curric.delay_factor[1].values()),
+            list(curric.delay_factor[1]),
             [5.0, 5.0, 5.0, 5.0, 3.0, 5.0, 5.0],
         )
         self.assertEqual(curric.blocking_factor[0], 16)
-        self.assertEqual(
-            list(curric.blocking_factor[1].values()), [6, 3, 4, 2, 0, 0, 1]
-        )
+        self.assertEqual(list(curric.blocking_factor[1]), [6, 3, 4, 2, 0, 0, 1])
         self.assertEqual(curric.centrality[0], 49)
-        self.assertEqual(list(curric.centrality[1].values()), [0, 9, 12, 18, 0, 0, 10])
+        self.assertEqual(list(curric.centrality[1]), [0, 9, 12, 18, 0, 0, 10])
         self.assertEqual(curric.complexity[0], 49.0)
         self.assertEqual(
-            list(curric.complexity[1].values()),
+            list(curric.complexity[1]),
             [11.0, 8.0, 9.0, 7.0, 3.0, 5.0, 6.0],
         )
 
@@ -269,7 +265,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         curric = Curriculum("Delay Factor Test", [A, B, C, D], sort_by_id=False)
         self.assertEqual(curric.delay_factor[0], 12.0)
-        self.assertEqual(list(curric.delay_factor[1].values()), [3.0, 3.0, 3.0, 3.0])
+        self.assertEqual(list(curric.delay_factor[1]), [3.0, 3.0, 3.0, 3.0])
 
 
 class Test8VertexTestCurriculum(unittest.TestCase):
@@ -380,21 +376,19 @@ class Test8VertexTestCurriculum(unittest.TestCase):
         self.assertEqual(self.curric.num_courses, 8)
         self.assertEqual(self.curric.blocking_factor[0], 8)
         self.assertEqual(
-            list(self.curric.blocking_factor[1].values()),
+            list(self.curric.blocking_factor[1]),
             [2, 2, 1, 3, 0, 0, 0, 0],
         )
         self.assertEqual(self.curric.delay_factor[0], 19.0)
         self.assertEqual(
-            list(self.curric.delay_factor[1].values()),
+            list(self.curric.delay_factor[1]),
             [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0],
         )
         self.assertEqual(self.curric.centrality[0], 9)
-        self.assertEqual(
-            list(self.curric.centrality[1].values()), [0, 0, 9, 0, 0, 0, 0, 0]
-        )
+        self.assertEqual(list(self.curric.centrality[1]), [0, 0, 9, 0, 0, 0, 0, 0])
         self.assertEqual(self.curric.complexity[0], 27.0)
         self.assertEqual(
-            list(self.curric.complexity[1].values()),
+            list(self.curric.complexity[1]),
             [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0],
         )
         self.assertEqual(self.curric.basic_metrics.max_blocking_factor, 3)

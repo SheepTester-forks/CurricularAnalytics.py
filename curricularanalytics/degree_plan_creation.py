@@ -95,28 +95,25 @@ def create_degree_plan(
 
 def select_vertex(
     curric: Curriculum, term_courses: List[AbstractCourse], UC: List[AbstractCourse]
-):
+) -> Optional[AbstractCourse]:
     for target in UC:
-        t_id = target.id
-        UCs = UC.copy()
-        UCs = [c for c in UCs if c.id != target.id]
+        target_vertex = curric.courses.index(target)
         invariant1 = True
-        for source in UCs:
-            s_id = source.id
-            if has_path(curric.graph, s_id, t_id):  # target cannot be moved to AC
+        for source in UC:
+            if source == target:
+                continue
+            # target cannot be moved to AC
+            if has_path(curric.graph, curric.courses.index(source), target_vertex):
                 invariant1 = False  # invariant 1 violated
                 break  # try a new target
-        if invariant1 == True:
+        if invariant1:
             invariant2 = True
             for c in term_courses:
-                if (
-                    c.id in target.requisites and target.requisites[c.id] == pre
-                ):  # AND shortcircuits, otherwise 2nd expression would error
+                if target.requisites.get(c.id) == pre:
                     invariant2 = False
                     break  # try a new target
-            if invariant2 == True:
+            if invariant2:
                 return target
-    return None
 
 
 def course_num(c: AbstractCourse) -> str:

@@ -332,12 +332,10 @@ class Curriculum:
                         i,  # destination vertex
                         self._course_vertex(req_course),  # source vertex
                     )
-        new_cycles = (
-            cyc for cyc in nx.simple_cycles(graph) if len(cyc) != 2
-        )  # remove length-2 cycles
-        cycles = set(
-            tuple(cyc) for cyc in [*new_cycles, *cycles]
-        )  # remove redundant cycles
+        # remove length-2 cycles
+        new_cycles = (cycle for cycle in nx.simple_cycles(graph) if len(cycle) != 2)
+        # remove redundant cycles
+        cycles = set(tuple(cycle) for cycle in [*new_cycles, *cycles])
         if len(cycles) != 0 and error_file:
             if self.institution != "":
                 error_file.write(f"\n{self.institution}: ")
@@ -395,7 +393,9 @@ class Curriculum:
                             # is there a path from n to v?
                             if nx.has_path(self.graph, neighbor, v):
                                 # the requisite relationship between u and n
-                                req_type = self.courses[neighbor].requisites[u]
+                                req_type = self.courses[neighbor].requisites[
+                                    self.courses[u].id
+                                ]
                                 # is u a co or strict_co requisite for n?
                                 if req_type == co or req_type == strict_co:
                                     remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
@@ -617,17 +617,17 @@ class Curriculum:
             report.write(
                 f"   Largest {metric_name} value in C1 is {maxval} for course: "
             )
-            for course in self.courses:
-                if metric1[1][course.id] == maxval:
-                    report.write(f"{course.name}  ")
+            for i, metric in enumerate(metric1[1]):
+                if metric == maxval:
+                    report.write(f"{self.courses[i].name}  ")
             report.write("\n")
             maxval = max(metric2[1])
             report.write(
                 f"   Largest {metric_name} value in C2 is {maxval} for course: "
             )
-            for course in other.courses:
-                if metric2[1][course.id] == maxval:
-                    report.write(f"{course.name}  ")
+            for i, metric in enumerate(metric2[1]):
+                if metric == maxval:
+                    report.write(f"{other.courses[i].name}  ")
             report.write("\n")
         return report
 
@@ -692,26 +692,26 @@ class Curriculum:
             max_blocking_factor,
             [
                 course
-                for course in self.courses
-                if self.blocking_factor[1][course.id] == max_blocking_factor
+                for i, course in enumerate(self.courses)
+                if self.blocking_factor[1][i] == max_blocking_factor
             ],
             max_delay_factor,
             [
                 course
-                for course in self.courses
-                if self.delay_factor[1][course.id] == max_delay_factor
+                for i, course in enumerate(self.courses)
+                if self.delay_factor[1][i] == max_delay_factor
             ],
             max_centrality,
             [
                 course
-                for course in self.courses
-                if self.centrality[1][course.id] == max_centrality
+                for i, course in enumerate(self.courses)
+                if self.centrality[1][i] == max_centrality
             ],
             max_complexity,
             [
                 course
-                for course in self.courses
-                if self.complexity[1][course.id] == max_complexity
+                for i, course in enumerate(self.courses)
+                if self.complexity[1][i] == max_complexity
             ],
         )
 
