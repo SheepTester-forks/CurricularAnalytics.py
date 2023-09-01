@@ -23,8 +23,6 @@ class LearningOutcome:
 
     id: int
     "Unique id for the learning outcome, set when the cousrse is added to a graph"
-    vertex_id: Dict[int, int]
-    "The vertex id of the learning outcome w/in a curriculum graph, stored as (curriculum_id, vertex_id)"
     name: str
     "Name of the learning outcome"
     description: str
@@ -49,7 +47,6 @@ class LearningOutcome:
         self.requisites = {}
         self.metrics = {}
         self.metadata = {}
-        self.vertex_id = {}  # curriculum id -> vertex id
 
     def add_requisite(
         self, requisite_lo: "LearningOutcome", requisite_type: Requisite

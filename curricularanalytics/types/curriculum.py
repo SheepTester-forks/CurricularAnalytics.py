@@ -224,17 +224,37 @@ class Curriculum:
         "The total number of credit hours in a curriculum"
         return sum(course.credit_hours for course in self.courses)
 
+    def _course_vertex(self, course_id: int) -> int:
+        """
+        Return the vertex ID of the first course in the curriculum with the
+        given course ID.
+        """
+        for i, course in enumerate(self.courses):
+            if course.id == course_id:
+                return i
+        raise KeyError(f"The curriculum does not have a course with ID {course_id}.")
+
+    def _lo_vertex(self, lo_id: int) -> int:
+        """
+        Return the vertex ID of the first learning outcome in the curriculum
+        with the given ID.
+        """
+        for i, lo in enumerate(self.learning_outcomes):
+            if lo.id == lo_id:
+                return len(self.courses) + i
+        raise KeyError(
+            f"The curriculum does not have a learning outcome with ID {lo_id}."
+        )
+
     def _create_graph(self) -> "nx.DiGraph[int]":
         """
         Create a curriculum directed graph from a curriculum specification.
         """
         graph: "nx.DiGraph[int]" = nx.DiGraph()
-        for course in self.courses:
-            graph.add_node(course.id)
-            # TODO: make sure course is not alerady in the curriculum
-        for course in self.courses:
+        graph.add_nodes_from(range(len(self.courses)))
+        for i, course in enumerate(self.courses):
             for requisite in course.requisites.keys():
-                graph.add_edge(requisite, course.id)
+                graph.add_edge(self._course_vertex(requisite), i)
         return graph
 
     def _create_course_learning_outcome_graph(self) -> "nx.DiGraph[int]":
@@ -243,38 +263,27 @@ class Curriculum:
         of the curriculum.
         """
         graph: "nx.DiGraph[int]" = nx.DiGraph()
-        for course in self.courses:
-            graph.add_node(course.id)
-            # TODO: make sure course is not alerady in the curriculum
-
-        for outcome in self.learning_outcomes:
-            graph.add_node(outcome.id)
-            # TODO: make sure course is not alerady in the curriculum
-
+        graph.add_nodes_from(range(len(self.courses) + len(self.learning_outcomes)))
         # Add edges among courses
-        for course in self.courses:
-            for requisite in course.requisites.keys():
-                graph.add_edge(requisite, course.id)
-                nx.set_edge_attributes(
-                    graph,
-                    {(requisite, course.id): {c_to_c: course.requisites[requisite]}},
-                )
+        for i, course in enumerate(self.courses):
+            for req_id, req_type in course.requisites.items():
+                edge = self._course_vertex(req_id), i
+                graph.add_edge(*edge)
+                nx.set_edge_attributes(graph, {edge: {c_to_c: req_type}})
 
         # Add edges among learning_outcomes
-        for outcome in self.learning_outcomes:
+        for i, outcome in enumerate(self.learning_outcomes):
             for requisite in outcome.requisites:
-                graph.add_edge(requisite, outcome.vertex_id[self.id])
-                nx.set_edge_attributes(
-                    graph, {(requisite, outcome.vertex_id[self.id]): {lo_to_lo: pre}}
-                )
+                edge = self._lo_vertex(requisite), i
+                graph.add_edge(*edge)
+                nx.set_edge_attributes(graph, {edge: {lo_to_lo: pre}})
 
         # Add edges between each pair of a course and a learning outcome
-        for course in self.courses:
+        for i, course in enumerate(self.courses):
             for outcome in course.learning_outcomes:
-                graph.add_edge(outcome.id, course.id)
-                nx.set_edge_attributes(
-                    graph, {(outcome.id, course.id): {lo_to_c: belong_to}}
-                )
+                edge = self._lo_vertex(outcome.id), i
+                graph.add_edge(*edge)
+                nx.set_edge_attributes(graph, {edge: {lo_to_c: belong_to}})
         return graph
 
     def _create_learning_outcome_graph(self) -> "nx.DiGraph[int]":
@@ -282,12 +291,10 @@ class Curriculum:
         Create a curriculum directed graph from a curriculum specification.
         """
         graph: "nx.DiGraph[int]" = nx.DiGraph()
+        graph.add_nodes_from(range(len(self.learning_outcomes)))
         for i, outcome in enumerate(self.learning_outcomes):
-            graph.add_node(i)
-            outcome.vertex_id[self.id] = i
-        for outcome in self.learning_outcomes:
             for requisite in outcome.requisites.keys():
-                graph.add_edge(requisite, outcome.vertex_id[self.id])
+                graph.add_edge(self._lo_vertex(requisite), i)
         return graph
 
     # Check if a curriculum graph has requisite cycles.
@@ -318,12 +325,12 @@ class Curriculum:
         # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in
         # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
         # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
-        for course in self.courses:
+        for i, course in enumerate(self.courses):
             for req_course, req_type in course.requisites.items():
                 if req_type == strict_co:
                     graph.add_edge(
-                        self.course_from_id(course.id).id,  # destination vertex
-                        self.course_from_id(req_course).id,  # source vertex
+                        i,  # destination vertex
+                        self._course_vertex(req_course),  # source vertex
                     )
         new_cycles = (
             cyc for cyc in nx.simple_cycles(graph) if len(cyc) != 2
@@ -335,11 +342,11 @@ class Curriculum:
             if self.institution != "":
                 error_file.write(f"\n{self.institution}: ")
             error_file.write(f" curriculum '{self.name}' has requisite cycles:\n")
-            for cyc in cycles:
+            for cycle in cycles:
                 error_file.write("(")
-                for i, v in enumerate(cyc):
-                    name: str = self.course_from_id(v).name
-                    if i != len(cyc) - 1:
+                for i, vertex in enumerate(cycle):
+                    name: str = self.courses[vertex].name
+                    if i != len(cycle) - 1:
                         error_file.write(f"{name}, ")
                     else:
                         error_file.write(f"{name})\n")
@@ -388,7 +395,7 @@ class Curriculum:
                             # is there a path from n to v?
                             if nx.has_path(self.graph, neighbor, v):
                                 # the requisite relationship between u and n
-                                req_type = self.course_from_id(neighbor).requisites[u]
+                                req_type = self.courses[neighbor].requisites[u]
                                 # is u a co or strict_co requisite for n?
                                 if req_type == co or req_type == strict_co:
                                     remove = False  # a co or strict_co relationshipo is involved, must keep (u, v)
@@ -421,11 +428,11 @@ class Curriculum:
         :math:`v_i` to :math:`v_j` exists in :math:`G_c`, i.e., there is a requisite pathway from course
         :math:`c_i` to :math:`c_j` in curriculum :math:`c`.
         """
-        return self.blocking_factor[1][course.id]
+        return self.blocking_factor[1][self.courses.index(course)]
 
     # Compute the blocking factor of a curriculum
     @cached_property
-    def blocking_factor(self) -> Tuple[int, Dict[int, int]]:
+    def blocking_factor(self) -> Tuple[int, List[int]]:
         r"""
         The **blocking factor** associated with the curriculum is defined as:
 
@@ -435,11 +442,10 @@ class Curriculum:
 
         where :math:`G_c = (V,E)` is the curriculum graph associated with the curriculum.
         """
-        blocking_factors: Dict[int, int] = {
-            course.id: len(reachable_from(self.graph, course.id))
-            for course in self.courses
-        }
-        return sum(blocking_factors.values()), blocking_factors
+        blocking_factors: List[int] = [
+            len(reachable_from(self.graph, i)) for i in range(len(self.courses))
+        ]
+        return sum(blocking_factors), blocking_factors
 
     # Compute the delay factor of a course
     def course_delay_factor(self, course: AbstractCourse) -> int:
@@ -457,11 +463,11 @@ class Curriculum:
         where :math:`v_i \overset{p}{\leadsto} v_j` denotes a directed path :math:`p` in :math:`G_c` from vertex
         :math:`v_i` to :math:`v_j`.
         """
-        return self.delay_factor[1][course.id]
+        return self.delay_factor[1][self.courses.index(course)]
 
     # Compute the delay factor of a curriculum
     @cached_property
-    def delay_factor(self) -> Tuple[int, Dict[int, int]]:
+    def delay_factor(self) -> Tuple[int, List[int]]:
         r"""
         The **delay factor** associated with the curriculum is defined as:
 
@@ -471,12 +477,12 @@ class Curriculum:
 
         where ``G_c = (V,E)`` is the curriculum graph associated with the curriculum.
         """
-        delay_factors: Dict[int, int] = {course.id: 1 for course in self.courses}
+        delay_factors: List[int] = [1] * len(self.courses)
         for path in all_paths(self.graph):
             for vertex in path:
                 # path_length in terms of # of vertices, not edges
                 delay_factors[vertex] = max(delay_factors[vertex], len(path))
-        return sum(delay_factors.values()), delay_factors
+        return sum(delay_factors), delay_factors
 
     # Compute the centrality of a course
     def course_centrality(self, course: AbstractCourse) -> int:
@@ -500,11 +506,11 @@ class Curriculum:
 
         where :math:`\#(p)` denotes the number of vertices in the directed path :math:`p` in :math:`G_c`.
         """
-        return self.centrality[1][course.id]
+        return self.centrality[1][self.courses.index(course)]
 
     # Compute the total centrality of all courses in a curriculum
     @cached_property
-    def centrality(self) -> Tuple[int, Dict[int, int]]:
+    def centrality(self) -> Tuple[int, List[int]]:
         r"""
         Computes the total **centrality** associated with all of the courses in the curriculum,
         with curriculum graph :math:`G_c = (V,E)`.
@@ -513,22 +519,17 @@ class Curriculum:
 
             q(c) = \sum_{v \in V} q(v).
         """
-        centralities: Dict[int, int] = {
-            course.id: sum(
+        centralities: List[int] = [
+            sum(
                 len(path)
                 for path in all_paths(self.graph)
                 # conditions: path length is greater than 2, target course must be in the path, the target vertex
                 # cannot be the first or last vertex in the path
-                if (
-                    course.id in path
-                    and len(path) > 2
-                    and path[0] != course.id
-                    and path[-1] != course.id
-                )
+                if (i in path and len(path) > 2 and path[0] != i and path[-1] != i)
             )
-            for course in self.courses
-        }
-        return sum(centralities.values()), centralities
+            for i in range(len(self.courses))
+        ]
+        return sum(centralities), centralities
 
     # Compute the complexity of a course
     def course_complexity(self, course: AbstractCourse) -> float:
@@ -542,11 +543,11 @@ class Curriculum:
 
         i.e., as a linear combination of the course delay and blocking factors.
         """
-        return self.complexity[1][course.id]
+        return self.complexity[1][self.courses.index(course)]
 
     # Compute the complexity of a curriculum
     @cached_property
-    def complexity(self) -> Tuple[float, Dict[int, float]]:
+    def complexity(self) -> Tuple[float, List[float]]:
         r"""
         The **complexity** associated with the curriculum :math:`c` with curriculum graph :math:`G_c = (V,E)`
         is defined as:
@@ -561,17 +562,15 @@ class Curriculum:
         courses :math:`v_1` and :math:`v_2` in part (b), which both must be passed before a student can attempt course
         :math:`v_3` in that curriculum, has a higher combined complexity.
         """
-        course_complexity: Dict[int, float] = {
-            course.id: self.course_delay_factor(course)
-            + self.course_blocking_factor(course)
-            for course in self.courses
-        }
+        course_complexity: List[float] = [
+            df + bf for df, bf in zip(self.delay_factor[1], self.blocking_factor[1])
+        ]
         if self.system_type == quarter:
-            course_complexity = {
-                course_id: round((complexity * 2) / 3, ndigits=1)
-                for course_id, complexity in course_complexity.items()
-            }
-        return sum(course_complexity.values()), course_complexity
+            course_complexity = [
+                round((complexity * 2) / 3, ndigits=1)
+                for complexity in course_complexity
+            ]
+        return sum(course_complexity), course_complexity
 
     # Find all the longest paths in a curriculum.
     @cached_property
@@ -580,7 +579,7 @@ class Curriculum:
         Finds longest paths in the curriculum, and returns a list of course lists, where
         each course array contains the courses in a longest path.
         """
-        return [self.courses_from_ids(path) for path in longest_paths(self.graph)]
+        return [[self.courses[i] for i in path] for path in longest_paths(self.graph)]
 
     def compare(self, other: "Curriculum") -> StringIO:
         """
@@ -685,10 +684,10 @@ class Curriculum:
         Complete descriptions of these metrics are provided above.
         """
         # compute all curricular metrics
-        max_blocking_factor: int = max(self.blocking_factor[1].values())
-        max_delay_factor: int = max(self.delay_factor[1].values())
-        max_centrality: int = max(self.centrality[1].values())
-        max_complexity: float = max(self.complexity[1].values())
+        max_blocking_factor: int = max(self.blocking_factor[1])
+        max_delay_factor: int = max(self.delay_factor[1])
+        max_centrality: int = max(self.centrality[1])
+        max_complexity: float = max(self.complexity[1])
         return BasicMetrics(
             max_blocking_factor,
             [
@@ -909,7 +908,7 @@ class Curriculum:
         dead_end_courses: List[Course] = []
         paths = all_paths(self.graph)
         for path in paths:
-            course = self.course_from_id(path[-1])
+            course = self.courses[path[-1]]
             if not isinstance(course, Course) or course.prefix == "":
                 continue
             if course.prefix not in prefixes:

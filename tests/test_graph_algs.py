@@ -27,8 +27,7 @@ class GraphAlgsTests(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
 
-        for i in range(1, 13):
-            self.g.add_node(i)
+        self.g.add_nodes_from(range(1, 13))
 
         self.g.add_edge(2, 3)
         self.g.add_edge(2, 5)

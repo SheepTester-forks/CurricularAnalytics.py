@@ -27,7 +27,9 @@ class InEdgeView(OutEdgeView[Node]):
 
 class Graph(Generic[Node]):
     nodes: NodeView[Node]
-    def add_node(self, node_for_adding: Node, **attr: Dict[Hashable, Any]) -> None: ...
+    def add_nodes_from(
+        self, nodes_for_adding: Iterable[Node], **attr: Dict[Hashable, Any]
+    ) -> None: ...
     def add_edge(
         self, u_of_edge: Node, v_of_edge: Node, **attr: Dict[Hashable, Any]
     ) -> None: ...
