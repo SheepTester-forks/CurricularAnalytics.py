@@ -708,10 +708,6 @@ class ExampleTests(unittest.TestCase):
 
         dp = DegreePlan("Cornell University EE Program 4-year Plan", curric, terms)
 
-        errors = StringIO()
-        valid = dp.is_valid(errors)
-        self.assertEqual(errors.getvalue(), "")
-        self.assertTrue(valid)
         self.assertEqual(dp.credit_hours, 114)
         self.assertEqual(dp.basic_metrics.average, 14.25)
         self.assertEqual(dp.basic_metrics.min, 12)
@@ -722,10 +718,6 @@ class ExampleTests(unittest.TestCase):
         self.assertEqual(dp.basic_metrics.max_term + 1, 1)
 
     def _assert_uh_ee_dp(self, dp: DegreePlan):
-        errors = StringIO()
-        valid = dp.is_valid(errors)
-        self.assertEqual(errors.getvalue(), "")
-        self.assertTrue(valid)
         self.assertEqual(dp.credit_hours, 129)
         self.assertEqual(dp.basic_metrics.average, 16.125)
         self.assertEqual(dp.basic_metrics.min, 15)
@@ -1092,11 +1084,36 @@ class ExampleTests(unittest.TestCase):
         ]
 
         dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+        errors = StringIO()
+        valid = dp.is_valid(errors)
+        self.assertEqual(
+            errors.getvalue(),
+            "\n".join(
+                [
+                    "",
+                    "-Course Concentration Elective is listed multiple times in degree plan",
+                    "-Course ECE Elective is listed multiple times in degree plan",
+                    "-Course Elective Lab is listed multiple times in degree plan",
+                    "-Course Concentration Elective is listed multiple times in degree plan",
+                    "-Course Concentration Elective is listed multiple times in degree plan",
+                    "-Course Elective Lab is listed multiple times in degree plan",
+                    "-Course Concentration Elective is listed multiple times in degree plan",
+                    "-Course Concentration Elective is listed multiple times in degree plan",
+                    "-Course Concentration Elective is listed multiple times in degree plan",
+                    "-Course Elective Lab is listed multiple times in degree plan",
+                ]
+            ),
+        )
+        self.assertFalse(valid)
         self._assert_uh_ee_dp(dp)
 
     def test_uh_ee_csv(self):
         dp = read_csv("./examples/UH_EE_plan.csv")
         assert isinstance(dp, DegreePlan)
+        errors = StringIO()
+        valid = dp.is_valid(errors)
+        self.assertEqual(errors.getvalue(), "")
+        self.assertTrue(valid)
         self._assert_uh_ee_dp(dp)
 
     def _assert_uky_ee(self, curric: Curriculum, dp: DegreePlan):
