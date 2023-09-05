@@ -125,6 +125,9 @@ if isvalid_curriculum(curric, errors)
     println("  centrality factor = $(centrality(curric))")
     println("  curricular complexity = $(complexity(curric))")
 
+    extraneous_requisites(curric, print=true)
+    println([[course.name for course in path] for path in longest_paths(curric)])
+
     terms = Array{Term}(undef, 8)
     terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
     terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])

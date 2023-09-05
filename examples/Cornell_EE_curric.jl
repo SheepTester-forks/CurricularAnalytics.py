@@ -87,6 +87,9 @@ else
     print(String(take!(errors)))
 end
 
+extraneous_requisites(curric, print=true)
+println([[course.name for course in path] for path in longest_paths(curric)])
+
 terms = Array{Term}(undef, 8)
 terms[1] = Term([c[1],c[2],c[3],c[4],c[5]])
 terms[2] = Term([c[6],c[7],c[8],c[9],c[10]])

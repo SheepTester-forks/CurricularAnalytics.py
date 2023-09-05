@@ -706,6 +706,47 @@ class ExampleTests(unittest.TestCase):
                 1.0,
             ],
         )
+        self.assertEqual(curric.extraneous_requisites(), set())
+        self.assertEqual(
+            [[course.name for course in path] for path in curric.longest_paths],
+            [
+                [
+                    "Calculus for Engineers",
+                    "Physics I: Mechanics & Heat",
+                    "Physics II: Electromagnetism",
+                    "Intro. to Circuits",
+                    "Intelligent Physical Systems",
+                ],
+                [
+                    "Calculus for Engineers",
+                    "Multivariable Calc. for Engineers",
+                    "Physics II: Electromagnetism",
+                    "Intro. to Circuits",
+                    "Intelligent Physical Systems",
+                ],
+                [
+                    "Calculus for Engineers",
+                    "Multivariable Calc. for Engineers",
+                    "Diff. Eqs. for Engineers",
+                    "Intro. to Circuits",
+                    "Intelligent Physical Systems",
+                ],
+                [
+                    "Calculus for Engineers",
+                    "Multivariable Calc. for Engineers",
+                    "Diff. Eqs. for Engineers",
+                    "Signals and Information",
+                    "Intelligent Physical Systems",
+                ],
+                [
+                    "Calculus for Engineers",
+                    "Multivariable Calc. for Engineers",
+                    "Linear Algebra for Engineers",
+                    "Signals and Information",
+                    "Intelligent Physical Systems",
+                ],
+            ],
+        )
 
         terms = [
             Term([c[1], c[2], c[3], c[4], c[5]]),
@@ -1083,6 +1124,40 @@ class ExampleTests(unittest.TestCase):
                 1.0,
             ],
         )
+        self.assertEqual(curric.extraneous_requisites(), set())
+        self.assertEqual(
+            [[course.name for course in path] for path in curric.longest_paths],
+            [
+                [
+                    "Calculus I",
+                    "Calculus II",
+                    "University Physics I",
+                    "University Physics II",
+                    "Physics Lab II",
+                    "Circuit Analysis I",
+                    "Circuit Analysis II",
+                    "Circuits Lab",
+                    "Electronics Lab",
+                    "Electronics",
+                    "ECE Design I",
+                    "ECE Design II",
+                ],
+                [
+                    "Calculus I",
+                    "Calculus II",
+                    "Calculus III",
+                    "University Physics II",
+                    "Physics Lab II",
+                    "Circuit Analysis I",
+                    "Circuit Analysis II",
+                    "Circuits Lab",
+                    "Electronics Lab",
+                    "Electronics",
+                    "ECE Design I",
+                    "ECE Design II",
+                ],
+            ],
+        )
 
         terms = [
             Term([c[1], c[2], c[3], c[4], c[5], c[6]]),
@@ -1326,6 +1401,7 @@ class ExampleTests(unittest.TestCase):
                 1.0,
             },
         )
+        self.assertEqual(curric.extraneous_requisites(), set())
 
         self.assertTrue(dp.is_valid())
         self.assertEqual(dp.credit_hours, 131)
@@ -1459,6 +1535,52 @@ class ExampleTests(unittest.TestCase):
 
         curric = Curriculum(
             "University of Kentucky EE Program", c[1:], sort_by_id=False
+        )
+
+        self.assertEqual(
+            [[course.name for course in path] for path in curric.longest_paths],
+            [
+                [
+                    "Calculus I",
+                    "Calculus II",
+                    "Calculus III",
+                    "General University Physics",
+                    "General University Physics Lab",
+                    "Circuits I",
+                    "AC Circuits",
+                    "Electromechanics",
+                ],
+                [
+                    "Calculus I",
+                    "Calculus II",
+                    "Calculus III",
+                    "General University Physics",
+                    "General University Physics Lab",
+                    "Circuits I",
+                    "AC Circuits",
+                    "Signals & Systems",
+                ],
+                [
+                    "Calculus I",
+                    "Calculus II",
+                    "Calculus III",
+                    "General University Physics",
+                    "General University Physics Lab",
+                    "Circuits I",
+                    "AC Circuits",
+                    "Intro. to Electronics",
+                ],
+                [
+                    "Calculus I",
+                    "Calculus II",
+                    "Calculus III",
+                    "General University Physics",
+                    "General University Physics Lab",
+                    "Circuits I",
+                    "AC Circuits",
+                    "Intro. to Engineering Electromagnetics",
+                ],
+            ],
         )
 
         terms = [

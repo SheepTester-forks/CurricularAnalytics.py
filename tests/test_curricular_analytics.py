@@ -1,3 +1,4 @@
+from contextlib import redirect_stdout
 import unittest
 from io import StringIO
 
@@ -78,7 +79,17 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
         curric = Curriculum("Extraneous", [a, b, c, d], sort_by_id=False)
         # Test extraneous_requisites()
-        self.assertEqual(len(curric.extraneous_requisites()), 1)
+        read_pipe = StringIO()
+        with redirect_stdout(read_pipe):
+            self.assertEqual(curric.extraneous_requisites(debug=True), {(a.id, c.id)})
+        read_pipe.seek(0)
+        self.assertEqual(
+            read_pipe.read().splitlines(),
+            [
+                "curriculum Extraneous has extraneous requisites:",
+                "-C has redundant requisite A",
+            ],
+        )
 
     def test_8_vertex_test_curriculum(self) -> None:
         """

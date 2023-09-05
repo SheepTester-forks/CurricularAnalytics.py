@@ -403,7 +403,9 @@ class Curriculum:
                         if remove:
                             # make sure redundant requisite wasn't previously found
                             if (u, v) not in redundant_reqs:
-                                redundant_reqs.add((u, v))
+                                redundant_reqs.add(
+                                    (self.courses[u].id, self.courses[v].id)
+                                )
                                 if debug:
                                     string += f"-{self.courses[v].name} has redundant requisite {self.courses[u].name}\n"
                             extraneous = True

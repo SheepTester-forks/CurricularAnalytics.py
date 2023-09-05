@@ -3,6 +3,8 @@ Curriculum University of Houston EE Program is valid
   blocking factor = (208, [0, 6, 15, 23, 1, 0, 0, 5, 14, 20, 16, 0, 0, 13, 12, 15, 14, 13, 4, 4, 5, 8, 4, 2, 0, 3, 2, 0, 2, 0, 0, 2, 0, 0, 2, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
   centrality factor = (5717, [0, 0, 85, 0, 0, 0, 0, 13, 160, 607, 217, 0, 0, 93, 677, 292, 426, 250, 159, 152, 295, 393, 154, 171, 0, 359, 266, 0, 77, 0, 0, 16, 0, 0, 76, 0, 0, 779, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
   curricular complexity = (509.0, Number[1.0, 13.0, 25.0, 35.0, 3.0, 2.0, 1.0, 12.0, 24.0, 32.0, 28.0, 4.0, 1.0, 23.0, 24.0, 27.0, 26.0, 25.0, 15.0, 14.0, 17.0, 20.0, 15.0, 13.0, 1.0, 15.0, 14.0, 1.0, 13.0, 1.0, 1.0, 8.0, 1.0, 1.0, 12.0, 1.0, 5.0, 13.0, 1.0, 1.0, 1.0, 1.0, 1.0, 12.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+
+[["Calculus I", "Calculus II", "University Physics I", "University Physics II", "Physics Lab II", "Circuit Analysis I", "Circuit Analysis II", "Circuits Lab", "Electronics Lab", "Electronics", "ECE Design I", "ECE Design II"], ["Calculus I", "Calculus II", "Calculus III", "University Physics II", "Physics Lab II", "Circuit Analysis I", "Circuit Analysis II", "Circuits Lab", "Electronics Lab", "Electronics", "ECE Design I", "ECE Design II"]]
 Degree plan University of Houston EE Program 4-year Plan is not valid:
 
 -Course Concentration Elective is listed multiple times in degree plan
