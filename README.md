@@ -34,7 +34,10 @@ To build a distribution for upload to [PyPI](https://pypi.org/), run the followi
 ```sh
 rm -r dist
 python -m build
+# To Test PyPI
 python3 -m twine upload --repository testpypi dist/*
+# To real PyPI
+twine upload dist/*
 ```
 
 Learn more about [build and setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).
