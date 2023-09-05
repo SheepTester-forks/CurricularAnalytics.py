@@ -32,7 +32,9 @@ for guidance on development and bug reporting.
 To build a distribution for upload to [PyPI](https://pypi.org/), run the following command.
 
 ```sh
+rm -r dist
 python -m build
+python3 -m twine upload --repository testpypi dist/*
 ```
 
 Learn more about [build and setuptools](https://setuptools.pypa.io/en/latest/userguide/quickstart.html).

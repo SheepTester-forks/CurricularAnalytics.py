@@ -4,13 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "curricularanalytics"
-version = "0.1.0a1"
+version = "0.1.0a5"
 authors = [
+  # PyPI only lists the first author's email, and I don't want Greg to receive
+  # emails about a package he doesn't maintain
+  { name = "Sean Yen", email = "seyen@ucsd.edu" },
   { name = "Greg Heileman", email = "gregheileman@gmail.com" },
   { name = "Hayden Free", email = "haydenwfree@gmail.com" },
   { name = "Orhan Abar", email = "orhan.abar@uky.edu" },
   { name = "Will Thompson", email = "wgthompson@uky.edu" },
-  { name = "Sean Yen", email = "seyen@ucsd.edu" },
 ]
 description = "A toolbox for studying and analyzing academic program curricula."
 readme = "README.md"
@@ -21,3 +23,9 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = ["networkx >= 3.1", "pandas >= 2.0.1"]
+
+[tool.setuptools]
+packages = ["curricularanalytics", 'curricularanalytics.types']
+
+[tool.setuptools.package-data]
+"curricularanalytics" = ["py.typed"]
