@@ -43,13 +43,13 @@ class Term:
 
 class TermMetrics(NamedTuple):
     min: float
-    "max. credits in a term"
-    min_term: int
-    "max. credit term"
-    max: float
     "min. credits in a term"
-    max_term: int
+    min_term: int
     "min. credit term"
+    max: float
+    "max. credits in a term"
+    max_term: int
+    "max. credit term"
     average: float
     "avg. credits per term"
     stddev: float
@@ -275,12 +275,12 @@ class DegreePlan:
                 min_term = i
             variance = variance + (term.credit_hours - average) ** 2
         return TermMetrics(
-            min_credits,
-            min_term,
-            max_credits,
-            max_term,
-            average,
-            math.sqrt(variance / self.num_terms),
+            min=min_credits,
+            min_term=min_term,
+            max=max_credits,
+            max_term=max_term,
+            average=average,
+            stddev=math.sqrt(variance / self.num_terms),
         )
 
     def basic_metrics_to_buffer(self) -> StringIO:
