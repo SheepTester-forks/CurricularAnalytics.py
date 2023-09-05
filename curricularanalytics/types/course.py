@@ -9,7 +9,16 @@ A requirement may involve a set of courses (CourseSet), or a set of requirements
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Literal, Optional, TextIO, Tuple, TypeVar
+from typing import (
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    TextIO,
+    Tuple,
+    TypeVar,
+)
 
 from .data_types import Requisite
 from .learning_outcome import LearningOutcome
@@ -34,6 +43,10 @@ class AbstractCourse(ABC):
 
     id: int
     "Unique course id"
+    vertex_id: Dict[int, int]
+    """
+    The vertex id of the course w/in a curriculum graph, stored as (curriculum_id, vertex_id)
+    """
 
     name: str
     "Name of the course, e.g., Introduction to Psychology"
@@ -219,6 +232,7 @@ class Course(AbstractCourse):
         self.requisites = {}
         self.metadata = {}
         self.learning_outcomes = learning_outcomes or []
+        self.vertex_id = {}
 
         self.passrate = passrate
 
@@ -237,7 +251,7 @@ class Course(AbstractCourse):
         )
 
     def __repr__(self) -> str:
-        return f"Course(id={self.id}, name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metadata={self.metadata}, passrate={self.passrate})"
+        return f"Course(id={self.id}, vertex_id={self.vertex_id} name={repr(self.name)}, credit_hours={self.credit_hours}, prefix={repr(self.prefix)}, num={repr(self.num)}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, cross_listed={self.cross_listed}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metadata={self.metadata}, passrate={self.passrate})"
 
 
 class CourseCollection(AbstractCourse):
@@ -268,6 +282,7 @@ class CourseCollection(AbstractCourse):
         self.requisites = {}
         self.metadata = {}
         self.learning_outcomes = learning_outcomes or []
+        self.vertex_id = {}
 
     def default_id(self) -> int:
         return hash(self.name + self.institution + str(len(self.courses)))
@@ -283,7 +298,7 @@ class CourseCollection(AbstractCourse):
         )
 
     def __repr__(self) -> str:
-        return f"Course(id={self.id}, courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metadata={self.metadata})"
+        return f"Course(id={self.id}, vertex_id={self.vertex_id} courses={self.courses}, name={repr(self.name)}, credit_hours={self.credit_hours}, institution={self.institution}, college={repr(self.college)}, department={repr(self.department)}, canonical_name={repr(self.canonical_name)}, requisites={self.requisites}, learning_outcomes={self.learning_outcomes}, metadata={self.metadata})"
 
 
 def course_id(name: str, prefix: str, num: str, institution: str) -> int:

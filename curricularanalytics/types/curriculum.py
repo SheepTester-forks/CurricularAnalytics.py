@@ -253,6 +253,7 @@ class Curriculum:
         graph: "nx.DiGraph[int]" = nx.DiGraph()
         graph.add_nodes_from(range(len(self.courses)))
         for i, course in enumerate(self.courses):
+            course.vertex_id[self.id] = i
             for requisite in course.requisites.keys():
                 graph.add_edge(self._course_vertex(requisite), i)
         return graph
@@ -413,8 +414,12 @@ class Curriculum:
             sys.stdout.write(string)
         return redundant_reqs
 
+    @cached_property
+    def _blocking_factors(self) -> List[int]:
+        return [len(reachable_from(self.graph, i)) for i in range(len(self.courses))]
+
     # Compute the blocking factor of a course
-    def course_blocking_factor(self, course: AbstractCourse) -> int:
+    def blocking_factor(self, course: AbstractCourse) -> int:
         r"""
         The **blocking factor** associated with course :math:`c_i` in the curriculum with
         curriculum graph :math:`G_c = (V,E)` is defined as:
@@ -428,11 +433,11 @@ class Curriculum:
         :math:`v_i` to :math:`v_j` exists in :math:`G_c`, i.e., there is a requisite pathway from course
         :math:`c_i` to :math:`c_j` in curriculum :math:`c`.
         """
-        return self.blocking_factor[1][self.courses.index(course)]
+        return self._blocking_factors[course.vertex_id[self.id]]
 
     # Compute the blocking factor of a curriculum
     @cached_property
-    def blocking_factor(self) -> Tuple[int, List[int]]:
+    def total_blocking_factor(self) -> int:
         r"""
         The **blocking factor** associated with the curriculum is defined as:
 
@@ -442,13 +447,19 @@ class Curriculum:
 
         where :math:`G_c = (V,E)` is the curriculum graph associated with the curriculum.
         """
-        blocking_factors: List[int] = [
-            len(reachable_from(self.graph, i)) for i in range(len(self.courses))
-        ]
-        return sum(blocking_factors), blocking_factors
+        return sum(self._blocking_factors)
+
+    @cached_property
+    def _delay_factors(self) -> List[int]:
+        delay_factors: List[int] = [1] * len(self.courses)
+        for path in all_paths(self.graph):
+            for vertex in path:
+                # path_length in terms of # of vertices, not edges
+                delay_factors[vertex] = max(delay_factors[vertex], len(path))
+        return delay_factors
 
     # Compute the delay factor of a course
-    def course_delay_factor(self, course: AbstractCourse) -> int:
+    def delay_factor(self, course: AbstractCourse) -> int:
         r"""
         The **delay factor** associated with course :math:`c_k` in curriculum :math:`c` with
         curriculum graph :math:`G_c = (V,E)` is the number of vertices in the longest path
@@ -463,11 +474,11 @@ class Curriculum:
         where :math:`v_i \overset{p}{\leadsto} v_j` denotes a directed path :math:`p` in :math:`G_c` from vertex
         :math:`v_i` to :math:`v_j`.
         """
-        return self.delay_factor[1][self.courses.index(course)]
+        return self._delay_factors[course.vertex_id[self.id]]
 
     # Compute the delay factor of a curriculum
     @cached_property
-    def delay_factor(self) -> Tuple[int, List[int]]:
+    def total_delay_factor(self) -> int:
         r"""
         The **delay factor** associated with the curriculum is defined as:
 
@@ -477,15 +488,23 @@ class Curriculum:
 
         where ``G_c = (V,E)`` is the curriculum graph associated with the curriculum.
         """
-        delay_factors: List[int] = [1] * len(self.courses)
-        for path in all_paths(self.graph):
-            for vertex in path:
-                # path_length in terms of # of vertices, not edges
-                delay_factors[vertex] = max(delay_factors[vertex], len(path))
-        return sum(delay_factors), delay_factors
+        return sum(self._delay_factors)
+
+    @cached_property
+    def _centralities(self) -> List[int]:
+        return [
+            sum(
+                len(path)
+                for path in all_paths(self.graph)
+                # conditions: path length is greater than 2, target course must be in the path, the target vertex
+                # cannot be the first or last vertex in the path
+                if (i in path and len(path) > 2 and path[0] != i and path[-1] != i)
+            )
+            for i in range(len(self.courses))
+        ]
 
     # Compute the centrality of a course
-    def course_centrality(self, course: AbstractCourse) -> int:
+    def centrality(self, course: AbstractCourse) -> int:
         r"""
         Consider a curriculum graph :math:`G_c = (V,E)`, and a vertex :math:`v_i \in V`. Furthermore,
         consider all paths between every pair of vertices :math:`v_j, v_k \in V` that satisfy the
@@ -506,11 +525,11 @@ class Curriculum:
 
         where :math:`\#(p)` denotes the number of vertices in the directed path :math:`p` in :math:`G_c`.
         """
-        return self.centrality[1][self.courses.index(course)]
+        return self._centralities[course.vertex_id[self.id]]
 
     # Compute the total centrality of all courses in a curriculum
     @cached_property
-    def centrality(self) -> Tuple[int, List[int]]:
+    def total_centrality(self) -> int:
         r"""
         Computes the total **centrality** associated with all of the courses in the curriculum,
         with curriculum graph :math:`G_c = (V,E)`.
@@ -519,20 +538,19 @@ class Curriculum:
 
             q(c) = \sum_{v \in V} q(v).
         """
-        centralities: List[int] = [
-            sum(
-                len(path)
-                for path in all_paths(self.graph)
-                # conditions: path length is greater than 2, target course must be in the path, the target vertex
-                # cannot be the first or last vertex in the path
-                if (i in path and len(path) > 2 and path[0] != i and path[-1] != i)
-            )
-            for i in range(len(self.courses))
+        return sum(self._centralities)
+
+    @cached_property
+    def _complexities(self) -> List[float]:
+        return [
+            round((df + bf) * 2 / 3, ndigits=1)
+            if self.system_type == quarter
+            else df + bf
+            for df, bf in zip(self._delay_factors, self._blocking_factors)
         ]
-        return sum(centralities), centralities
 
     # Compute the complexity of a course
-    def course_complexity(self, course: AbstractCourse) -> float:
+    def complexity(self, course: AbstractCourse) -> float:
         """
         The **complexity** associated with course :math`c_i` in the curriculum with
         curriculum graph :math`G_c = (V,E)` is defined as:
@@ -543,11 +561,11 @@ class Curriculum:
 
         i.e., as a linear combination of the course delay and blocking factors.
         """
-        return self.complexity[1][self.courses.index(course)]
+        return self._complexities[course.vertex_id[self.id]]
 
     # Compute the complexity of a curriculum
     @cached_property
-    def complexity(self) -> Tuple[float, List[float]]:
+    def total_complexity(self) -> float:
         r"""
         The **complexity** associated with the curriculum :math:`c` with curriculum graph :math:`G_c = (V,E)`
         is defined as:
@@ -562,15 +580,7 @@ class Curriculum:
         courses :math:`v_1` and :math:`v_2` in part (b), which both must be passed before a student can attempt course
         :math:`v_3` in that curriculum, has a higher combined complexity.
         """
-        course_complexity: List[float] = [
-            df + bf for df, bf in zip(self.delay_factor[1], self.blocking_factor[1])
-        ]
-        if self.system_type == quarter:
-            course_complexity = [
-                round((complexity * 2) / 3, ndigits=1)
-                for complexity in course_complexity
-            ]
-        return sum(course_complexity), course_complexity
+        return sum(self._complexities)
 
     # Find all the longest paths in a curriculum.
     @cached_property
@@ -591,41 +601,41 @@ class Curriculum:
         report = StringIO()
         report.write(f"Comparing: C1 = {self.name} and C2 = {other.name}\n")
         metrics = {
-            "blocking factor": (self.blocking_factor, other.blocking_factor),
-            "delay factor": (self.delay_factor, other.delay_factor),
-            "centrality": (self.centrality, other.centrality),
-            "complexity": (self.complexity, other.complexity),
+            "blocking factor": (self._blocking_factors, other._blocking_factors),
+            "delay factor": (self._delay_factors, other._delay_factors),
+            "centrality": (self._centralities, other._centralities),
+            "complexity": (self._complexities, other._complexities),
         }
         for metric_name, (metric1, metric2) in metrics.items():
             report.write(f" Curricular {metric_name}: ")
-            diff = metric1[0] - metric2[0]
+            diff = sum(metric1) - sum(metric2)
             if diff > 0:
                 report.write(
                     "C1 is %.1f units (%.0f%%) larger than C2\n"
-                    % (diff, 100 * diff / metric2[0]),
+                    % (diff, 100 * diff / sum(metric2)),
                 )
             elif diff < 0:
                 report.write(
                     "C1 is %.1f units (%.0f%%) smaller than C2\n"
-                    % (-diff, 100 * (-diff) / metric2[0]),
+                    % (-diff, 100 * (-diff) / sum(metric2)),
                 )
             else:
                 report.write(f"C1 and C2 have the same curricular {metric_name}\n")
 
             report.write(f"  Course-level {metric_name}:\n")
-            maxval = max(metric1[1])
+            maxval = max(metric1)
             report.write(
                 f"   Largest {metric_name} value in C1 is {maxval} for course: "
             )
-            for i, metric in enumerate(metric1[1]):
+            for i, metric in enumerate(metric1):
                 if metric == maxval:
                     report.write(f"{self.courses[i].name}  ")
             report.write("\n")
-            maxval = max(metric2[1])
+            maxval = max(metric2)
             report.write(
                 f"   Largest {metric_name} value in C2 is {maxval} for course: "
             )
-            for i, metric in enumerate(metric2[1]):
+            for i, metric in enumerate(metric2):
                 if metric == maxval:
                     report.write(f"{other.courses[i].name}  ")
             report.write("\n")
@@ -684,34 +694,34 @@ class Curriculum:
         Complete descriptions of these metrics are provided above.
         """
         # compute all curricular metrics
-        max_blocking_factor: int = max(self.blocking_factor[1])
-        max_delay_factor: int = max(self.delay_factor[1])
-        max_centrality: int = max(self.centrality[1])
-        max_complexity: float = max(self.complexity[1])
+        max_blocking_factor: int = max(self._blocking_factors)
+        max_delay_factor: int = max(self._delay_factors)
+        max_centrality: int = max(self._centralities)
+        max_complexity: float = max(self._complexities)
         return BasicMetrics(
             max_blocking_factor,
             [
                 course
                 for i, course in enumerate(self.courses)
-                if self.blocking_factor[1][i] == max_blocking_factor
+                if self._blocking_factors[i] == max_blocking_factor
             ],
             max_delay_factor,
             [
                 course
                 for i, course in enumerate(self.courses)
-                if self.delay_factor[1][i] == max_delay_factor
+                if self._delay_factors[i] == max_delay_factor
             ],
             max_centrality,
             [
                 course
                 for i, course in enumerate(self.courses)
-                if self.centrality[1][i] == max_centrality
+                if self._centralities[i] == max_centrality
             ],
             max_complexity,
             [
                 course
                 for i, course in enumerate(self.courses)
-                if self.complexity[1][i] == max_complexity
+                if self._complexities[i] == max_complexity
             ],
         )
 
@@ -741,22 +751,22 @@ class Curriculum:
         buffer.write(f"  credit hours = {self.credit_hours}\n")
         buffer.write(f"  number of courses = {self.num_courses}")
         buffer.write("\n  Blocking Factor --\n")
-        buffer.write(f"    entire curriculum = {self.blocking_factor[0]}\n")
+        buffer.write(f"    entire curriculum = {self.total_blocking_factor}\n")
         buffer.write(f"    max. value = {self.basic_metrics.max_blocking_factor}, ")
         buffer.write("for course(s): ")
         write_course_names(buffer, self.basic_metrics.max_blocking_factor_courses)
         buffer.write("\n  Centrality --\n")
-        buffer.write(f"    entire curriculum = {self.centrality[0]}\n")
+        buffer.write(f"    entire curriculum = {self.total_centrality}\n")
         buffer.write(f"    max. value = {self.basic_metrics.max_centrality}, ")
         buffer.write("for course(s): ")
         write_course_names(buffer, self.basic_metrics.max_centrality_courses)
         buffer.write("\n  Delay Factor --\n")
-        buffer.write(f"    entire curriculum = {self.delay_factor[0]}\n")
+        buffer.write(f"    entire curriculum = {self.total_delay_factor}\n")
         buffer.write(f"    max. value = {self.basic_metrics.max_delay_factor}, ")
         buffer.write("for course(s): ")
         write_course_names(buffer, self.basic_metrics.max_delay_factor_courses)
         buffer.write("\n  Complexity --\n")
-        buffer.write(f"    entire curriculum = {self.complexity[0]}\n")
+        buffer.write(f"    entire curriculum = {self.total_complexity}\n")
         buffer.write(f"    max. value = {self.basic_metrics.max_complexity}, ")
         buffer.write("for course(s): ")
         write_course_names(buffer, self.basic_metrics.max_complexity_courses)

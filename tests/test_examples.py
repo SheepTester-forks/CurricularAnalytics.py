@@ -45,14 +45,20 @@ class ExampleTests(unittest.TestCase):
         curric = Curriculum("Example Curricula c1", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
-        self.assertEqual(curric.delay_factor[0], 11.0)
-        self.assertEqual(list(curric.delay_factor[1]), [3.0, 3.0, 2.0, 3.0])
-        self.assertEqual(curric.blocking_factor[0], 4)
-        self.assertEqual(list(curric.blocking_factor[1]), [3, 1, 0, 0])
-        self.assertEqual(curric.centrality[0], 3)
-        self.assertEqual(list(curric.centrality[1]), [0, 3, 0, 0])
-        self.assertEqual(curric.complexity[0], 15.0)
-        self.assertEqual(list(curric.complexity[1]), [6.0, 4.0, 2.0, 3.0])
+        self.assertEqual(curric.total_delay_factor, 11.0)
+        self.assertEqual(
+            list(map(curric.delay_factor, curric.courses)), [3.0, 3.0, 2.0, 3.0]
+        )
+        self.assertEqual(curric.total_blocking_factor, 4)
+        self.assertEqual(
+            list(map(curric.blocking_factor, curric.courses)), [3, 1, 0, 0]
+        )
+        self.assertEqual(curric.total_centrality, 3)
+        self.assertEqual(list(map(curric.centrality, curric.courses)), [0, 3, 0, 0])
+        self.assertEqual(curric.total_complexity, 15.0)
+        self.assertEqual(
+            list(map(curric.complexity, curric.courses)), [6.0, 4.0, 2.0, 3.0]
+        )
 
         terms = [
             Term([c[1]]),
@@ -99,14 +105,20 @@ class ExampleTests(unittest.TestCase):
         curric = Curriculum("Example Curricula C2", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
-        self.assertEqual(curric.delay_factor[0], 12.0)
-        self.assertEqual(list(curric.delay_factor[1]), [3.0, 3.0, 3.0, 3.0])
-        self.assertEqual(curric.blocking_factor[0], 5)
-        self.assertEqual(list(curric.blocking_factor[1]), [2, 2, 1, 0])
-        self.assertEqual(curric.centrality[0], 6)
-        self.assertEqual(list(curric.centrality[1]), [0, 0, 6, 0])
-        self.assertEqual(curric.complexity[0], 17.0)
-        self.assertEqual(list(curric.complexity[1]), [5.0, 5.0, 4.0, 3.0])
+        self.assertEqual(curric.total_delay_factor, 12.0)
+        self.assertEqual(
+            list(map(curric.delay_factor, curric.courses)), [3.0, 3.0, 3.0, 3.0]
+        )
+        self.assertEqual(curric.total_blocking_factor, 5)
+        self.assertEqual(
+            list(map(curric.blocking_factor, curric.courses)), [2, 2, 1, 0]
+        )
+        self.assertEqual(curric.total_centrality, 6)
+        self.assertEqual(list(map(curric.centrality, curric.courses)), [0, 0, 6, 0])
+        self.assertEqual(curric.total_complexity, 17.0)
+        self.assertEqual(
+            list(map(curric.complexity, curric.courses)), [5.0, 5.0, 4.0, 3.0]
+        )
 
         terms = [
             Term([c[1], c[2]]),
@@ -256,9 +268,9 @@ class ExampleTests(unittest.TestCase):
         )
 
         self.assertTrue(curric.is_valid())
-        self.assertEqual(curric.delay_factor[0], 117.0)
+        self.assertEqual(curric.total_delay_factor, 117.0)
         self.assertEqual(
-            list(curric.delay_factor[1]),
+            list(map(curric.delay_factor, curric.courses)),
             [
                 4.0,
                 2.0,
@@ -296,9 +308,9 @@ class ExampleTests(unittest.TestCase):
                 4.0,
             ],
         )
-        self.assertEqual(curric.blocking_factor[0], 70)
+        self.assertEqual(curric.total_blocking_factor, 70)
         self.assertEqual(
-            list(curric.blocking_factor[1]),
+            list(map(curric.blocking_factor, curric.courses)),
             [
                 11,
                 1,
@@ -336,9 +348,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             ],
         )
-        self.assertEqual(curric.centrality[0], 120)
+        self.assertEqual(curric.total_centrality, 120)
         self.assertEqual(
-            list(curric.centrality[1]),
+            list(map(curric.centrality, curric.courses)),
             [
                 0,
                 0,
@@ -376,9 +388,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             ],
         )
-        self.assertEqual(curric.complexity[0], 187.0)
+        self.assertEqual(curric.total_complexity, 187.0)
         self.assertEqual(
-            list(curric.complexity[1]),
+            list(map(curric.complexity, curric.courses)),
             [
                 15.0,
                 3.0,
@@ -518,9 +530,9 @@ class ExampleTests(unittest.TestCase):
         curric = Curriculum("Cornell University EE Program", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
-        self.assertEqual(curric.delay_factor[0], 85.0)
+        self.assertEqual(curric.total_delay_factor, 85.0)
         self.assertEqual(
-            list(curric.delay_factor[1]),
+            list(map(curric.delay_factor, curric.courses)),
             [
                 1.0,
                 5.0,
@@ -562,9 +574,9 @@ class ExampleTests(unittest.TestCase):
                 1.0,
             ],
         )
-        self.assertEqual(curric.blocking_factor[0], 37)
+        self.assertEqual(curric.total_blocking_factor, 37)
         self.assertEqual(
-            list(curric.blocking_factor[1]),
+            list(map(curric.blocking_factor, curric.courses)),
             [
                 0,
                 10,
@@ -606,9 +618,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             ],
         )
-        self.assertEqual(curric.centrality[0], 102)
+        self.assertEqual(curric.total_centrality, 102)
         self.assertEqual(
-            list(curric.centrality[1]),
+            list(map(curric.centrality, curric.courses)),
             [
                 0,
                 0,
@@ -650,9 +662,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             ],
         )
-        self.assertEqual(curric.complexity[0], 122.0)
+        self.assertEqual(curric.total_complexity, 122.0)
         self.assertEqual(
-            list(curric.complexity[1]),
+            list(map(curric.complexity, curric.courses)),
             [
                 1.0,
                 15.0,
@@ -851,9 +863,9 @@ class ExampleTests(unittest.TestCase):
         curric = Curriculum("University of Houston EE Program", c[1:], sort_by_id=False)
 
         self.assertTrue(curric.is_valid())
-        self.assertEqual(curric.delay_factor[0], 301.0)
+        self.assertEqual(curric.total_delay_factor, 301.0)
         self.assertEqual(
-            list(curric.delay_factor[1]),
+            list(map(curric.delay_factor, curric.courses)),
             [
                 1.0,
                 7.0,
@@ -906,9 +918,9 @@ class ExampleTests(unittest.TestCase):
                 1.0,
             ],
         )
-        self.assertEqual(curric.blocking_factor[0], 208)
+        self.assertEqual(curric.total_blocking_factor, 208)
         self.assertEqual(
-            list(curric.blocking_factor[1]),
+            list(map(curric.blocking_factor, curric.courses)),
             [
                 0,
                 6,
@@ -961,9 +973,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             ],
         )
-        self.assertEqual(curric.centrality[0], 5717)
+        self.assertEqual(curric.total_centrality, 5717)
         self.assertEqual(
-            list(curric.centrality[1]),
+            list(map(curric.centrality, curric.courses)),
             [
                 0,
                 0,
@@ -1016,9 +1028,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             ],
         )
-        self.assertEqual(curric.complexity[0], 509.0)
+        self.assertEqual(curric.total_complexity, 509.0)
         self.assertEqual(
-            list(curric.complexity[1]),
+            list(map(curric.complexity, curric.courses)),
             [
                 1.0,
                 13.0,
@@ -1118,9 +1130,9 @@ class ExampleTests(unittest.TestCase):
 
     def _assert_uky_ee(self, curric: Curriculum, dp: DegreePlan):
         self.assertTrue(curric.is_valid())
-        self.assertEqual(curric.delay_factor[0], 150.0)
+        self.assertEqual(curric.total_delay_factor, 150.0)
         self.assertEqual(
-            set(curric.delay_factor[1]),
+            set(map(curric.delay_factor, curric.courses)),
             {
                 1.0,
                 3.0,
@@ -1167,9 +1179,9 @@ class ExampleTests(unittest.TestCase):
                 1.0,
             },
         )
-        self.assertEqual(curric.blocking_factor[0], 81)
+        self.assertEqual(curric.total_blocking_factor, 81)
         self.assertEqual(
-            set(curric.blocking_factor[1]),
+            set(map(curric.blocking_factor, curric.courses)),
             {
                 0,
                 3,
@@ -1216,9 +1228,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             },
         )
-        self.assertEqual(curric.centrality[0], 727)
+        self.assertEqual(curric.total_centrality, 727)
         self.assertEqual(
-            set(curric.centrality[1]),
+            set(map(curric.centrality, curric.courses)),
             {
                 0,
                 0,
@@ -1265,9 +1277,9 @@ class ExampleTests(unittest.TestCase):
                 0,
             },
         )
-        self.assertEqual(curric.complexity[0], 231.0)
+        self.assertEqual(curric.total_complexity, 231.0)
         self.assertEqual(
-            set(curric.complexity[1]),
+            set(map(curric.complexity, curric.courses)),
             {
                 1.0,
                 6.0,
