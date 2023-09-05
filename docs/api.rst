@@ -7,9 +7,21 @@ The following section outlines the API of CurricularAnalytics.py.
 
 Here are quick links to common classes and methods you might use:
 
-* Data types: :class:`Course` (:meth:`~AbstractCourse.add_requisite`, :meth:`~AbstractCourse.delete_requisite`), :class:`LearningOutcome`, :class:`Curriculum` (:meth:`Curriculum.is_valid`), :class:`Term`, :class:`DegreePlan` (:meth:`DegreePlan.is_valid`, :meth:`~DegreePlan.find_term`, :meth:`~DegreePlan.print`)
+* Data types:
+    * :class:`Course`: :meth:`~AbstractCourse.add_requisite`, :meth:`~AbstractCourse.delete_requisite`
+    * :class:`LearningOutcome`
+    * :class:`Curriculum`: :meth:`Curriculum.is_valid`
+    * :class:`Term`
+    * :class:`DegreePlan`: :meth:`DegreePlan.is_valid`, :meth:`~DegreePlan.find_term`, :meth:`~DegreePlan.print`
 * Reading/writing curricula and degree plans: :func:`write_csv`, :func:`read_csv`
-* Metrics: :meth:`~Curriculum.blocking_factor`, :meth:`~Curriculum.delay_factor`, :meth:`~Curriculum.centrality`, :meth:`~Curriculum.complexity`, :meth:`Curriculum.basic_metrics`, :meth:`DegreePlan.basic_metrics`, :meth:`~DegreePlan.requisite_distance`
+* Metrics:
+    * :meth:`~Curriculum.blocking_factor`
+    * :meth:`~Curriculum.delay_factor`
+    * :meth:`~Curriculum.centrality`
+    * :meth:`~Curriculum.complexity`
+    * :meth:`Curriculum.basic_metrics`
+    * :meth:`DegreePlan.basic_metrics`
+    * :meth:`~DegreePlan.requisite_distance`
 
 Courses
 -------

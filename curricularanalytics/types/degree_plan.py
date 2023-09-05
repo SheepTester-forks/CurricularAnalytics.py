@@ -5,7 +5,7 @@ Term data type
 import math
 from functools import cached_property
 from io import StringIO
-from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Optional, Set
 
 from ..graph_algs import edge_crossings
 from .course import AbstractCourse
@@ -334,17 +334,17 @@ class DegreePlan:
         return buffer
 
     # Degree plan metrics based upon the distance between requsites and the classes that require them.
-    def course_requisite_distance(self, course: AbstractCourse) -> int:
+    def requisite_distance(self, course: AbstractCourse) -> int:
         r"""
-        For a given degree plan `plan` and target course `course`, this function computes the total distance in the degree plan between `course` and
+        For a target course `course`, this function computes the total distance in the degree plan between `course` and
         all of its requisite courses.
 
         Args:
             course: The target course.
 
         The distance between a target course and one of its requisites is given by the number of terms that separate the target
-        course from that particular requisite in the degree plan.  To compute the requisite distance, we sum this distance over all
-        requisites.  That is, if write let :math:`T_j^p` denote the term in degree plan :math:`p` that course :math:`c_j` appears in, then for a
+        course from that particular requisite in the degree plan. To compute the requisite distance, we sum this distance over all
+        requisites. That is, if write let :math:`T_j^p` denote the term in degree plan :math:`p` that course :math:`c_j` appears in, then for a
         degree plan with underlying curriculum graph :math:`G_c = (V,E)`, the requisite distance for course :math:`c_j` in degree plan :math:`p`,
         denoted :math:`rd_{v_j}^p`, is:
 
@@ -352,18 +352,20 @@ class DegreePlan:
             rd_{v_j}^p = \sum_{\{i | (v_i, v_j) \in E\}} (T_j - T_i).
 
         In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
-        The requisite distance metric computed by this function is stored in the associated `Course` data object.
         """
-        return self.requisite_distance[1][course.id]
+        return sum(
+            (
+                self.find_term(course)
+                - self.find_term(self.curriculum.course_from_id(req))
+            )
+            for req in course.requisites
+        )
 
     @cached_property
-    def requisite_distance(self) -> Tuple[int, Dict[int, int]]:
+    def total_requisite_distance(self) -> int:
         r"""
-        For a given degree plan `plan`, this function computes the total distance between all courses in the degree plan, and
+        The total distance between all courses in the degree plan, and
         the requisites for those courses.
-
-        Args:
-            plan: a valid degree plan (see [Degree Plans](@ref)).
 
         The distance between a course a requisite is given by the number of terms that separate the course from
         its requisite in the degree plan.  If :math:`rd_{v_i}^p` denotes the requisite distance between course
@@ -374,21 +376,11 @@ class DegreePlan:
             rd^p = \sum_{v_i \in V} = rd_{v_i}^p
 
         In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
-        Thus, a degree plan that minimizes these distances is desirable.  A optimization function that minimizes requisite
-        distances across all courses in a degree plan is described in [Optimized Degree Plans]@ref.
-        The requisite distance metric computed by this function will be stored in the associated `DegreePlan` data object.
+        Thus, a degree plan that minimizes these distances is desirable.
         """
-        distances: Dict[int, int] = {
-            course.id: sum(
-                (
-                    self.find_term(course)
-                    - self.find_term(self.curriculum.course_from_id(req))
-                )
-                for req in course.requisites
-            )
-            for course in self.curriculum.courses
-        }
-        return sum(distances.values()), distances
+        return sum(
+            self.requisite_distance(course) for course in self.curriculum.courses
+        )
 
     def __repr__(self) -> str:
         return f"DegreePlan(name={repr(self.name)}, curriculum={self.curriculum}, additional_courses={self.additional_courses}, terms={self.terms}, num_terms={self.num_terms}, credit_hours={self.credit_hours}, metadata={self.metadata})"

@@ -8,6 +8,7 @@ Curricular Analytics Toolbox
 * :ref:`install`
 * :ref:`example`
 * :doc:`api`
+* :ref:`migrating`
 
 .. _install:
 
@@ -71,7 +72,7 @@ Represent courses with :class:`Course`::
    bw111 = Course("Basic Basket Forms", 3, prefix="BW", num="111")
    bw201 = Course("Advanced Basketry", 3, prefix="BW", num="201")
 
-Add relationships between courses with the :meth:`AbstractCourse.add_requisite` method. See :class:`Requisite` for the types of requisites available::
+Add relationships between courses with the :meth:`~AbstractCourse.add_requisite` method. See :class:`Requisite` for the types of requisites available::
 
    from curricularanalytics import co, pre, strict_co
    bw101l.add_requisite(bw101, strict_co)
@@ -130,11 +131,44 @@ Visualization-related functions are described in :doc:`visualize`.
 Differences from Julia
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Some substantial API changes were made from the `original Julia package <https://github.com/CurricularAnalytics/CurricularAnalytics.jl>`_.
+Some substantial API changes were made from the `original Julia package <https://github.com/CurricularAnalytics/CurricularAnalytics.jl>`_, largely to make the package more ergonomic for Python.
+
+The most significant change is that functions associated with objects have been moved to class methods::
+
+   # Julia
+   isvalid(curriculum)
+   isvalid(degree_plan)
+
+   # Python
+   curriculum.is_valid()
+   degree_plan.is_valid()
+
+If your editor provides autocomplete, this can help with discovering the methods available for each object.
+
+There are fewer function overloads, so overloaded functions are given different names::
+
+   # Julia
+   add_requisite!([A, B, D], C, [pre, pre, co])
+
+   # Python (note the method name and change in list structure)
+   C.add_requisites([(A, pre), (B, pre), (D, co)])
+
+   # Julia
+   first_course_complexity = complexity(curriculum, 1)
+   total, course_complexities = complexity(curriculum)
+
+   # Python
+   first_course_complexity = curriculum.complexity(curriculum.courses[0])
+   total = curriculum.total_complexity
+   course_complexities = list(map(curriculum.complexity, curriculum.courses))
+
+The Python version for calculating curricular metrics may seem verbose, but I hope the resulting API ends up being clearer, particularly with what methods return and what arguments are expected.
+
+Documentation contents
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
 
    api
    persistence

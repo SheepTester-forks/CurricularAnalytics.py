@@ -310,7 +310,7 @@ class Curriculum:
         If the graph is not valid, messages are written to the ``error_file`` buffer. To view these errors, use::
 
             >>> errors = StringIO()
-            >>> c.isvalid(errors)
+            >>> curriculum.is_valid(errors)
             >>> print(errors.getvalue())
 
         A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this

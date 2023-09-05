@@ -81,13 +81,13 @@ class DegreePlanAnalyticsTests(unittest.TestCase):
 
     def test_requisite_distance(self) -> None:
         "Test requisite_distance(plan, course) and requisite_distance(plan)"
-        self.assertEqual(dp.course_requisite_distance(A), 0)
-        self.assertEqual(dp.course_requisite_distance(B), 0)
-        self.assertEqual(dp.course_requisite_distance(C), 1)
-        self.assertEqual(dp.course_requisite_distance(D), 0)
-        self.assertEqual(dp.course_requisite_distance(E), 5)
-        self.assertEqual(dp.course_requisite_distance(F), 2)
-        self.assertEqual(dp.requisite_distance[0], 8)
+        self.assertEqual(dp.requisite_distance(A), 0)
+        self.assertEqual(dp.requisite_distance(B), 0)
+        self.assertEqual(dp.requisite_distance(C), 1)
+        self.assertEqual(dp.requisite_distance(D), 0)
+        self.assertEqual(dp.requisite_distance(E), 5)
+        self.assertEqual(dp.requisite_distance(F), 2)
+        self.assertEqual(dp.total_requisite_distance, 8)
 
     def test_basic_metrics(self) -> None:
         "Test basic basic_metrics(plan)"
