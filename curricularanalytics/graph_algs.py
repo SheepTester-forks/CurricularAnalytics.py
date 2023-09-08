@@ -1,7 +1,7 @@
 # File: GraphAlgs.jl
 
-from queue import Queue
-from typing import Any, Dict, List, Literal, Optional, Protocol, Tuple, TypeVar
+from collections import deque
+from typing import Any, Deque, Dict, List, Literal, Optional, Protocol, Tuple, TypeVar
 
 import networkx as nx
 
@@ -239,7 +239,9 @@ def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
     """
     Enumerate all of the unique paths in acyclic graph `g`, where a path in this case must include a
     source vertex (a vertex with in-degree zero) and a different sink vertex (a vertex with out-degree
-    zero).  I.e., a path is this case must contain at least two vertices.
+    zero). I.e., a path is this case must contain at least two vertices.
+
+    For performance reasons, `all_paths` doesn't check that `g` is acyclic, unlike the Julia version.
 
     Args:
         g: Acylic graph.
@@ -247,25 +249,18 @@ def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
     Returns:
         An array of these paths, where each path consists of an array of vertex IDs.
     """
-    # check that g is acyclic
-    try:
-        nx.find_cycle(g)
-        raise Exception("all_paths(): input graph has cycles")
-    except nx.NetworkXNoCycle:
-        pass
-    que: Queue[List[T]] = Queue()
+    que: Deque[List[T]] = deque()
     paths: List[List[T]] = []
     sinks: List[T] = []
     for v in g.nodes:
-        if (g.out_degree(v) == 0) and (
-            g.in_degree(v) > 0
-        ):  # consider only sink vertices with a non-zero in-degree
+        # consider only sink vertices with a non-zero in-degree
+        if g.out_degree(v) == 0 and g.in_degree(v) > 0:
             sinks.append(v)
     for v in sinks:
-        que.put([v])
+        que.append([v])
         # work backwards from sink v to all sources reachable to v in BFS fashion
-        while not que.empty():
-            x = que.get()  # grab a path from the queue
+        while que:
+            x = que.popleft()  # grab a path from the queue
             # consider the in-neighbors at the beginning of the current path
             for i, edge in enumerate(g.in_edges(x[0])):
                 u, _ = edge
@@ -275,14 +270,14 @@ def all_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
                     if g.in_degree(u) == 0:
                         paths.append(x)
                     else:
-                        que.put(x)
+                        que.append(x)
                 else:  # not first neighbor, create a copy of the path
                     y = x.copy()
                     y[0] = u  # overwrite first element in array
                     if g.in_degree(u) == 0:
                         paths.append(y)
                     else:
-                        que.put(y)
+                        que.append(y)
     return paths
 
 
@@ -293,15 +288,12 @@ def longest_path(g: "nx.Graph[T]", s: T) -> List[T]:
     The longest path from vertex `s` to any other vertex in a acyclic graph `g`. The longest path
     is not necessarily unique, i.e., there can be more than one longest path between two vertices.
 
+    For performance reasons, `longest_path` doesn't check that `g` is acyclic, unlike the Julia version.
+
     Args:
         g: Acylic graph.
         s: Index of the source vertex in `g`.
     """
-    try:
-        nx.find_cycle(g)
-        raise Exception("longest_path(): input graph has cycles")
-    except nx.NetworkXNoCycle:
-        pass
     lp: List[T] = []
     max = 0
     # shortest path from s to all vertices in -G
@@ -313,9 +305,13 @@ def longest_path(g: "nx.Graph[T]", s: T) -> List[T]:
 
 
 # Find all of the longest paths in an acyclic graph.
-def longest_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
+def longest_paths(
+    g: "nx.DiGraph[T]", paths: Optional[List[List[T]]] = None
+) -> List[List[T]]:
     """
     Finds the set of longest paths in `g`.
+
+    For performance reasons, `longest_paths` doesn't check that `g` is acyclic, unlike the Julia version.
 
     Args:
         g: Acylic graph.
@@ -324,14 +320,10 @@ def longest_paths(g: "nx.DiGraph[T]") -> List[List[T]]:
         An array of vertex arrays, where each vertex
         array contains the vertices in a longest path.
     """
-    try:
-        nx.find_cycle(g)
-        raise Exception("longest_paths(): input graph has cycles")
-    except nx.NetworkXNoCycle:
-        pass
     lps: List[List[T]] = []
     max = 0
-    paths = all_paths(g)
+    if not paths:
+        paths = all_paths(g)
     for path in paths:  # find length of longest path
         if len(path) > max:
             max = len(path)

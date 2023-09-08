@@ -10,13 +10,14 @@ A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v
 directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 
+from collections import deque
 import math
 import sys
 from functools import cached_property
 from io import StringIO
-from queue import Queue
 from typing import (
     Any,
+    Deque,
     Dict,
     FrozenSet,
     List,
@@ -258,6 +259,10 @@ class Curriculum:
                 graph.add_edge(self._course_vertex(requisite), i)
         return graph
 
+    @cached_property
+    def _all_paths(self) -> List[List[int]]:
+        return all_paths(self.graph)
+
     def _create_course_learning_outcome_graph(self) -> "nx.DiGraph[int]":
         """
         Create a curriculum directed graph from a curriculum specification. This graph contains courses and learning outcomes
@@ -357,14 +362,9 @@ class Curriculum:
         are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite
         relationships :math:`c_1 \rightarrow c_2 \rightarrow c_3` and :math:`c_1 \rightarrow c_3`, and :math:`c_1` and :math:`c_2` are
         *not* co-requisites, then :math:`c_1 \rightarrow c_3` is redundant and therefore extraneous.
+
+        For performance reasons, `extraneous_requisites` doesn't check that the curriculum graph is acyclic, unlike the Julia version.
         """
-        try:
-            nx.find_cycle(self.graph)
-            raise ValueError(
-                "Curriculum graph has cycles, extraneous requisities cannot be determined."
-            )
-        except nx.NetworkXNoCycle:
-            pass
         redundant_reqs: Set[Tuple[int, int]] = set()
         extraneous = False
         string = ""  # create an empty string to hold messages
@@ -374,14 +374,14 @@ class Curriculum:
                 continue
             for u in component:
                 u_neighbors = list(self.graph.neighbors(u))
-                queue: Queue[int] = Queue()
+                queue: Deque[int] = deque()
                 for neighbor in u_neighbors:
-                    queue.put(neighbor)
-                while not queue.empty():
-                    x = queue.get()
+                    queue.append(neighbor)
+                while queue:
+                    x = queue.popleft()
                     x_neighbors = self.graph.neighbors(x)
                     for neighbor in x_neighbors:
-                        queue.put(neighbor)
+                        queue.append(neighbor)
                     for v in self.graph.neighbors(x):
                         if not self.graph.has_edge(u, v):
                             # definitely not redundant requsisite
@@ -454,7 +454,7 @@ class Curriculum:
     @cached_property
     def _delay_factors(self) -> List[int]:
         delay_factors: List[int] = [1] * len(self.courses)
-        for path in all_paths(self.graph):
+        for path in self._all_paths:
             for vertex in path:
                 # path_length in terms of # of vertices, not edges
                 delay_factors[vertex] = max(delay_factors[vertex], len(path))
@@ -497,7 +497,7 @@ class Curriculum:
         return [
             sum(
                 len(path)
-                for path in all_paths(self.graph)
+                for path in self._all_paths
                 # conditions: path length is greater than 2, target course must be in the path, the target vertex
                 # cannot be the first or last vertex in the path
                 if (i in path and len(path) > 2 and path[0] != i and path[-1] != i)
@@ -918,7 +918,7 @@ class Curriculum:
             >>> curric.dead_ends(frozenset({"BIO"}))
         """
         dead_end_courses: List[Course] = []
-        paths = all_paths(self.graph)
+        paths = self._all_paths
         for path in paths:
             course = self.courses[path[-1]]
             if not isinstance(course, Course) or course.prefix == "":
