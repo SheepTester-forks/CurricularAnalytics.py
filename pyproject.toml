@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "curricularanalytics"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   # PyPI only lists the first author's email, and I don't want Greg to receive
   # emails about a package he doesn't maintain

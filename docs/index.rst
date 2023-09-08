@@ -10,6 +10,13 @@ Curricular Analytics Toolbox
 * :doc:`api`
 * :ref:`migrating`
 
+Links:
+
+* `PyPI listing <https://pypi.org/project/curricularanalytics/>`_
+* `Documentation <https://sheeptester-forks.github.io/CurricularAnalytics.py/>`_
+* `GitHub repo <https://github.com/SheepTester-forks/CurricularAnalytics.py>`_
+* `Original Julia version <https://github.com/CurricularAnalytics/CurricularAnalytics.jl>`_
+
 .. _install:
 
 Installation

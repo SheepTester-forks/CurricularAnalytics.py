@@ -18,7 +18,7 @@ We define the blocking factor of a course :math:`v_i` as the number of courses i
 .. image:: src/blocking-ex.png
   :alt: blocking factor example
 
-The toolbox provides :attr:`.blocking_factor` and :meth:`.course_blocking_factor` for calculating the blocking factor.
+The toolbox provides :attr:`.total_blocking_factor` and :meth:`.blocking_factor` for calculating the blocking factor.
 
 Delay Factor
 ~~~~~~~~~~~~
@@ -30,7 +30,7 @@ We define the delay factor of course vertex :math:`v_i` to be the length of the 
 .. image:: src/delay-ex.png
   :alt: delay factor example
 
-The toolbox provides :attr:`.delay_factor` and :meth:`.course_delay_factor` for calculating the delay factor.
+The toolbox provides :attr:`.total_delay_factor` and :meth:`.delay_factor` for calculating the delay factor.
 
 Centrality
 ~~~~~~~~~~
@@ -44,7 +44,7 @@ We define the centrality of source and sink vertices to be 0.  For all other cou
 
 In the case of the curriculum in part (a), there is one long path of length three that includes course :math:`v_2`, hence its centrality is 3, while in part (b), there are two long paths of length three that include course :math:`v_2`, hence its centrality is 6.
 
-The toolbox provides :attr:`.centrality` and :meth:`.course_centrality` for calculating the centrality factor.
+The toolbox provides :attr:`.total_centrality` and :meth:`.centrality` for calculating the centrality factor.
 
 Structural Complexity
 ~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +56,7 @@ As an example of the structural complexity metric, consider the same four-course
 .. image:: src/complexity-ex.png
   :alt: complexity example
 
-The toolbox provides :attr:`.complexity` and :meth:`.course_complexity` for calculating the complexity factor.
+The toolbox provides :attr:`.total_complexity` and :meth:`.complexity` for calculating the complexity factor.
 
 Degree Plan Metrics
 -------------------

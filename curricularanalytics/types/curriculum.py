@@ -86,6 +86,9 @@ class Curriculum:
     be completed in order to earn a particualr degree. Thus, we use the terms *curriculum* and
     *degree program* synonymously.
 
+    .. note::
+        The constructor for :class:`Curriculum` immediately creates a graph representing the course requisite relationships. Make sure all requisites have been added to the curriculum's courses before constructing :class:`Curriculum`. If anything about a curriculum's courses changes, create a new :class:`Curriculum` object to update the graph.
+
     Args:
         name: The name of the curriculum.
         courses: The collection of required courses that comprise the curriculum.

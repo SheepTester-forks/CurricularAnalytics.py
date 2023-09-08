@@ -4,6 +4,11 @@
 
 CurricularAnalytics.py is a Python port of the original Julia package [CurricularAnalytics.jl](https://github.com/CurricularAnalytics/CurricularAnalytics.jl).
 
+- [PyPI listing](https://pypi.org/project/curricularanalytics/)
+- [Documentation](https://sheeptester-forks.github.io/CurricularAnalytics.py/)
+- [GitHub repo](https://github.com/SheepTester-forks/CurricularAnalytics.py)
+- [Original Julia version](https://github.com/CurricularAnalytics/CurricularAnalytics.jl)
+
 ## Documentation
 
 Full documentation is available at [GitHub Pages](https://sheeptester-forks.github.io/CurricularAnalytics.py/).
