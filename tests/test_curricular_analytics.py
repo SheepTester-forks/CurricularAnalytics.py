@@ -1,6 +1,7 @@
-from contextlib import redirect_stdout
 import unittest
+from contextlib import redirect_stdout
 from io import StringIO
+from pathlib import Path
 
 from curricularanalytics import Course, Curriculum, co, pre, read_csv, strict_co
 
@@ -51,6 +52,7 @@ class CurricularAnalyticsTests(unittest.TestCase):
 
     def test_big_unsatisfiable_curric(self):
         curric = read_csv("tests/big_unsatisfiable_curric.csv")
+        self.assertFalse(Path("tests/big_unsatisfiable_curric_temp.csv").exists())
         self.assertIsInstance(curric, Curriculum)
         assert isinstance(curric, Curriculum)
         self.assertFalse(curric.is_valid())

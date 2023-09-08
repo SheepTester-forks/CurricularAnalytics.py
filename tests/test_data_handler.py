@@ -1,5 +1,6 @@
 import os
 import unittest
+from pathlib import Path
 
 from curricularanalytics import (
     Course,
@@ -19,6 +20,7 @@ class DataHandlerTests(unittest.TestCase):
     def test_curriclum_data_format(self) -> None:
         "test the data file format used for curricula"
         curric = read_csv("./tests/curriculum.csv")
+        self.assertFalse(Path("./tests/curriculum_temp.csv").exists())
         self.assertIsInstance(curric, Curriculum)
         assert isinstance(curric, Curriculum)
 
@@ -143,6 +145,7 @@ class DataHandlerTests(unittest.TestCase):
     def test_degree_plan_data_format(self) -> None:
         "test the data file format used for degree plans"
         dp = read_csv("./tests/degree_plan.csv")
+        self.assertFalse(Path("./tests/degree_plan_temp.csv").exists())
         self.assertIsInstance(dp, DegreePlan)
         assert isinstance(dp, DegreePlan)
 
@@ -400,6 +403,7 @@ class DataHandlerTests(unittest.TestCase):
             self.assertIsNone(write_csv(curric1, "./tests/UBW-curric.csv"))
             # read from same location
             curric2 = read_csv("./tests/UBW-curric.csv")
+            self.assertFalse(Path("./tests/UBW-curric_temp.csv").exists())
             self.assertEqual(str(curric1), str(curric2))  # read/write invariance test
 
             terms = [
@@ -413,6 +417,7 @@ class DataHandlerTests(unittest.TestCase):
             self.assertIsNone(write_csv(dp1, "./tests/UBW-degree-plan.csv"))
             # read from same location
             dp2 = read_csv("./tests/UBW-degree-plan.csv")
+            self.assertFalse(Path("./tests/UBW-degree-plan_temp.csv").exists())
 
             self.assertEqual(str(dp1), str(dp2))  # read/write invariance test
         finally:

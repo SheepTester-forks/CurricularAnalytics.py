@@ -167,7 +167,7 @@ def read_csv(
             key = read_line[0] if read_line else ""
 
     # Current file is the temp file created by remove_empty_lines(), remove the file.
-    if file_path[-8:] == "_temp.csv":
+    if file_path[-9:] == "_temp.csv":
         os.remove(file_path)
 
     if "Courses" not in frames:

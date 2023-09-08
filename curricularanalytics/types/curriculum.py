@@ -10,9 +10,9 @@ A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v
 directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 
-from collections import deque
 import math
 import sys
+from collections import deque
 from functools import cached_property
 from io import StringIO
 from typing import (
