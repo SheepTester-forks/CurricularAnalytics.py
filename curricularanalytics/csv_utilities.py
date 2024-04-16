@@ -49,11 +49,17 @@ def course_line(
     prefix_num: str = (
         f'"{course.prefix}","{course.num}"' if isinstance(course, Course) else ","
     )
-    course_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{course.credit_hours},"{course.institution}","{course.canonical_name}"'
+    course_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{int(course.credit_hours)},"{course.institution}","{course.canonical_name}"'
     if term_id is not None:
         course_line += f",{term_id}"
     if metrics:
-        course_line += f"{curriculum.course_complexity(course)},{curriculum.course_blocking_factor(course)},{curriculum.course_delay_factor(course)},{curriculum.course_centrality(course)}"
+        complexity = curriculum.complexity(course)
+        blocking_factor = curriculum.blocking_factor(course)
+        delay_factor = curriculum.delay_factor(course)
+        centrality = curriculum.centrality(course)
+        
+        # Formatting rules matches curricular analytics'
+        course_line += f",{complexity:.1f},{blocking_factor},{delay_factor:.1f},{centrality}"
     return course_line
 
 
