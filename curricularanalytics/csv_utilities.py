@@ -49,7 +49,7 @@ def course_line(
     prefix_num: str = (
         f'"{course.prefix}","{course.num}"' if isinstance(course, Course) else ","
     )
-    course_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{int(course.credit_hours)},"{course.institution}","{course.canonical_name}"'
+    course_line: str = f'\n{course.id},"{course.name}",{prefix_num},{_course_reqs(course, pre)},{_course_reqs(course, co)},{_course_reqs(course, strict_co)},{course.credit_hours},"{course.institution}","{course.canonical_name}"'
     if term_id is not None:
         course_line += f",{term_id}"
     if metrics:
