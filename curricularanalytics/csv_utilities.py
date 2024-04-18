@@ -53,7 +53,13 @@ def course_line(
     if term_id is not None:
         course_line += f",{term_id}"
     if metrics:
-        course_line += f"{curriculum.course_complexity(course)},{curriculum.course_blocking_factor(course)},{curriculum.course_delay_factor(course)},{curriculum.course_centrality(course)}"
+        complexity = curriculum.complexity(course)
+        blocking_factor = curriculum.blocking_factor(course)
+        delay_factor = curriculum.delay_factor(course)
+        centrality = curriculum.centrality(course)
+        
+        # Formatting rules matches curricular analytics'
+        course_line += f",{complexity:.1f},{blocking_factor},{delay_factor:.1f},{centrality}"
     return course_line
 
 
