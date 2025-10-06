@@ -1,4 +1,5 @@
 *.json
+!.vscode/settings.json
 docs/build/
 .DS_Store
 mkdocs.yml
